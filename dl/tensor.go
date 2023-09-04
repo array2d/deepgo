@@ -70,3 +70,22 @@ func (t *Tensor) calculateIndex(indices []int) int {
 	}
 	return idx
 }
+func IsTensorEqual(t1, t2 *Tensor) bool {
+	if len(t1.shape) != len(t2.shape) {
+		return false
+	}
+	for i := range t1.shape {
+		if t1.shape[i] != t2.shape[i] {
+			return false
+		}
+	}
+	if len(t1.data) != len(t2.data) {
+		return false
+	}
+	for i := range t1.data {
+		if t1.data[i] != t2.data[i] {
+			return false
+		}
+	}
+	return true
+}
