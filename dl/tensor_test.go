@@ -6,8 +6,8 @@ func TestNewTensor(t *testing.T) {
 	shape := []int{2, 3}
 	tensor := NewTensor(shape)
 	expectedShape := shape
-	if len(tensor.shape) != len(expectedShape) {
-		t.Errorf("Expected shape: %v, but got shape: %v", expectedShape, tensor.shape)
+	if len(tensor.Shape) != len(expectedShape) {
+		t.Errorf("Expected shape: %v, but got shape: %v", expectedShape, tensor.Shape)
 	}
 }
 

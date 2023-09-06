@@ -6,7 +6,7 @@ import (
 )
 
 type Tensor struct {
-	shape []int
+	Shape []int
 	data  []float64
 }
 
@@ -18,14 +18,9 @@ func NewTensor(shape []int) *Tensor {
 	}
 	data := make([]float64, size)
 	return &Tensor{
-		shape: shape,
+		Shape: shape,
 		data:  data,
 	}
-}
-
-// 返回Tensor的形状
-func (t *Tensor) Shape() []int {
-	return t.shape
 }
 
 // 设置Tensor的值
@@ -51,7 +46,7 @@ func (t *Tensor) RandomInit() {
 func (t *Tensor) Print() {
 	for i := 0; i < len(t.data); i++ {
 		fmt.Printf("%.4f ", t.data[i])
-		if (i+1)%t.shape[1] == 0 {
+		if (i+1)%t.Shape[1] == 0 {
 			fmt.Println()
 		}
 	}
@@ -60,10 +55,10 @@ func (t *Tensor) Print() {
 // 计算给定索引在数据数组中的位置
 func (t *Tensor) calculateIndex(indices []int) int {
 	idx := 0
-	strides := make([]int, len(t.shape))
-	strides[len(t.shape)-1] = 1
-	for i := len(t.shape) - 2; i >= 0; i-- {
-		strides[i] = strides[i+1] * t.shape[i+1]
+	strides := make([]int, len(t.Shape))
+	strides[len(t.Shape)-1] = 1
+	for i := len(t.Shape) - 2; i >= 0; i-- {
+		strides[i] = strides[i+1] * t.Shape[i+1]
 	}
 	for i, dim := range indices {
 		idx += dim * strides[i]
@@ -71,11 +66,11 @@ func (t *Tensor) calculateIndex(indices []int) int {
 	return idx
 }
 func IsTensorEqual(t1, t2 *Tensor) bool {
-	if len(t1.shape) != len(t2.shape) {
+	if len(t1.Shape) != len(t2.Shape) {
 		return false
 	}
-	for i := range t1.shape {
-		if t1.shape[i] != t2.shape[i] {
+	for i := range t1.Shape {
+		if t1.Shape[i] != t2.Shape[i] {
 			return false
 		}
 	}
