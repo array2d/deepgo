@@ -10,7 +10,7 @@ type Tensor struct {
 	data  []float64
 }
 
-// 创建一个新的Tensor
+// NewTensor 创建一个新的Tensor
 func NewTensor(shape []int, data ...float64) *Tensor {
 	size := 1
 	for _, dim := range shape {
@@ -29,26 +29,26 @@ func NewTensor(shape []int, data ...float64) *Tensor {
 	}
 }
 
-// 设置Tensor的值
+// Set 设置Tensor的值
 func (t *Tensor) Set(indices []int, value float64) {
 	idx := t.calculateIndex(indices)
 	t.data[idx] = value
 }
 
-// 获取Tensor的值
+// Get 获取Tensor的值
 func (t *Tensor) Get(indices []int) float64 {
 	idx := t.calculateIndex(indices)
 	return t.data[idx]
 }
 
-// 生成一个随机初始化的Tensor
+// RandomInit 生成一个随机初始化的Tensor
 func (t *Tensor) RandomInit() {
 	for i := range t.data {
 		t.data[i] = rand.Float64()
 	}
 }
 
-// 打印Tensor的值
+// Print 打印Tensor的值
 func (t *Tensor) Print() {
 	for i := 0; i < len(t.data); i++ {
 		fmt.Printf("%.4f ", t.data[i])
