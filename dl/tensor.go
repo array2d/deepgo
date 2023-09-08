@@ -11,15 +11,21 @@ type Tensor struct {
 }
 
 // 创建一个新的Tensor
-func NewTensor(shape []int) *Tensor {
+func NewTensor(shape []int, data ...float64) *Tensor {
 	size := 1
 	for _, dim := range shape {
 		size *= dim
 	}
-	data := make([]float64, size)
+	tensorData := make([]float64, size)
+	if len(data) > 0 {
+		if len(data) != size {
+			panic("Data size does not match tensor shape")
+		}
+		copy(tensorData, data)
+	}
 	return &Tensor{
 		Shape: shape,
-		data:  data,
+		data:  tensorData,
 	}
 }
 
@@ -79,6 +85,102 @@ func IsTensorEqual(t1, t2 *Tensor) bool {
 	}
 	for i := range t1.data {
 		if t1.data[i] != t2.data[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func (t *Tensor) SubInPlace(subtrahend *Tensor) {
+	for i := range t.data {
+		t.data[i] -= subtrahend.data[i]
+	}
+}
+func (t *Tensor) AddInPlace(addend *Tensor) {
+	for i := range t.data {
+		t.data[i] += addend.data[i]
+	}
+}
+func (t *Tensor) MulInPlace(factor float64) {
+	for i := range t.data {
+		t.data[i] *= factor
+	}
+}
+
+func (t *Tensor) DivInPlace(divisor float64) {
+	for i := range t.data {
+		t.data[i] /= divisor
+	}
+}
+
+func (t *Tensor) Add(other *Tensor) *Tensor {
+	if !isEqualShape(t.Shape, other.Shape) {
+		panic("Shapes of tensors do not match")
+	}
+
+	newData := make([]float64, len(t.data))
+	for i := range t.data {
+		newData[i] = t.data[i] + other.data[i]
+	}
+
+	return &Tensor{
+		Shape: t.Shape,
+		data:  newData,
+	}
+}
+func (t *Tensor) Sub(other *Tensor) *Tensor {
+	if !isEqualShape(t.Shape, other.Shape) {
+		panic("Shapes of tensors do not match")
+	}
+
+	newData := make([]float64, len(t.data))
+	for i := range t.data {
+		newData[i] = t.data[i] - other.data[i]
+	}
+
+	return &Tensor{
+		Shape: t.Shape,
+		data:  newData,
+	}
+}
+func (t *Tensor) Mul(other *Tensor) *Tensor {
+	if !isEqualShape(t.Shape, other.Shape) {
+		panic("Shapes of tensors do not match")
+	}
+
+	newData := make([]float64, len(t.data))
+	for i := range t.data {
+		newData[i] = t.data[i] * other.data[i]
+	}
+
+	return &Tensor{
+		Shape: t.Shape,
+		data:  newData,
+	}
+}
+func (t *Tensor) Div(other *Tensor) *Tensor {
+	if !isEqualShape(t.Shape, other.Shape) {
+		panic("Shapes of tensors do not match")
+	}
+
+	newData := make([]float64, len(t.data))
+	for i := range t.data {
+		newData[i] = t.data[i] / other.data[i]
+	}
+
+	return &Tensor{
+		Shape: t.Shape,
+		data:  newData,
+	}
+}
+
+// isEqualShape函数接受两个形状切片作为参数，并比较它们的长度和每个维度的值是否相等。如果两个形状在维度数量和每个维度上都相等，则返回true，否则返回false。
+func isEqualShape(shape1, shape2 []int) bool {
+	if len(shape1) != len(shape2) {
+		return false
+	}
+	for i := 0; i < len(shape1); i++ {
+		if shape1[i] != shape2[i] {
 			return false
 		}
 	}

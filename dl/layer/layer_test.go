@@ -56,10 +56,10 @@ func TestBackward(t *testing.T) {
 	expectedBiases := dl.NewTensor(expectedBiasesShape)
 	expectedBiases.Set([]int{0}, 0.0020)
 	expectedBiases.Set([]int{1}, 0.0040)
-	if !dl.IsTensorEqual(layer.weights, expectedWeights) {
-		t.Errorf("Backward() failed for weights. Expected updated weights: %v, got: %v", expectedWeights, layer.weights)
+	if !dl.IsTensorEqual(layer.Weights, expectedWeights) {
+		t.Errorf("Backward() failed for weights. Expected updated weights: %v, got: %v", expectedWeights, layer.Weights)
 	}
-	if !dl.IsTensorEqual(layer.biases, expectedBiases) {
-		t.Errorf("Backward() failed for biases. Expected updated biases: %v, got: %v", expectedBiases, layer.biases)
+	if !dl.IsTensorEqual(layer.Biases, expectedBiases) {
+		t.Errorf("Backward() failed for biases. Expected updated biases: %v, got: %v", expectedBiases, layer.Biases)
 	}
 }
