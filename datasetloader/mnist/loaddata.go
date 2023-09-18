@@ -38,15 +38,13 @@ func main() {
 	fmt.Println("第一张图像的像素值：", images[index])
 	fmt.Println("第一张图像的标签：", labels[index])
 }
-func parseImages(filename string) ([][]byte, error) {
-	file, err := os.Open(filename)
-	if err != nil {
-		return nil, err
-	}
+func parseImages(filename string) (images [][]byte, err error) {
+
+	file := GetMNIST(filename)
 	defer file.Close()
 	// 读取魔数
 	var magic uint32
-	err = binary.Read(file, binary.LittleEndian, &magic)
+	err = binary.Read(file, binary.BigEndian, &magic)
 	if err != nil || magic != imageMagic {
 		return nil, fmt.Errorf("无效的图像文件")
 	}
@@ -57,7 +55,7 @@ func parseImages(filename string) ([][]byte, error) {
 	binary.Read(file, binary.BigEndian, &numRows)
 	binary.Read(file, binary.BigEndian, &numCols)
 	// 读取图像数据
-	images := make([][]byte, numImages)
+	images = make([][]byte, numImages)
 	for i := 0; i < int(numImages); i++ {
 		image := make([]byte, imageSize)
 		file.Read(image)
