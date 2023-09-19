@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func DownloadMNIST(url, path string) error {
+func DownloadFile(url, path string) error {
 	// 发送HTTP GET请求
 	response, err := http.Get(url)
 	if err != nil {
