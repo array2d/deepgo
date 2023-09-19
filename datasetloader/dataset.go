@@ -1,7 +1,7 @@
 package datasetloader
 
-import (
-	"path/filepath"
-)
+import "deepgo/dl"
 
-var DatasetRoot, _ = filepath.Abs("dataset")
+type Dataset interface {
+	GetBatch(idx int, BatchSize int) (input, labels []dl.Tensor)
+}

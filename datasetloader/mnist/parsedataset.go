@@ -13,7 +13,7 @@ const (
 	labelSize  = 1
 )
 
-func GetMNISTDataset() (trainImages [][]byte, trainLabels []byte, testImages [][]byte, testLables []byte, err error) {
+func GetDataset() (trainImages [][]byte, trainLabels []byte, testImages [][]byte, testLables []byte, err error) {
 	var readers = make([]io.ReadCloser, 4)
 	for i := 0; i < len(mnistFile); i++ {
 		readers[i], err = getMNISTFile(mnistFile[i])

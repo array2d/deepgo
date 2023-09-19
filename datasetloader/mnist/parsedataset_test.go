@@ -7,7 +7,7 @@ import (
 
 func TestGetMNISTDataset(t *testing.T) {
 	// 解析图像数据
-	trainImage, trainLabel, testImage, testLabel, err := GetMNISTDataset()
+	trainImage, trainLabel, testImage, testLabel, err := GetDataset()
 
 	if err != nil {
 		fmt.Println("解析图像数据失败:", err)
