@@ -12,8 +12,8 @@ type Model struct {
 	Optimizer optimizer.Optimizer
 }
 
-func (m *Model) AddLayer(layer *layer.Layer) *Model {
-	m.Layers = append(m.Layers, layer)
+func (m *Model) AddLayer(layer ...*layer.Layer) *Model {
+	m.Layers = append(m.Layers, layer...)
 	return m
 }
 func (m *Model) Params() map[string]*dl.Tensor {

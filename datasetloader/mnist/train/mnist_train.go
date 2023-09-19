@@ -25,12 +25,12 @@ func main() {
 	l4 := l3.NewDenseLayer(10)
 
 	fmt.Println(l4.Weights.Shape)
-	// 创建优化器
-	opt := optimizer.NewSGD(0.01)
 
 	// 创建模型
-	m := &model.Model{}
-	m.AddLayer(l).AddLayer(l2).AddLayer(l3).AddLayer(l4).Optimizer = opt
+	m := &model.Model{
+		Optimizer: optimizer.NewSGD(0.01),
+	}
+	m.AddLayer(l, l2, l3, l4)
 	//
 	//// 训练模型
 	//for e := range trainset.Iter() {
