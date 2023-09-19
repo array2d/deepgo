@@ -12,9 +12,9 @@ import (
 func main() {
 	// 加载MNIST数据集
 	// 解析图像数据
-	trainImage, trainLabel, testImage, testLabel, err := mnist.GetMNISTDataset()
+	trainImage, trainLabel, testImage, testLabel, err := mnist.GetDataset()
 	if err != nil {
-		log.Printf("Error during GetMNISTDataset: %v", err)
+		log.Printf("Error during GetDataset: %v", err)
 	}
 	fmt.Println(len(trainImage), len(trainLabel), len(testImage), len(testLabel))
 
@@ -33,25 +33,25 @@ func main() {
 	m.AddLayer(l, l2, l3, l4)
 	//
 	//// 训练模型
-	//for e := range trainset.Iter() {
-	//	x, y := e.Data(), e.Label()
-	//	err := model.Train(x, y)
-	//	if err != nil {
-	//		log.Printf("Error during training: %v", err)
-	//	} else {
-	//		fmt.Println("Training accuracy:", model.Accuracy())
-	//	}
-	//}
-	//
-	//// 测试模型
-	//for e := range testset.Iter() {
-	//	x, y := e.Data(), e.Label()
-	//	output, err := model.Predict(x)
-	//	if err != nil {
-	//		log.Printf("Error during prediction: %v", err)
-	//	} else {
-	//		fmt.Printf("Prediction: %v, Actual: %v
-	//		", output[0], y)
-	//	}
-	//}
-}
+	for e := range trainset.Iter() {
+		x, y := e.Data(), e.Label()
+		err := m.Train(x, y)
+		if err != nil {
+			log.Printf("Error during training: %v", err)
+		} else {
+			fmt.Println("Training accuracy:", model.Accuracy())
+		}
+		//}
+		//
+		//// 测试模型
+		//for e := range testset.Iter() {
+		//	x, y := e.Data(), e.Label()
+		//	output, err := model.Predict(x)
+		//	if err != nil {
+		//		log.Printf("Error during prediction: %v", err)
+		//	} else {
+		//		fmt.Printf("Prediction: %v, Actual: %v
+		//		", output[0], y)
+		//	}
+		//}
+	}

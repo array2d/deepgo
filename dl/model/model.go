@@ -10,6 +10,7 @@ import (
 type Model struct {
 	Layers    []*layer.Layer
 	Optimizer optimizer.Optimizer
+	TrainFunc TrainFunc
 }
 
 func (m *Model) AddLayer(layer ...*layer.Layer) *Model {
@@ -23,6 +24,9 @@ func (m *Model) Params() map[string]*dl.Tensor {
 		params["biases"+strconv.Itoa(i)] = layer.Biases
 	}
 	return params
+}
+func (m *Model) Train() {
+	m.TrainFunc()
 }
 func (m *Model) SetParam(name string, param *dl.Tensor) {
 	// 根据参数名设置对应的参数
