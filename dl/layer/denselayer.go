@@ -2,8 +2,21 @@ package layer
 
 import "deepgo/dl"
 
-// NewLayer 创建一个新的全连接层
-func NewLayer(inputSize, outputSize int) *Layer {
+// NewDenseLayer 创建一个新的全连接层
+func NewDenseLayer(inputSize, outputSize int) *Layer {
+	weightsShape := []int{inputSize, outputSize}
+	biasesShape := []int{outputSize}
+	weights := dl.NewTensor(weightsShape)
+	biases := dl.NewTensor(biasesShape)
+	return &Layer{
+		Weights: weights,
+		Biases:  biases,
+	}
+}
+
+// NewDenseLayer 创建一个新的全连接层
+func (l *Layer) NewDenseLayer(outputSize int) *Layer {
+	inputSize := l.Weights.Shape[1]
 	weightsShape := []int{inputSize, outputSize}
 	biasesShape := []int{outputSize}
 	weights := dl.NewTensor(weightsShape)

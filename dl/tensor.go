@@ -31,7 +31,7 @@ func NewTensor(shape []int, data ...float64) *Tensor {
 	tensorData := make([]float64, size)
 	if len(data) > 0 {
 		if len(data) != size {
-			panic("Data size does not match tensor shape")
+			panic(string("Data size does not match tensor shape"))
 		}
 		copy(tensorData, data)
 	}

@@ -3,15 +3,18 @@ package model
 import (
 	"deepgo/dl"
 	"deepgo/dl/layer"
+	"deepgo/dl/optimizer"
 	"strconv"
 )
 
 type Model struct {
-	Layers []*layer.Layer
+	Layers    []*layer.Layer
+	Optimizer optimizer.Optimizer
 }
 
-func (m *Model) AddLayer(layer *layer.Layer) {
+func (m *Model) AddLayer(layer *layer.Layer) *Model {
 	m.Layers = append(m.Layers, layer)
+	return m
 }
 func (m *Model) Params() map[string]*dl.Tensor {
 	params := make(map[string]*dl.Tensor)

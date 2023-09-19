@@ -1,4 +1,4 @@
-package main
+package mnist
 
 import (
 	"encoding/binary"
@@ -9,7 +9,7 @@ import (
 const (
 	imageMagic = 0x00000803
 	labelMagic = 0x00000801
-	imageSize  = 28 * 28
+	ImageSize  = 28 * 28
 	labelSize  = 1
 )
 
@@ -63,7 +63,7 @@ func parseImages(file io.Reader) (images [][]byte, err error) {
 	// 读取图像数据
 	images = make([][]byte, numImages)
 	for i := 0; i < int(numImages); i++ {
-		image := make([]byte, imageSize)
+		image := make([]byte, ImageSize)
 		file.Read(image)
 		images[i] = image
 	}
