@@ -2,6 +2,18 @@ package layer
 
 import "deepgo/dl"
 
+// NewLayer 创建一个新的全连接层
+func NewLayer(inputSize, outputSize int) *Layer {
+	weightsShape := []int{inputSize, outputSize}
+	biasesShape := []int{outputSize}
+	weights := dl.NewTensor(weightsShape)
+	biases := dl.NewTensor(biasesShape)
+	return &Layer{
+		Weights: weights,
+		Biases:  biases,
+	}
+}
+
 // Forward 前向传播函数
 func (l *Layer) Forward(input *dl.Tensor) (output *dl.Tensor) {
 	outputShape := []int{input.Shape[0], l.Biases.Shape[0]}

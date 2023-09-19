@@ -27,18 +27,6 @@ type Layer struct {
 }
 */
 
-// NewLayer 创建一个新的全连接层
-func NewLayer(inputSize, outputSize int) *Layer {
-	weightsShape := []int{inputSize, outputSize}
-	biasesShape := []int{outputSize}
-	weights := dl.NewTensor(weightsShape)
-	biases := dl.NewTensor(biasesShape)
-	return &Layer{
-		Weights: weights,
-		Biases:  biases,
-	}
-}
-
 // 反向传播函数
 func (l *Layer) Backward(input *dl.Tensor, outputGradient *dl.Tensor, learningRate float64) {
 	// 更新权重
