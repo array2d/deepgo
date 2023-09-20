@@ -1,0 +1,109 @@
+package dl
+
+type Numeric interface {
+	ADD(value Numeric) Numeric
+	Sub(value Numeric) Numeric
+	Mul(value Numeric) Numeric
+	Div(value Numeric) Numeric
+}
+type Float64 float64
+
+func (f Float64) ADD(value Numeric) Numeric {
+	switch v := value.(type) {
+	case Float64:
+		return Float64(f + v)
+	case Float32:
+		return Float64(f + Float64(v))
+	case Int:
+		return Float64(f + Float64(v))
+	case Int8:
+		return Float64(f + Float64(v))
+	case Int16:
+		return Float64(f + Float64(v))
+	case Int32:
+		return Float64(f + Float64(v))
+	case Int64:
+		return Float64(f + Float64(v))
+	default:
+		return nil
+	}
+}
+func (f Float64) Sub(value Numeric) Numeric {
+	switch v := value.(type) {
+	case Float64:
+		return Float64(f - v)
+	case Float32:
+		return Float64(f - Float64(v))
+	case Int:
+		return Float64(f - Float64(v))
+	case Int8:
+		return Float64(f - Float64(v))
+	case Int16:
+		return Float64(f - Float64(v))
+	case Int32:
+		return Float64(f - Float64(v))
+	case Int64:
+		return Float64(f - Float64(v))
+	default:
+		return nil
+	}
+}
+func (f Float64) Mul(value Numeric) Numeric {
+	switch v := value.(type) {
+	case Float64:
+		return Float64(f * v)
+	case Float32:
+		return Float64(f * Float64(v))
+	case Int:
+		return Float64(f * Float64(v))
+	case Int8:
+		return Float64(f * Float64(v))
+	case Int16:
+		return Float64(f * Float64(v))
+	case Int32:
+		return Float64(f * Float64(v))
+	case Int64:
+		return Float64(f * Float64(v))
+	default:
+		return nil
+	}
+}
+func (f Float64) Div(value Numeric) Numeric {
+	switch v := value.(type) {
+	case Float64:
+		return Float64(f / v)
+	case Float32:
+		return Float64(f / Float64(v))
+	case Int:
+		return Float64(f / Float64(v))
+	case Int8:
+		return Float64(f / Float64(v))
+	case Int16:
+		return Float64(f / Float64(v))
+	case Int32:
+		return Float64(f / Float64(v))
+	case Int64:
+		return Float64(f / Float64(v))
+	default:
+		return nil
+	}
+}
+
+type Float32 float32
+
+// 类似地实现Float32的ADD、Sub、Mul、Div方法
+type Int int
+
+// 类似地实现Int的ADD、Sub、Mul、Div方法
+type Int8 int8
+
+// 类似地实现Int8的ADD、Sub、Mul、Div方法
+type Int16 int16
+
+// 类似地实现Int16的ADD、Sub、Mul、Div方法
+type Int32 int32
+
+// 类似地实现Int32的ADD、Sub、Mul、Div方法
+type Int64 int64
+
+// 类似地实现Int64的ADD、Sub、Mul、Div方法
