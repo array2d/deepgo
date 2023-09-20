@@ -14,8 +14,8 @@ import (
 var TRAIN_MNIST = MNIST{
 	imageMagic:   0x00000803,
 	labelMagic:   0x00000801,
-	imageFile:    "train-images-idx3-ubyte",
-	labelFile:    "train-labels-idx1-ubyte",
+	imageFile:    "train-images-idx3-ubyte.gz",
+	labelFile:    "train-labels-idx1-ubyte.gz",
 	imageFileUrl: "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz",
 	labelFileUrl: "http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz",
 	ImageSize:    784,
@@ -26,8 +26,8 @@ var TRAIN_MNIST = MNIST{
 var TEST_MNIST = MNIST{
 	imageMagic:   0x00000803,
 	labelMagic:   0x00000801,
-	imageFile:    "t10k-images-idx3-ubyte",
-	labelFile:    "t10k-labels-idx1-ubyte",
+	imageFile:    "t10k-images-idx3-ubyte.gz",
+	labelFile:    "t10k-labels-idx1-ubyte.gz",
 	imageFileUrl: "http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz",
 	labelFileUrl: "http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz",
 	ImageSize:    784,
@@ -37,7 +37,7 @@ var TEST_MNIST = MNIST{
 }
 
 type MNIST struct {
-	imageMagic, labelMagic     int
+	imageMagic, labelMagic     uint32
 	imageFile, labelFile       string
 	imageFileUrl, labelFileUrl string
 	ImageSize, LabelSize       int
@@ -71,49 +71,64 @@ func (m MNIST) Len() (length int) {
 	return len(m.Images)
 }
 
-func (m MNIST) getMNISTFile(name string) (f io.ReadCloser, err error) {
-	fpath := filepath.Join("dataset", name+".gz")
+func (m MNIST) getMNISTFile() (imageReader, labelReader io.ReadCloser, err error) {
+	imagePath := filepath.Join("dataset", m.imageFile)
 	os.MkdirAll("dataset", os.ModePerm)
 	// 检查文件是否已存在
-	if _, err = os.Stat(fpath); os.IsNotExist(err) {
+	if _, err = os.Stat(imagePath); os.IsNotExist(err) {
 		// 文件不存在，进行下载
-		url := mnistURL + name + ".gz"
-		err = datasetloader.DownloadFile(url, fpath)
+		err = datasetloader.DownloadFile(m.imageFileUrl, imagePath)
 		if err != nil {
 			fmt.Println("下载MNIST数据集失败:", err)
 			return
 		}
-		fmt.Println("MNIST数据集下载完成", name)
+		fmt.Println("MNIST数据集下载完成", m.imageFile)
 	} else {
-		fmt.Println("MNIST数据集已存在，无需下载", name)
+		fmt.Println("MNIST数据集已存在，无需下载", m.imageFile)
 	}
-	f, err = os.Open(fpath)
-	if err != nil {
-		fmt.Println("MNIST数据集打开失败", name, err)
-		return
-	}
-	if filepath.Ext(fpath) == ".gz" {
-		var gz *gzip.Reader
-		gz, err = gzip.NewReader(f)
+	labelPath := filepath.Join("dataset", m.labelFile)
+	os.MkdirAll("dataset", os.ModePerm)
+	// 检查文件是否已存在
+	if _, err = os.Stat(labelPath); os.IsNotExist(err) {
+		// 文件不存在，进行下载
+		err = datasetloader.DownloadFile(m.labelFileUrl, labelPath)
 		if err != nil {
-			fmt.Println("MNIST数据集gz打开失败", name, err)
+			fmt.Println("下载MNIST数据集失败:", err)
 			return
 		}
-		return gz, nil
+		fmt.Println("MNIST数据集下载完成", m.labelFile)
+	} else {
+		fmt.Println("MNIST数据集已存在，无需下载", m.labelFile)
 	}
+
+	imageFd, _ := os.Open(imagePath)
+	var gzImage *gzip.Reader
+	gzImage, err = gzip.NewReader(imageFd)
+	if err != nil {
+		fmt.Println("MNIST数据集gz打开失败", m.imageFile, err)
+		return
+	}
+	imageReader = gzImage
+
+	labelFd, _ := os.Open(labelPath)
+	var gzLabel *gzip.Reader
+	gzLabel, err = gzip.NewReader(labelFd)
+	if err != nil {
+		fmt.Println("MNIST数据集gz打开失败", m.labelFile, err)
+		return
+	}
+	labelReader = gzLabel
+
 	return
 }
 
 func (m *MNIST) Load() (err error) {
 	var imageReader, labelReader io.ReadCloser
-	imageReader, err = getMNISTFile(m.imageFile)
+	defer imageReader.Close()
+	defer labelReader.Close()
+	imageReader, labelReader, err = m.getMNISTFile()
 	if err != nil {
-		fmt.Println("下载MNIST数据集失败:", imageFile, err)
-		return
-	}
-	labelReader, err = getMNISTFile(labelFile)
-	if err != nil {
-		fmt.Println("下载MNIST数据集失败:", labelFile, err)
+		fmt.Println("下载MNIST数据集失败", err)
 		return
 	}
 
@@ -122,7 +137,7 @@ func (m *MNIST) Load() (err error) {
 		fmt.Println("解析MNIST数据集失败:", err)
 		return
 	}
-	m.Labels, err = parseLabels(labelReader)
+	m.Labels, err = m.parseLabels(labelReader)
 	if err != nil {
 		fmt.Println("解析MNIST数据集失败:", err)
 		return
@@ -135,7 +150,7 @@ func (m *MNIST) parseImages(file io.Reader) (images [][]byte, err error) {
 	// 读取魔数
 	var magic uint32
 	err = binary.Read(file, binary.BigEndian, &magic)
-	if err != nil || magic != imageMagic {
+	if err != nil || magic != m.imageMagic {
 		return nil, fmt.Errorf("无效的图像文件")
 	}
 	// 读取图像数量、行数和列数
@@ -147,17 +162,17 @@ func (m *MNIST) parseImages(file io.Reader) (images [][]byte, err error) {
 	// 读取图像数据
 	images = make([][]byte, numImages)
 	for i := 0; i < int(numImages); i++ {
-		image := make([]byte, dl.MulArray(m.ImageSize[:]))
+		image := make([]byte, m.ImageSize)
 		file.Read(image)
 		images[i] = image
 	}
 	return images, nil
 }
-func parseLabels(file io.Reader) (labels []byte, err error) {
+func (m *MNIST) parseLabels(file io.Reader) (labels []byte, err error) {
 	// 读取魔数
 	var magic uint32
 	err = binary.Read(file, binary.BigEndian, &magic)
-	if err != nil || magic != labelMagic {
+	if err != nil || magic != m.labelMagic {
 		return nil, fmt.Errorf("无效的标签文件")
 	}
 	// 读取标签数量
