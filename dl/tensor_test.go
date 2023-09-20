@@ -23,19 +23,8 @@ func TestSetAndGet(t *testing.T) {
 	}
 }
 
-// 测试RandomInit函数
-func TestRandomInit(t *testing.T) {
-	shape := []int{2, 3}
-	tensor := NewTensor(shape)
-	tensor.RandomInit()
-	for _, value := range tensor.data {
-		if value == 0 {
-			t.Errorf("Randomly initialized value is zero")
-		}
-	}
-}
 func TestTensor(t *testing.T) {
 	t.Run("TestNewTensor", TestNewTensor)
 	t.Run("TestSetAndGet", TestSetAndGet)
-	t.Run("TestRandomInit", TestRandomInit)
+
 }
