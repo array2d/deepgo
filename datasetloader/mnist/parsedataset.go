@@ -1,6 +1,7 @@
 package mnist
 
 import (
+	"deepgo/dl"
 	"encoding/binary"
 	"fmt"
 	"io"
@@ -9,11 +10,44 @@ import (
 const (
 	imageMagic = 0x00000803
 	labelMagic = 0x00000801
-	ImageSize  = 28 * 28
+//  = 28 * 28
 	labelSize  = 1
 )
+var TRAIN_MNIST,TEST_MNIST MNIST
 
-func GetDataset() (trainImages [][]byte, trainLabels []byte, testImages [][]byte, testLables []byte, err error) {
+type MNIST struct{
+	ImageSize [2]int
+	Images [][]byte
+	Labels []byte
+}
+
+func (mnist MNIST) GetBatch(idx int, batchsize int) (input, labels []dl.Tensor) {
+	start := idx * batchsize
+	end := start + batchsize
+	batchImages := mnist.Images[start:end]
+	batchLabels := mnist.Labels[start:end]
+
+	// 将图像和标签封装成dl.Tensor类型
+	input = make([]dl.Tensor, len(batchImages))
+	for i, image := range batchImages {
+		input[i] = *dl.NewTensor( mnist.ImageSize[:], dl.ByteToFloat64(image)...)
+	}
+
+	labels = make([]dl.Tensor, len(batchLabels))
+	for i, label := range batchLabels {
+		labels[i] =  *dl.NewTensor([]int{1},
+			dl.Tensor{
+			Shape:
+			Data:  label,
+		}
+	}
+}
+
+func (m MNIST) Len() (length int) {
+	return len(m.Images)
+}
+
+func GetDataset() (, err error) {
 	var readers = make([]io.ReadCloser, 4)
 	for i := 0; i < len(mnistFile); i++ {
 		readers[i], err = getMNISTFile(mnistFile[i])

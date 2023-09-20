@@ -13,3 +13,11 @@ func WeightedSum(values []float64, weights []float64) float64 {
 
 	return result
 }
+
+func ByteToFloat64(bytes []byte) (fs []float64) {
+	fs = make([]float64, len(bytes))
+	for i := 0; i < len(bytes); i++ {
+		fs[i] = float64(bytes[i])
+	}
+	return
+}
