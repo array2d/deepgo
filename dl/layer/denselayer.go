@@ -34,9 +34,12 @@ func (l *Layer) Forward(input *dl.Tensor) (output *dl.Tensor) {
 	// 根据全连接层的公式计算输出
 	for i := 0; i < input.Shape[0]; i++ {
 		for j := 0; j < l.Biases.Shape[0]; j++ {
-			sum := l.Biases.Get([]int{j})
+			sum := l.Biases.Get([]int{j}).(int)
+
 			for k := 0; k < input.Shape[1]; k++ {
-				sum += input.Get([]int{i, k}) * l.Weights.Get([]int{k, j})
+				inputv := input.Get([]int{i, k}).(int)
+				weight := l.Weights.Get([]int{k, j}).(int)
+				sum += inputv * weight
 			}
 			output.Set([]int{i, j}, sum)
 		}

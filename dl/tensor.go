@@ -34,6 +34,10 @@ type Tensor struct {
 	uint   []uint //
 }
 
+func (t *Tensor) DataType() string {
+	return t.dataType
+}
+
 // NewTensor 创建一个新的Tensor
 // 函数接受一个可变参数shape，表示张量的形状。首先，计算出张量的总大小，即各个维度大小的乘积。然后，使用make函数创建一个大小为总大小的浮点数切片，用于存储张量的值。最后，返回一个新的Tensor对象，其中包含了形状和数据
 func NewTensor(shape []int) *Tensor {

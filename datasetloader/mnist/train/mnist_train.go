@@ -31,18 +31,14 @@ func main() {
 		Optimizer: optimizer.NewSGD(0.01),
 	}
 	m.AddLayer(l, l2, l3, l4)
+
+	for i := 0; i < mnist.TRAIN_MNIST.Len(); i++ {
+		input, label := mnist.TRAIN_MNIST.GetBatch(i, 1)
+		//m.Train()
+		fmt.Println(input[0].get, label[0].Get([]int{0}))
+	}
 	//
-	//// 训练模型
-	//for e := range trainset.Iter() {
-	//	x, y := e.Data(), e.Label()
-	//	err := m.Train(x, y)
-	//	if err != nil {
-	//		log.Printf("Error during training: %v", err)
-	//	} else {
-	//		fmt.Println("Training accuracy:", model.Accuracy())
-	//	}
-	//}
-	//
+
 	//// 测试模型
 	//for e := range testset.Iter() {
 	//	x, y := e.Data(), e.Label()

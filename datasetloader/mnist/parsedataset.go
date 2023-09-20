@@ -124,14 +124,14 @@ func (m MNIST) getMNISTFile() (imageReader, labelReader io.ReadCloser, err error
 
 func (m *MNIST) Load() (err error) {
 	var imageReader, labelReader io.ReadCloser
-	defer imageReader.Close()
-	defer labelReader.Close()
 	imageReader, labelReader, err = m.getMNISTFile()
+
 	if err != nil {
 		fmt.Println("下载MNIST数据集失败", err)
 		return
 	}
-
+	defer imageReader.Close()
+	defer labelReader.Close()
 	m.Images, err = m.parseImages(imageReader)
 	if err != nil {
 		fmt.Println("解析MNIST数据集失败:", err)
