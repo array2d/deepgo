@@ -17,7 +17,7 @@ func NewDenseLayer(inputSize, outputSize int) *DenseLayer {
 }
 
 // NewDenseLayer 创建一个新的全连接层
-func (l *Layer) NewDenseLayer(outputSize int) *DenseLayer {
+func (l *DenseLayer) NewDenseLayer(outputSize int) *DenseLayer {
 	inputSize := l.Weights.Shape[1]
 	weightsShape := []int{inputSize, outputSize}
 	biasesShape := []int{outputSize}

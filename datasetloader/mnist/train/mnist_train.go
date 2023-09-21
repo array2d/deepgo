@@ -30,7 +30,7 @@ func main() {
 	m := &model.Model{
 		Optimizer: optimizer.NewSGD(0.01),
 	}
-	m.AddLayer(l, l2, l3, l4)
+	m.AddLayer((*layer.Layer)(l), (*layer.Layer)(l2), (*layer.Layer)(l3), (*layer.Layer)(l4))
 
 	for i := 0; i < mnist.TRAIN_MNIST.Len(); i++ {
 		input, label := mnist.TRAIN_MNIST.GetBatch(i, 1)
