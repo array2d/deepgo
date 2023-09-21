@@ -35,7 +35,7 @@ func main() {
 	for i := 0; i < mnist.TRAIN_MNIST.Len(); i++ {
 		input, label := mnist.TRAIN_MNIST.GetBatch(i, 1)
 		//m.Train()
-		fmt.Println(input[0].get, label[0].Get([]int{0}))
+		fmt.Println(input[0], label[0].Get([]int{0}))
 	}
 	//
 
