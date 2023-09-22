@@ -3,6 +3,7 @@ package layer
 import (
 	"deepgo/dl"
 	"deepgo/dl/activation"
+	"deepgo/dl/math/matrix"
 )
 
 type DenseLayer Layer
@@ -35,11 +36,11 @@ func (l *DenseLayer) NewDenseLayer(outputSize int) *DenseLayer {
 // Forward 前向传播函数
 func (l *DenseLayer) Forward(input *dl.Tensor, activationFunc activation.ActivationFunc) (output *dl.Tensor) {
 	// 首先，我们需要计算权重矩阵W
-	W := dl.ArrayToMatrix2(l.Weights.Data, [2]int{l.Weights.Shape[0], l.Weights.Shape[1]})
+	W := matrix.FromArray(l.Weights.Data, [2]int{l.Weights.Shape[0], l.Weights.Shape[1]})
 
 	// 然后，我们将输入数据与权重矩阵相乘，再加上偏置项
-	inputMat := dl.ArrayToMatrix2(input.Data, [2]int{input.Shape[0], input.Shape[1]})
-	outputData := dl.MatrixMul(inputMat, W)
+	inputMat := matrix.FromArray(input.Data, [2]int{input.Shape[0], input.Shape[1]})
+	outputData := matrix.Mul(inputMat, W)
 	for i := range outputData {
 		outputData[i][0] += l.Biases.Get(i)
 	}
@@ -52,12 +53,12 @@ func (l *DenseLayer) Forward(input *dl.Tensor, activationFunc activation.Activat
 	outputShape := []int{input.Shape[0], l.Weights.Shape[1]}
 	output = &dl.Tensor{
 		Shape: outputShape,
-		Data:  dl.Matrix2ToArray(outputData),
+		Data:  matrix.ToArray(outputData),
 	}
 	return output
 }
 
-func (l *DenseLayer) Backward(input *dl.Tensor, gradient *dl.Tensor, rate float64) {
+func (l *DenseLayer) Backward(input *dl.Tensor, gradient *dl.Tensor, learningRate float64) {
 
 }
 

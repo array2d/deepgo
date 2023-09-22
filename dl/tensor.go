@@ -1,6 +1,7 @@
 package dl
 
 import (
+	"deepgo/dl/math/array"
 	"fmt"
 	"math/rand"
 )
@@ -90,10 +91,10 @@ func (t *Tensor) calculateIndex(indices []int) int {
 }
 func IsTensorEqual(t1, t2 *Tensor) bool {
 
-	if !isEqualNums(t1.Shape, t2.Shape) {
+	if !array.Equal(t1.Shape, t2.Shape) {
 		return false
 	}
-	return isEqualNums(t1.Data, t2.Data)
+	return array.Equal(t1.Data, t2.Data)
 
 }
 
@@ -130,7 +131,7 @@ func (t *Tensor) Clone() *Tensor {
 	return clone
 }
 func (t *Tensor) Add(other *Tensor) *Tensor {
-	if !isEqualNums(t.Shape, other.Shape) {
+	if !array.Equal(t.Shape, other.Shape) {
 		panic("Shapes of tensors do not match")
 	}
 	n := t.Clone()
@@ -138,7 +139,7 @@ func (t *Tensor) Add(other *Tensor) *Tensor {
 	return n
 }
 func (t *Tensor) Sub(other *Tensor) *Tensor {
-	if !isEqualNums(t.Shape, other.Shape) {
+	if !array.Equal(t.Shape, other.Shape) {
 		panic("Shapes of tensors do not match")
 	}
 	n := t.Clone()
@@ -146,7 +147,7 @@ func (t *Tensor) Sub(other *Tensor) *Tensor {
 	return n
 }
 func (t *Tensor) Mul(other *Tensor) *Tensor {
-	if !isEqualNums(t.Shape, other.Shape) {
+	if !array.Equal(t.Shape, other.Shape) {
 		panic("Shapes of tensors do not match")
 	}
 	n := t.Clone()
@@ -154,7 +155,7 @@ func (t *Tensor) Mul(other *Tensor) *Tensor {
 	return n
 }
 func (t *Tensor) Div(other *Tensor) *Tensor {
-	if !isEqualNums(t.Shape, other.Shape) {
+	if !array.Equal(t.Shape, other.Shape) {
 		panic("Shapes of tensors do not match")
 	}
 	n := t.Clone()

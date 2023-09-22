@@ -1,6 +1,6 @@
-package dl
+package matrix
 
-func ArrayToMatrix2(data []float64, shape [2]int) (matrix [][]float64) {
+func FromArray(data []float64, shape [2]int) (matrix [][]float64) {
 	if len(data) != shape[0]*shape[1] {
 		panic("Invalid data length")
 	}
@@ -13,7 +13,7 @@ func ArrayToMatrix2(data []float64, shape [2]int) (matrix [][]float64) {
 	}
 	return matrix
 }
-func Matrix2ToArray(matrix [][]float64) (data []float64) {
+func ToArray(matrix [][]float64) (data []float64) {
 
 	for i := 0; i < len(matrix); i++ {
 		data = append(data, matrix[i]...)
@@ -21,7 +21,25 @@ func Matrix2ToArray(matrix [][]float64) (data []float64) {
 	return
 }
 
-func MatrixMul(a, b [][]float64) [][]float64 {
+func Equal(result, expected [][]float64) bool {
+	// 检查矩阵维度是否相同
+	if len(result) != len(expected) || len(result[0]) != len(expected[0]) {
+		return false
+	}
+
+	// 逐个元素比较矩阵是否相等
+	for i := 0; i < len(result); i++ {
+		for j := 0; j < len(result[0]); j++ {
+			if result[i][j] != expected[i][j] {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+func Mul(a, b [][]float64) [][]float64 {
 	if len(a) == 0 || len(a[0]) == 0 || len(b) == 0 || len(b[0]) == 0 {
 		return nil
 	}
@@ -45,7 +63,27 @@ func MatrixMul(a, b [][]float64) [][]float64 {
 	return c
 }
 
-func MatrixAddOne(a [][]float64, b float64) [][]float64 {
+func Transpose(a [][]float64) [][]float64 {
+	// 获取矩阵的行和列数
+	rows := len(a)
+	cols := len(a[0])
+
+	// 创建结果矩阵
+	result := make([][]float64, cols)
+	for i := range result {
+		result[i] = make([]float64, rows)
+	}
+
+	// 计算矩阵转置的结果
+	for i := 0; i < rows; i++ {
+		for j := 0; j < cols; j++ {
+			result[j][i] = a[i][j]
+		}
+	}
+
+	return result
+}
+func AddOne(a [][]float64, b float64) [][]float64 {
 	// 获取矩阵的行和列数
 	rows := len(a)
 	cols := len(a[0])
