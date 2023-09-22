@@ -1,6 +1,9 @@
 package layer
 
-import "deepgo/dl"
+import (
+	"deepgo/dl"
+	"deepgo/dl/activation"
+)
 
 type DenseLayer Layer
 
@@ -30,7 +33,7 @@ func (l *DenseLayer) NewDenseLayer(outputSize int) *DenseLayer {
 }
 
 // Forward 前向传播函数
-func (l *DenseLayer) Forward(input *dl.Tensor) (output *dl.Tensor) {
+func (l *DenseLayer) Forward(input *dl.Tensor, activationFunc activation.ActivationFunc) (output *dl.Tensor) {
 	// 首先，我们需要计算权重矩阵W
 	W := dl.ArrayToMatrix2(l.Weights.Data, [2]int{l.Weights.Shape[0], l.Weights.Shape[1]})
 
@@ -41,7 +44,10 @@ func (l *DenseLayer) Forward(input *dl.Tensor) (output *dl.Tensor) {
 		outputData[i][0] += l.Biases.Get(i)
 	}
 
-	// 最后，我们通过激活函数得到输出
+	// 我们通过激活函数得到输出
+	for i := range outputData {
+		outputData[i][0] = activationFunc(l.Biases.Get(i))
+	}
 	//根据前向传播函数的实现逻辑，输出张量output的shape应该是[输入张量行数, 权重矩阵列数]
 	outputShape := []int{input.Shape[0], l.Weights.Shape[1]}
 	output = &dl.Tensor{

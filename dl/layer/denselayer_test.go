@@ -2,6 +2,7 @@ package layer
 
 import (
 	"deepgo/dl"
+	"deepgo/dl/activation"
 	"testing"
 )
 
@@ -22,7 +23,7 @@ func TestForward(t *testing.T) {
 	input.Set([]int{1, 0}, 4.0)
 	input.Set([]int{1, 1}, 5.0)
 	input.Set([]int{1, 2}, 6.0)
-	output := layer.Forward(input)
+	output := layer.Forward(input, activation.Relu)
 	expectedOutputShape := []int{2, 2}
 	expectedOutput := dl.NewTensor(expectedOutputShape)
 	expectedOutput.Set([]int{0, 0}, 0.0)
