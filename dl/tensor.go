@@ -97,29 +97,6 @@ func IsTensorEqual(t1, t2 *Tensor) bool {
 	return array.Equal(t1.Data, t2.Data)
 
 }
-
-func (t *Tensor) AddInPlace(subtrahend *Tensor) {
-	for i := range t.Data {
-		t.Data[i] += float64(subtrahend.Data[i])
-	}
-}
-func (t *Tensor) SubInPlace(subtrahend *Tensor) {
-	for i := range t.Data {
-		t.Data[i] -= float64(subtrahend.Data[i])
-	}
-}
-
-func (t *Tensor) MulInPlace(factor *Tensor) {
-	for i := range t.Data {
-		t.Data[i] *= float64(factor.Data[i])
-	}
-}
-
-func (t *Tensor) DivInPlace(factor *Tensor) {
-	for i := range t.Data {
-		t.Data[i] /= float64(factor.Data[i])
-	}
-}
 func (t *Tensor) Clone() *Tensor {
 	clone := &Tensor{
 		Shape: make([]int, len(t.Shape)),
@@ -129,36 +106,4 @@ func (t *Tensor) Clone() *Tensor {
 	copy(clone.Data, t.Data)
 
 	return clone
-}
-func (t *Tensor) Add(other *Tensor) *Tensor {
-	if !array.Equal(t.Shape, other.Shape) {
-		panic("Shapes of tensors do not match")
-	}
-	n := t.Clone()
-	n.AddInPlace(other)
-	return n
-}
-func (t *Tensor) Sub(other *Tensor) *Tensor {
-	if !array.Equal(t.Shape, other.Shape) {
-		panic("Shapes of tensors do not match")
-	}
-	n := t.Clone()
-	n.SubInPlace(other)
-	return n
-}
-func (t *Tensor) Mul(other *Tensor) *Tensor {
-	if !array.Equal(t.Shape, other.Shape) {
-		panic("Shapes of tensors do not match")
-	}
-	n := t.Clone()
-	n.MulInPlace(other)
-	return n
-}
-func (t *Tensor) Div(other *Tensor) *Tensor {
-	if !array.Equal(t.Shape, other.Shape) {
-		panic("Shapes of tensors do not match")
-	}
-	n := t.Clone()
-	n.DivInPlace(other)
-	return n
 }
