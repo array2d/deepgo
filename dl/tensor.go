@@ -35,8 +35,10 @@ func NewTensor(shape []int, data ...float64) *Tensor {
 	for _, dim := range shape {
 		size *= dim
 	}
+	_data := make([]float64, size)
+	copy(_data, data)
 	return &Tensor{
-		Data:  data,
+		Data:  _data,
 		Shape: shape,
 	}
 }
@@ -48,7 +50,7 @@ func (t *Tensor) Set(indices []int, value float64) {
 }
 
 // Get 获取Tensor的值
-func (t *Tensor) Get(indices []int) float64 {
+func (t *Tensor) Get(indices ...int) float64 {
 	idx := t.calculateIndex(indices)
 
 	return t.Data[idx]
@@ -56,10 +58,11 @@ func (t *Tensor) Get(indices []int) float64 {
 }
 
 // RandomInit 生成一个随机初始化的Tensor
-func (t *Tensor) RandomInit() {
+func (t *Tensor) RandomInit(min, max float64) *Tensor {
 	for i := range t.Data {
-		t.Data[i] = rand.Float64()
+		t.Data[i] = min + (max-min)*rand.Float64()
 	}
+	return t
 }
 
 // Print 打印Tensor的值
@@ -90,7 +93,6 @@ func IsTensorEqual(t1, t2 *Tensor) bool {
 	if !isEqualNums(t1.Shape, t2.Shape) {
 		return false
 	}
-
 	return isEqualNums(t1.Data, t2.Data)
 
 }

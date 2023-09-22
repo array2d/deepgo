@@ -4,6 +4,7 @@ func ArrayToMatrix2(data []float64, shape [2]int) (matrix [][]float64) {
 	if len(data) != shape[0]*shape[1] {
 		panic("Invalid data length")
 	}
+	matrix = make([][]float64, shape[0])
 	for i := range matrix {
 		matrix[i] = make([]float64, shape[1])
 		for j := range matrix[i] {
@@ -12,9 +13,19 @@ func ArrayToMatrix2(data []float64, shape [2]int) (matrix [][]float64) {
 	}
 	return matrix
 }
+func Matrix2ToArray(matrix [][]float64) (data []float64) {
+
+	for i := 0; i < len(matrix); i++ {
+		data = append(data, matrix[i]...)
+	}
+	return
+}
 
 func MatrixMul(a, b [][]float64) [][]float64 {
-	if len(a) == 0 || len(a[0]) == 0 || len(b) == 0 || len(b[0]) == 0 || len(a[0]) != len(b) {
+	if len(a) == 0 || len(a[0]) == 0 || len(b) == 0 || len(b[0]) == 0 {
+		return nil
+	}
+	if len(a[0]) != len(b) {
 		return nil
 	}
 	rowsA := len(a)

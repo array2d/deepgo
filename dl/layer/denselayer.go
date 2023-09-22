@@ -35,18 +35,24 @@ func (l *DenseLayer) Forward(input *dl.Tensor) (output *dl.Tensor) {
 	W := dl.ArrayToMatrix2(l.Weights.Data, [2]int{l.Weights.Shape[0], l.Weights.Shape[1]})
 
 	// 然后，我们将输入数据与权重矩阵相乘，再加上偏置项
-	inputMat := dl.ArrayToMatrix2(input.Data, [2]int{len(input.Data), 1})
+	inputMat := dl.ArrayToMatrix2(input.Data, [2]int{input.Shape[0], input.Shape[1]})
 	outputData := dl.MatrixMul(inputMat, W)
 	for i := range outputData {
-		outputData[i][0] += l.Biases.Get([]int{i})
+		outputData[i][0] += l.Biases.Get(i)
 	}
 
 	// 最后，我们通过激活函数得到输出
+	//根据前向传播函数的实现逻辑，输出张量output的shape应该是[输入张量行数, 权重矩阵列数]
+	outputShape := []int{input.Shape[0], l.Weights.Shape[1]}
 	output = &dl.Tensor{
-		Shape: l.Weights.Shape, // 假设权重矩阵的形状与输出张量的形状相同
-		Data:  outputData[0],
+		Shape: outputShape,
+		Data:  dl.Matrix2ToArray(outputData),
 	}
 	return output
+}
+
+func (l *DenseLayer) Backward(input *dl.Tensor, gradient *dl.Tensor, rate float64) {
+
 }
 
 // 矩阵相乘的函数
