@@ -16,6 +16,6 @@ func TestToInts(t *testing.T) {
 }
 func TestMul(t *testing.T) {
 	var a = []int64{1, 2, 3, 4, 5, 6, 7, 8, 9}
-	A := Mul(a)
+	A := MulValues(a)
 	t.Log(A)
 }
