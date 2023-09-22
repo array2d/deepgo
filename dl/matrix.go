@@ -44,3 +44,24 @@ func MatrixMul(a, b [][]float64) [][]float64 {
 	}
 	return c
 }
+
+func MatrixAddOne(a [][]float64, b float64) [][]float64 {
+	// 获取矩阵的行和列数
+	rows := len(a)
+	cols := len(a[0])
+
+	// 创建结果矩阵
+	result := make([][]float64, rows)
+	for i := range result {
+		result[i] = make([]float64, cols)
+	}
+
+	// 计算矩阵相加的结果
+	for i := 0; i < rows; i++ {
+		for j := 0; j < cols; j++ {
+			result[i][j] = a[i][j] + b
+		}
+	}
+
+	return result
+}
