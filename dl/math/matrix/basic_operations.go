@@ -61,6 +61,8 @@ func SubX(a [][]float64, b float64) [][]float64 {
 	return result
 }
 
+// Mul
+// 矩阵A×B，只要求A的列数要等于B的行数 C的行数和A的行数相等、C的列数和B的列数相等
 func Mul(a, b [][]float64) [][]float64 {
 	if len(a) == 0 || len(a[0]) == 0 || len(b) == 0 || len(b[0]) == 0 {
 		return nil

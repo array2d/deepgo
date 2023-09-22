@@ -4,6 +4,7 @@ import (
 	"deepgo/dl"
 	"deepgo/dl/activation"
 	"deepgo/dl/math/matrix"
+	"fmt"
 )
 
 type DenseLayer Layer
@@ -59,7 +60,20 @@ func (l *DenseLayer) Forward(input *dl.Tensor, activationFunc activation.Activat
 }
 
 func (l *DenseLayer) Backward(input *dl.Tensor, gradient *dl.Tensor, learningRate float64) {
-
+	// 计算权重的梯度
+	transInput := matrix.Transpose(matrix.FromArray(input.Data, [2]int{input.Shape[0], input.Shape[1]}))
+	gradientMat := matrix.Transpose(matrix.FromArray(gradient.Data, [2]int{gradient.Shape[0], gradient.Shape[1]}))
+	dWeights := matrix.Mul(gradientMat, transInput)
+	// 计算偏置的梯度
+	dBiases := gradient
+	// 计算输入的梯度
+	lWeightsMat := matrix.Transpose(matrix.FromArray(l.Weights.Data, [2]int{l.Weights.Shape[0], l.Weights.Shape[1]}))
+	dInput := matrix.Mul(lWeightsMat, gradientMat)
+	// 更新参数
+	//todo
+	//l.Weights.Data = subtract(l.Weights.Data, multiply(dWeights.Data, learningRate))
+	//l.Biases.Data = subtract(l.Biases.Data, multiply(dBiases.Data, learningRate))
+	fmt.Println(dWeights, dBiases, dInput)
 }
 
 // 矩阵相乘的函数
