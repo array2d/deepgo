@@ -90,7 +90,6 @@ func (t *Tensor) calculateIndex(indices []int) int {
 	return idx
 }
 func IsTensorEqual(t1, t2 *Tensor) bool {
-
 	if !array.Equal(t1.Shape, t2.Shape) {
 		return false
 	}
