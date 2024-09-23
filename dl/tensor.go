@@ -68,11 +68,41 @@ func (t *Tensor) RandomInit(min, max float64) *Tensor {
 
 // Print 打印Tensor的值
 func (t *Tensor) Print() {
-	for i := 0; i < len(t.Data); i++ {
-		fmt.Printf("%.4f ", t.Data[i])
-		if (i+1)%t.Shape[1] == 0 {
-			fmt.Println()
+	fmt.Printf("Tensor 形状: %v\n", t.Shape)
+	fmt.Println("数据:")
+
+	if len(t.Shape) == 1 {
+		fmt.Print("[")
+		for i, v := range t.Data {
+			if i > 0 {
+				fmt.Print(" ")
+			}
+			fmt.Printf("%.4f", v)
 		}
+		fmt.Println("]")
+	} else if len(t.Shape) == 2 {
+		rows, cols := t.Shape[0], t.Shape[1]
+		for i := 0; i < rows; i++ {
+			if i == 0 {
+				fmt.Print("[[")
+			} else {
+				fmt.Print(" [")
+			}
+			for j := 0; j < cols; j++ {
+				if j > 0 {
+					fmt.Print(" ")
+				}
+				fmt.Printf("%.4f", t.Data[i*cols+j])
+			}
+			if i == rows-1 {
+				fmt.Println("]]")
+			} else {
+				fmt.Println("]")
+			}
+		}
+	} else {
+		fmt.Println("高维张量的打印暂不支持，仅显示原始数据:")
+		fmt.Println(t.Data)
 	}
 }
 
