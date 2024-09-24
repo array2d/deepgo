@@ -2,13 +2,13 @@ package layer
 
 import (
 	"deepgo/dl"
-	"math"
-	"math/rand"
+	"deepgo/dl/initializer"
 )
 
 // LinearLayer 定义线性层
 type LinearLayer struct {
 	BaseLayer
+
 	inFeatures  int
 	outFeatures int
 }
@@ -26,13 +26,8 @@ func NewLinearLayer(inFeatures, outFeatures int) *LinearLayer {
 	bias := dl.NewTensor([]int{outFeatures})
 
 	// 使用Xavier初始化
-	stdv := 1.0 / math.Sqrt(float64(inFeatures))
-	for i := range weight.Data {
-		weight.Data[i] = rand.Float64()*2*stdv - stdv
-	}
-	for i := range bias.Data {
-		bias.Data[i] = rand.Float64()*2*stdv - stdv
-	}
+	initializer.Xavier(weight, inFeatures)
+	initializer.Xavier(bias, inFeatures)
 
 	l.RegisterParameter("weight", weight)
 	l.RegisterParameter("bias", bias)
