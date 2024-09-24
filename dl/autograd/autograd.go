@@ -14,6 +14,5 @@ func NewNode(value *dl.Tensor, backward func(), parents ...*Node) *Node {
 		Value:    value,
 		Grad:     dl.NewTensor(value.Shape),
 		Backward: backward,
-		Parents:  parents,
 	}
 }
