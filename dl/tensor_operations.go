@@ -2,6 +2,7 @@ package dl
 
 import (
 	"deepgo/dl/math/array"
+	"math"
 )
 
 func (t *Tensor) AddInPlace(a *Tensor) {
@@ -55,4 +56,21 @@ func (t *Tensor) Div(other *Tensor) *Tensor {
 	n := t.Clone()
 	n.DivInPlace(other)
 	return n
+}
+
+// Softmax 实现softmax函数
+func (t *Tensor) Softmax(axis int) *Tensor {
+	expData := make([]float64, len(t.Data))
+	sumExp := 0.0
+	for i, v := range t.Data {
+		expData[i] = math.Exp(v)
+		sumExp += expData[i]
+	}
+	for i := range expData {
+		expData[i] /= sumExp
+	}
+	return &Tensor{
+		Shape: t.Shape,
+		Data:  expData,
+	}
 }
