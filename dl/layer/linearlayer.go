@@ -59,7 +59,7 @@ func (l *LinearLayer) Backward(gradOutput *dl.Tensor) {
 	weight := l.Parameters()["weight"]
 
 	// 计算输入的梯度
-	inputGrad := gradOutput.Mul(weight)
+	inputGrad := gradOutput.Mul(weight.Transpose([]int{1, 0}))
 
 	// 计算权重的梯度
 	weightGrad := gradOutput.Transpose([]int{1, 0}).Mul(inputGrad)
