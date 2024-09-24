@@ -1,13 +1,12 @@
-package initializer
+package dl
 
 import (
-	"deepgo/dl"
 	"math"
 	"math/rand"
 )
 
 // Xavier 使用Xavier初始化方法初始化张量
-func Xavier(t *dl.Tensor, inFeatures int) {
+func (t *Tensor) Xavier(inFeatures int) {
 	stdv := 1.0 / math.Sqrt(float64(inFeatures))
 	for i := range t.Data {
 		t.Data[i] = rand.Float64()*2*stdv - stdv
@@ -15,7 +14,7 @@ func Xavier(t *dl.Tensor, inFeatures int) {
 }
 
 // He 使用He初始化方法初始化张量
-func He(t *dl.Tensor, inFeatures int) {
+func (t *Tensor) He(inFeatures int) {
 	stdv := math.Sqrt(2.0 / float64(inFeatures))
 	for i := range t.Data {
 		t.Data[i] = rand.NormFloat64() * stdv
@@ -23,28 +22,28 @@ func He(t *dl.Tensor, inFeatures int) {
 }
 
 // Normal 使用正态分布初始化张量
-func Normal(t *dl.Tensor, mean, stddev float64) {
+func (t *Tensor) Normal(mean, stddev float64) {
 	for i := range t.Data {
 		t.Data[i] = rand.NormFloat64()*stddev + mean
 	}
 }
 
 // Uniform 使用均匀分布初始化张量
-func Uniform(t *dl.Tensor, low, high float64) {
+func (t *Tensor) Uniform(low, high float64) {
 	for i := range t.Data {
 		t.Data[i] = low + rand.Float64()*(high-low)
 	}
 }
 
 // Constant 使用常数初始化张量
-func Constant(t *dl.Tensor, value float64) {
+func (t *Tensor) Constant(value float64) {
 	for i := range t.Data {
 		t.Data[i] = value
 	}
 }
 
 // Orthogonal 使用正交初始化方法初始化张量
-func Orthogonal(t *dl.Tensor, gain float64) {
+func (t *Tensor) Orthogonal(gain float64) {
 	rows, cols := t.Shape[0], t.Shape[1]
 	if rows < cols {
 		rows, cols = cols, rows

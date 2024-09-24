@@ -54,13 +54,14 @@ func TestTensor_Get(t *testing.T) {
 func TestTensor_RandomInit(t *testing.T) {
 	tensor := NewTensor([]int{2, 2})
 	min, max := 0.0, 1.0
-	tensor.RandomInit(min, max)
+	tensor.Uniform(min, max)
 
 	for _, v := range tensor.Data {
 		if v < min || v > max {
 			t.Errorf("随机初始化的值 %f 不在范围 [%f, %f] 内", v, min, max)
 		}
 	}
+	tensor.Print()
 }
 
 func TestIsTensorEqual(t *testing.T) {

@@ -3,7 +3,6 @@ package dl
 import (
 	"deepgo/dl/math/array"
 	"fmt"
-	"math/rand"
 )
 
 /*
@@ -56,14 +55,6 @@ func (t *Tensor) Get(indices ...int) float64 {
 
 	return t.Data[idx]
 
-}
-
-// RandomInit 生成一个随机初始化的Tensor
-func (t *Tensor) RandomInit(min, max float64) *Tensor {
-	for i := range t.Data {
-		t.Data[i] = min + (max-min)*rand.Float64()
-	}
-	return t
 }
 
 // Print 打印Tensor的值
