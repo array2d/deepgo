@@ -2,6 +2,7 @@ package layer
 
 import (
 	"deepgo/dl"
+	"deepgo/dl/autograd"
 	"math"
 )
 
@@ -44,5 +45,18 @@ func (l *ActivationLayer) Forward(input *dl.Tensor) *dl.Tensor {
 	for i := range output.Data {
 		output.Data[i] = l.ActivationFunc(output.Data[i])
 	}
+
+	// 创建新的节点并记录父节点
+	node := autograd.NewNode(output, func() {
+		// 反向传播逻辑
+		l.Backward(node.Grad)
+	}, input)
+
 	return output
+}
+
+// Backward 实现反向传播
+func (l *ActivationLayer) Backward(gradOutput *dl.Tensor) {
+	// 反向传播逻辑
+	// 这里需要根据具体的激活函数实现反向传播逻辑
 }

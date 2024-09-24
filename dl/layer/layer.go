@@ -2,6 +2,7 @@ package layer
 
 import (
 	"deepgo/dl"
+	"deepgo/dl/autograd"
 )
 
 // Layer 定义神经网络层的接口
@@ -13,12 +14,14 @@ type Layer interface {
 // BaseLayer 定义神经网络层的基础结构体
 type BaseLayer struct {
 	parameters map[string]*dl.Tensor
+	Parents    []*autograd.Node // 记录父节点
 }
 
 // NewBaseLayer 创建一个新的基础层
 func NewBaseLayer() *BaseLayer {
 	return &BaseLayer{
 		parameters: make(map[string]*dl.Tensor),
+		Parents:    make([]*autograd.Node, 0),
 	}
 }
 

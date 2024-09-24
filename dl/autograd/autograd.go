@@ -6,12 +6,14 @@ type Node struct {
 	Value    *dl.Tensor
 	Grad     *dl.Tensor
 	Backward func()
+	Parents  []*Node // 记录父节点
 }
 
-func NewNode(value *dl.Tensor, backward func()) *Node {
+func NewNode(value *dl.Tensor, backward func(), parents ...*Node) *Node {
 	return &Node{
 		Value:    value,
 		Grad:     dl.NewTensor(value.Shape),
 		Backward: backward,
+		Parents:  parents,
 	}
 }

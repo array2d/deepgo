@@ -2,13 +2,12 @@ package layer
 
 import (
 	"deepgo/dl"
-	"deepgo/dl/initializer"
+	"deepgo/dl/autograd"
 )
 
 // LinearLayer 定义线性层
 type LinearLayer struct {
 	BaseLayer
-
 	inFeatures  int
 	outFeatures int
 }
@@ -26,8 +25,8 @@ func NewLinearLayer(inFeatures, outFeatures int) *LinearLayer {
 	bias := dl.NewTensor([]int{outFeatures})
 
 	// 使用Xavier初始化
-	initializer.Xavier(weight, inFeatures)
-	initializer.Xavier(bias, inFeatures)
+	weight.Xavier(inFeatures)
+	bias.Xavier(inFeatures)
 
 	l.RegisterParameter("weight", weight)
 	l.RegisterParameter("bias", bias)
@@ -41,15 +40,15 @@ func (l *LinearLayer) Forward(input *dl.Tensor) *dl.Tensor {
 	bias := l.Parameters()["bias"]
 
 	// 实现矩阵乘法和偏置加法
-	// 对权重进行转置，将形状从 [outFeatures, inFeatures] 转换为 [inFeatures, outFeatures]
-	// 参数 []int{1, 0} 表示交换第一维和第二维的顺序
 	transposedWeight := weight.Transpose([]int{1, 0})
-
-	// 执行矩阵乘法：input * transposedWeight
 	output := input.Mul(transposedWeight)
-
-	// 添加偏置
 	output = output.Add(bias)
+
+	// 创建新的节点并记录父节点
+	node := autograd.NewNode(output, func() {
+		// 反向传播逻辑
+		l.Backward(node.Grad)
+	}, input)
 
 	return output
 }
@@ -57,21 +56,16 @@ func (l *LinearLayer) Forward(input *dl.Tensor) *dl.Tensor {
 // Backward 实现反向传播
 func (l *LinearLayer) Backward(gradOutput *dl.Tensor) {
 	weight := l.Parameters()["weight"]
-
-	// 计算输入的梯度
 	inputGrad := gradOutput.Mul(weight.Transpose([]int{1, 0}))
-
-	// 计算权重的梯度
 	weightGrad := gradOutput.Transpose([]int{1, 0}).Mul(inputGrad)
-
-	// 计算偏置的梯度
-	// 对gradOutput在第一个维度上求和
 	biasGrad := gradOutput.Sum([]int{0})
 
 	// 更新权重和偏置的梯度
 	l.Parameters()["weight.grad"].AddInPlace(weightGrad)
 	l.Parameters()["bias.grad"].AddInPlace(biasGrad)
 
-	// 反向传播函数通常不需要返回值，因为它的主要目的是计算梯度并更新参数
-	// 但是，如果需要返回输入的梯度，可以在这里返回
+	// 反向传播到父节点
+	for _, parent := range l.Parents {
+		parent.Grad.AddInPlace(inputGrad)
+	}
 }
