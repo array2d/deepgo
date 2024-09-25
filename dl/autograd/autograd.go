@@ -6,7 +6,8 @@ type Node struct {
 	Value    *dl.Tensor
 	Grad     *dl.Tensor
 	Backward func()
-	Parents  []*Node // 记录父节点
+	In       []*Node // 记录输入节点
+	Out      []*Node // 记录输出节点
 }
 
 func NewNode(value *dl.Tensor, backward func(), parents ...*Node) *Node {
