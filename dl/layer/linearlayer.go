@@ -6,7 +6,7 @@ import (
 
 // LinearLayer 定义线性层
 type LinearLayer struct {
-	BaseLayer
+	Node
 
 	inFeatures  int
 	outFeatures int
@@ -15,11 +15,10 @@ type LinearLayer struct {
 // NewLinearLayer 创建一个新的线性层
 func NewLinearLayer(inFeatures, outFeatures int) *LinearLayer {
 	l := &LinearLayer{
-		BaseLayer:   *NewBaseLayer(),
+		Node:        *NewNode(dl.NewTensor([]int{outFeatures}), nil, nil),
 		inFeatures:  inFeatures,
 		outFeatures: outFeatures,
 	}
-
 	// 初始化权重和偏置
 	weight := dl.NewTensor([]int{outFeatures, inFeatures})
 	bias := dl.NewTensor([]int{outFeatures})
