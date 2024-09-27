@@ -71,7 +71,7 @@ func (l *LinearLayer) Backward(gradOutput *dl.Tensor) {
 	l.Parameters()["bias.grad"].AddInPlace(biasGrad)
 
 	// 反向传播到父节点
-	for _, parent := range l.Parents {
-		parent.Grad.AddInPlace(inputGrad)
+	for _, parent := range l.Inputs {
+		parent.parameters["grad"].AddInPlace(inputGrad)
 	}
 }
