@@ -2,22 +2,22 @@ package layer
 
 import "deepgo/dl"
 
-type Node struct {
+type ComputeGraphNode struct {
 	parameters map[string]*dl.Tensor
-	Forward    func(inputs ...*Node) *dl.Tensor
+	Forward    func(inputs ...*ComputeGraphNode) *dl.Tensor
 	Backward   func(gradOutput *dl.Tensor)
-	Inputs     []*Node
-	Outputs    []*Node
+	Inputs     []*ComputeGraphNode
+	Outputs    []*ComputeGraphNode
 }
 
 // NewNode 创建一个新的节点
-func NewNode(value *dl.Tensor, forward func(inputs ...*Node) *dl.Tensor, backward func(gradOutput *dl.Tensor), inputs ...*Node) *Node {
-	node := &Node{
+func NewNode(value *dl.Tensor, forward func(inputs ...*ComputeGraphNode) *dl.Tensor, backward func(gradOutput *dl.Tensor), inputs ...*ComputeGraphNode) *ComputeGraphNode {
+	node := &ComputeGraphNode{
 		parameters: make(map[string]*dl.Tensor),
 		Forward:    forward,
 		Backward:   backward,
 		Inputs:     inputs,
-		Outputs:    []*Node{},
+		Outputs:    []*ComputeGraphNode{},
 	}
 	node.parameters["."] = value
 	node.parameters["grad"] = dl.NewTensor(value.Shape)
@@ -28,11 +28,11 @@ func NewNode(value *dl.Tensor, forward func(inputs ...*Node) *dl.Tensor, backwar
 }
 
 // RegisterParameter 注册一个参数
-func (n *Node) RegisterParameter(name string, param *dl.Tensor) {
+func (n *ComputeGraphNode) RegisterParameter(name string, param *dl.Tensor) {
 	n.parameters[name] = param
 }
 
 // Parameters 返回所有注册的参数
-func (n *Node) Parameters() map[string]*dl.Tensor {
+func (n *ComputeGraphNode) Parameters() map[string]*dl.Tensor {
 	return n.parameters
 }

@@ -4,20 +4,20 @@ import (
 	"deepgo/dl"
 )
 
-// LinearLayer 定义线性层
-type LinearLayer struct {
-	Node
+// Linear 定义线性层
+type Linear struct {
+	ComputeGraphNode
 
 	inFeatures  int
 	outFeatures int
 }
 
-// NewLinearLayer 创建一个新的线性层
-func NewLinearLayer(inFeatures, outFeatures int) *LinearLayer {
-	l := &LinearLayer{
-		Node:        *NewNode(dl.NewTensor([]int{outFeatures}), nil, nil),
-		inFeatures:  inFeatures,
-		outFeatures: outFeatures,
+// NewLinear 创建一个新的线性层
+func NewLinear(inFeatures, outFeatures int) *Linear {
+	l := &Linear{
+		ComputeGraphNode: *NewNode(dl.NewTensor([]int{outFeatures}), nil, nil),
+		inFeatures:       inFeatures,
+		outFeatures:      outFeatures,
 	}
 	// 初始化权重和偏置
 	weight := dl.NewTensor([]int{outFeatures, inFeatures})
@@ -34,7 +34,7 @@ func NewLinearLayer(inFeatures, outFeatures int) *LinearLayer {
 }
 
 // Forward 实现前向传播
-func (l *LinearLayer) Forward(input *dl.Tensor) *dl.Tensor {
+func (l *Linear) Forward(input *dl.Tensor) *dl.Tensor {
 	weight := l.Parameters()["weight"]
 	bias := l.Parameters()["bias"]
 
@@ -53,7 +53,7 @@ func (l *LinearLayer) Forward(input *dl.Tensor) *dl.Tensor {
 }
 
 // Backward 实现反向传播
-func (l *LinearLayer) Backward(gradOutput *dl.Tensor) {
+func (l *Linear) Backward(gradOutput *dl.Tensor) {
 	weight := l.Parameters()["weight"]
 
 	// 计算输入的梯度
