@@ -1,7 +1,5 @@
 package layer
 
-import "deepgo/dl"
-
 type Norm struct {
 	ComputeGraphNode
 
@@ -16,13 +14,13 @@ func NewNorm(inFeatures, outFeatures int) *Norm {
 	}
 }
 
-func (l *Norm) Forward(input *dl.Tensor) *dl.Tensor {
+func (l *Norm) Forward() {
+	//input := l.ComputeGraphNode.Inputs[0]
+	//output := input.BatchNorm()
 
-	output := input.BatchNorm()
-
-	return output
 }
 
-func (l *Norm) Backward(gradOutput *dl.Tensor) {
-
+func (l *Norm) Backward() {
+	// gradOutput := l.ComputeGraphNode.Inputs[0].parameters["output"]
+	// gradInput := gradOutput.BatchNormBackward()
 }

@@ -8,23 +8,21 @@ import (
 )
 
 type Model struct {
-	Layers    []*layer.Layer
+	Layers    map[string]*layer.Layer
 	Optimizer optimizer.Optimizer
 	TrainFunc TrainFunc
 }
 
-func (m *Model) AddLayer(layer ...*layer.Layer) *Model {
-	m.Layers = append(m.Layers, layer...)
+func (m *Model) AddLayer(layer layer.Layer) *Model {
+	switch t := layer.(type) {
+	case *layer.Conv:
+		m.Layers["conv"+strconv.Itoa(len(m.Layers))] = t
+	case *layer.Linear:
+		m.Layers["linear"+strconv.Itoa(len(m.Layers))] = t
+	}
 	return m
 }
-func (m *Model) Params() map[string]*dl.Tensor {
-	params := make(map[string]*dl.Tensor)
-	for i, layer := range m.Layers {
-		params["weights"+strconv.Itoa(i)] = layer.Weights
-		params["biases"+strconv.Itoa(i)] = layer.Biases
-	}
-	return params
-}
+
 func (m *Model) Train() {
 	m.TrainFunc(nil)
 }

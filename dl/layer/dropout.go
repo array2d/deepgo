@@ -16,11 +16,10 @@ func NewDropout(inFeatures, outFeatures int) *Dropout {
 	}
 }
 
-func (l *Dropout) Forward(input *dl.Tensor) *dl.Tensor {
+func (l *Dropout) Forward(input *dl.Tensor) {
 
-	output := input.Dropout()
+	//output := input.Dropout()
 
-	return output
 }
 
 func (l *Dropout) Backward(gradOutput *dl.Tensor) {

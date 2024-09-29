@@ -1,7 +1,5 @@
 package layer
 
-import "deepgo/dl"
-
 type Pooling struct {
 	ComputeGraphNode
 
@@ -16,13 +14,12 @@ func NewPooling(inFeatures, outFeatures int) *Pooling {
 	}
 }
 
-func (l *Pooling) Forward(input *dl.Tensor) *dl.Tensor {
+func (l *Pooling) Forward() {
 
-	output := input.MaxPool2d()
+	// output := input.MaxPool2d()
 
-	return output
 }
 
-func (l *Pooling) Backward(gradOutput *dl.Tensor) {
+func (l *Pooling) Backward() {
 
 }
