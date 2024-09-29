@@ -11,17 +11,21 @@ type Conv struct {
 }
 
 func NewConv(inFeatures, outFeatures int) *Conv {
-	return &Conv{
-		inFeatures:  inFeatures,
-		outFeatures: outFeatures,
+	r := &Conv{
+		ComputeGraphNode: *NewNode(nil, nil, nil),
+		inFeatures:       inFeatures,
+		outFeatures:      outFeatures,
 	}
+	r.ComputeGraphNode.Forward = r.Forward
+	r.ComputeGraphNode.Backward = r.Backward
+	return r
 }
 
-func (l *Conv) Forward(input *dl.Tensor) *dl.Tensor {
+func (l *Conv) Forward() *dl.Tensor {
 	weight := l.Parameters()["weight"]
-
+	input := l.ComputeGraphNode.Inputs[0]
 	// 实现卷积操作
-	output := input.Conv2d(weight)
+	output := input.parameters["weight"].Conv2d(weight)
 
 	return output
 }

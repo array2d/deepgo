@@ -4,24 +4,23 @@ import "deepgo/dl"
 
 type ComputeGraphNode struct {
 	parameters map[string]*dl.Tensor
-	Forward    func(inputs ...*ComputeGraphNode) *dl.Tensor
-	Backward   func(gradOutput *dl.Tensor)
+	Forward    func()
+	Backward   func()
 	Inputs     []*ComputeGraphNode
 	Outputs    []*ComputeGraphNode
 }
 
 // NewNode 创建一个新的节点
-func NewNode(value *dl.Tensor, forward func(inputs ...*ComputeGraphNode) *dl.Tensor, backward func(gradOutput *dl.Tensor), inputs ...*ComputeGraphNode) *ComputeGraphNode {
+func NewNode(value *dl.Tensor, forward, backward func()) *ComputeGraphNode {
 	node := &ComputeGraphNode{
 		parameters: make(map[string]*dl.Tensor),
 		Forward:    forward,
 		Backward:   backward,
-		Inputs:     inputs,
+		Inputs:     []*ComputeGraphNode{},
 		Outputs:    []*ComputeGraphNode{},
 	}
 	node.parameters["."] = value
-	node.parameters["grad"] = dl.NewTensor(value.Shape)
-	for _, input := range inputs {
+	for _, input := range node.Inputs {
 		input.Outputs = append(input.Outputs, node)
 	}
 	return node

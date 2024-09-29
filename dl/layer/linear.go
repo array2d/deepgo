@@ -29,12 +29,13 @@ func NewLinear(inFeatures, outFeatures int) *Linear {
 
 	l.RegisterParameter("weight", weight)
 	l.RegisterParameter("bias", bias)
-
+	l.ComputeGraphNode.Forward = l.Forward
+	l.ComputeGraphNode.Backward = l.Backward
 	return l
 }
 
 // Forward 实现前向传播
-func (l *Linear) Forward(input *dl.Tensor) *dl.Tensor {
+func (l *Linear) Forward() {
 	weight := l.Parameters()["weight"]
 	bias := l.Parameters()["bias"]
 
@@ -42,20 +43,19 @@ func (l *Linear) Forward(input *dl.Tensor) *dl.Tensor {
 	// 对权重进行转置，将形状从 [outFeatures, inFeatures] 转换为 [inFeatures, outFeatures]
 	// 参数 []int{1, 0} 表示交换第一维和第二维的顺序
 	transposedWeight := weight.Transpose([]int{1, 0})
-
+	input := l.Inputs[0].parameters["output"]
 	// 执行矩阵乘法：input * transposedWeight
 	output := input.Mul(transposedWeight)
 
 	// 添加偏置
 	output = output.Add(bias)
-
-	return output
+	l.parameters["output"] = output
 }
 
 // Backward 实现反向传播
-func (l *Linear) Backward(gradOutput *dl.Tensor) {
+func (l *Linear) Backward() {
 	weight := l.Parameters()["weight"]
-
+	gradOutput := l.parameters["grad.output"]
 	// 计算输入的梯度
 	inputGrad := gradOutput.Mul(weight.Transpose([]int{1, 0}))
 
