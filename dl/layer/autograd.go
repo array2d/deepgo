@@ -4,8 +4,8 @@ import "deepgo/dl"
 
 type ComputeGraphNode struct {
 	parameters map[string]*dl.Tensor
-	Forward    func()
-	Backward   func()
+	forward    func()
+	backward   func()
 	Inputs     []*ComputeGraphNode
 	Outputs    []*ComputeGraphNode
 }
@@ -14,8 +14,8 @@ type ComputeGraphNode struct {
 func NewNode(value *dl.Tensor, forward, backward func()) *ComputeGraphNode {
 	node := &ComputeGraphNode{
 		parameters: make(map[string]*dl.Tensor),
-		Forward:    forward,
-		Backward:   backward,
+		forward:    forward,
+		backward:   backward,
 		Inputs:     []*ComputeGraphNode{},
 		Outputs:    []*ComputeGraphNode{},
 	}
@@ -34,4 +34,15 @@ func (n *ComputeGraphNode) RegisterParameter(name string, param *dl.Tensor) {
 // Parameters 返回所有注册的参数
 func (n *ComputeGraphNode) Parameters() map[string]*dl.Tensor {
 	return n.parameters
+}
+
+func (n *ComputeGraphNode) Forward() {
+	if n.forward != nil {
+		n.forward()
+	}
+}
+func (n *ComputeGraphNode) Backward() {
+	if n.backward != nil {
+		n.backward()
+	}
 }

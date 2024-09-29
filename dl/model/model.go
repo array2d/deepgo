@@ -8,17 +8,21 @@ import (
 )
 
 type Model struct {
-	Layers    map[string]*layer.Layer
+	Layers    map[string]layer.Layer
 	Optimizer optimizer.Optimizer
 	TrainFunc TrainFunc
 }
 
+func (m *Model) Input(input *dl.Tensor) {
+	node := layer.NewNode(input, nil, nil)
+	m.AddLayer(node)
+}
 func (m *Model) AddLayer(layer layer.Layer) *Model {
-	switch t := layer.(type) {
+	switch layer.(type) { // 修改此行
 	case *layer.Conv:
-		m.Layers["conv"+strconv.Itoa(len(m.Layers))] = t
+		m.Layers["conv"+strconv.Itoa(len(m.Layers))] = layer
 	case *layer.Linear:
-		m.Layers["linear"+strconv.Itoa(len(m.Layers))] = t
+		m.Layers["linear"+strconv.Itoa(len(m.Layers))] = layer
 	}
 	return m
 }
