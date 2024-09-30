@@ -13,7 +13,7 @@ func main() {
 	// 加载MNIST数据集
 	// 解析图像数据
 
-	err := mnist.TRAIN_MNIST.Load()
+	err := mnist.TRAIN_MNIST.Load("data")
 	if err != nil {
 		log.Printf("Error during GetDataset: %v", err)
 	}
@@ -24,7 +24,7 @@ func main() {
 	l3 := layer.NewLinear(128, 64)
 	l4 := layer.NewLinear(64, 10)
 
-	fmt.Println(l4.Parameters()["weights"].Shape)
+	fmt.Println(l4.Parameters()["weight"].Shape)
 
 	// 创建模型
 	m := &model.Model{
@@ -32,10 +32,12 @@ func main() {
 	}
 	m.AddLayer(l).AddLayer(l2).AddLayer(l3).AddLayer(l4)
 
-	for i := 0; i < mnist.TRAIN_MNIST.Len(); i++ {
-		input, label := mnist.TRAIN_MNIST.GetBatch(i, 1)
-		//m.Train()
-		fmt.Println(input[0], label[0].Get(0))
+	for i := 0; i < mnist.TRAIN_MNIST.Len()/100; i++ {
+		inputs, label := mnist.TRAIN_MNIST.GetBatch(i, 100)
+		for _, v := range inputs {
+			m.Input(v)
+		}
+		fmt.Println(inputs[0], label[0].Get(0))
 	}
 	//
 

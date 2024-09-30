@@ -9,7 +9,7 @@ import (
 func TestGetMNISTDataset(t *testing.T) {
 	// 解析图像数据
 	var m datasetloader.Dataset = &TRAIN_MNIST
-	err := m.Load()
+	err := m.Load("../../data")
 
 	if err != nil {
 		fmt.Println("解析图像数据失败:", err)
