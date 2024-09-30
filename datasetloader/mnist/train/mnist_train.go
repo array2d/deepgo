@@ -33,7 +33,11 @@ func main() {
 	}
 	m.Layer(l).Layer(l2).Layer(l3).Layer(l4)
 	m.ForwardFunc = func(input *dl.Tensor) (output *dl.Tensor) {
-
+		m.Layers[0].Parameters()["output"] = input
+		for _, layer := range m.Layers {
+			layer.Forward() // 每一层依次处理前一层的输出
+		}
+		return m.Layers[len(m.Layers)-1].Parameters()["output"]
 	}
 	for i := 0; i < mnist.TRAIN_MNIST.Len()/100; i++ {
 		inputs, label := mnist.TRAIN_MNIST.GetBatch(i, 100)
