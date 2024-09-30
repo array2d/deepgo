@@ -19,18 +19,18 @@ func main() {
 	}
 
 	// 定义神经网络结构
-	l := layer.NewDenseLayer(mnist.TRAIN_MNIST.ImageSize, 16*8)
-	l2 := l.NewDenseLayer(128)
-	l3 := l2.NewDenseLayer(64)
-	l4 := l3.NewDenseLayer(10)
+	l := layer.NewLinear(mnist.TRAIN_MNIST.ImageSize, 16*8)
+	l2 := layer.NewLinear(16*8, 128)
+	l3 := layer.NewLinear(128, 64)
+	l4 := layer.NewLinear(64, 10)
 
-	fmt.Println(l4.Weights.Shape)
+	fmt.Println(l4.Parameters()["weights"].Shape)
 
 	// 创建模型
 	m := &model.Model{
 		Optimizer: optimizer.NewSGD(0.01),
 	}
-	m.AddLayer((*layer.Layer)(l), (*layer.Layer)(l2), (*layer.Layer)(l3), (*layer.Layer)(l4))
+	m.AddLayer(l).AddLayer(l2).AddLayer(l3).AddLayer(l4)
 
 	for i := 0; i < mnist.TRAIN_MNIST.Len(); i++ {
 		input, label := mnist.TRAIN_MNIST.GetBatch(i, 1)

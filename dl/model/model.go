@@ -4,49 +4,28 @@ import (
 	"deepgo/dl"
 	"deepgo/dl/layer"
 	"deepgo/dl/optimizer"
-	"strconv"
 )
 
 type Model struct {
-	Layers    map[string]layer.Layer
+	Layers    []layer.Layer
 	Optimizer optimizer.Optimizer
 	TrainFunc TrainFunc
 }
 
 func (m *Model) Input(input *dl.Tensor) {
-	node := layer.NewNode(input, nil, nil)
+	node := layer.NewNode(nil, nil)
+	node.Parameters()["input"] = input
 	m.AddLayer(node)
 }
 func (m *Model) AddLayer(l layer.Layer) *Model {
-	switch l.(type) { // 修改此行
-	case *layer.ComputeGraphNode:
-		m.Layers["node"+strconv.Itoa(len(m.Layers))] = l
-	case *layer.Conv:
-		m.Layers["conv"+strconv.Itoa(len(m.Layers))] = l
-	case *layer.Linear:
-		m.Layers["linear"+strconv.Itoa(len(m.Layers))] = l
-	case *layer.Activation:
-		m.Layers["relu"+strconv.Itoa(len(m.Layers))] = l
-		// case *layer.Softmax:
-		// 	m.Layers["softmax"+strconv.Itoa(len(m.Layers))] = l
-		// case *layer.MaxPooling:
-		// 	m.Layers["maxpooling"+strconv.Itoa(len(m.Layers))] = l
-		// case *layer.AvgPooling:
-		// 	m.Layers["avgpooling"+strconv.Itoa(len(m.Layers))] = l
-		// case *layer.Dropout:
-		// 	m.Layers["dropout"+strconv.Itoa(len(m.Layers))] = l
-		// case *layer.BatchNormalization:
-		// 	m.Layers["batchnorm"+strconv.Itoa(len(m.Layers))] = l
-		// case *layer.Flatten:
-		// 	m.Layers["flatten"+strconv.Itoa(len(m.Layers))] = l
-		// case *layer.Reshape:
-		// 	m.Layers["reshape"+strconv.Itoa(len(m.Layers))] = l
-		// case *layer.Transpose:
-		// 	m.Layers["transpose"+strconv.Itoa(len(m.Layers))] = l
-		// case *layer.Permute:
-		// 	m.Layers["permute"+strconv.Itoa(len(m.Layers))] = l
-
+	if len(m.Layers) > 0 {
+		prevLayer := m.Layers[len(m.Layers)-1]
+		// 设置前一层的输出为当前层的输入
+		prevLayer.Parameters()["output"] = l.Parameters()["input"]
+		// 设置当前层的输入为前一层的输出
+		l.Parameters()["input"] = prevLayer.Parameters()["output"]
 	}
+	m.Layers = append(m.Layers, l) // 添加新层
 	return m
 }
 

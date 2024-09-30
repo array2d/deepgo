@@ -11,7 +11,7 @@ type ComputeGraphNode struct {
 }
 
 // NewNode 创建一个新的节点
-func NewNode(value *dl.Tensor, forward, backward func()) *ComputeGraphNode {
+func NewNode(forward, backward func()) *ComputeGraphNode {
 	node := &ComputeGraphNode{
 		parameters: make(map[string]*dl.Tensor),
 		forward:    forward,
@@ -19,7 +19,6 @@ func NewNode(value *dl.Tensor, forward, backward func()) *ComputeGraphNode {
 		Inputs:     []*ComputeGraphNode{},
 		Outputs:    []*ComputeGraphNode{},
 	}
-	node.parameters["."] = value
 	for _, input := range node.Inputs {
 		input.Outputs = append(input.Outputs, node)
 	}
