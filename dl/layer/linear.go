@@ -29,8 +29,8 @@ func NewLinear(inFeatures, outFeatures int) *Linear {
 
 	l.RegisterParameter("weight", weight)
 	l.RegisterParameter("bias", bias)
-	l.ComputeGraphNode.Forward = l.Forward
-	l.ComputeGraphNode.Backward = l.Backward
+	l.ComputeGraphNode.forward = l.Forward
+	l.ComputeGraphNode.backward = l.Backward
 	return l
 }
 

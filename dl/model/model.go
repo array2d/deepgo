@@ -17,12 +17,35 @@ func (m *Model) Input(input *dl.Tensor) {
 	node := layer.NewNode(input, nil, nil)
 	m.AddLayer(node)
 }
-func (m *Model) AddLayer(layer layer.Layer) *Model {
-	switch layer.(type) { // 修改此行
+func (m *Model) AddLayer(l layer.Layer) *Model {
+	switch l.(type) { // 修改此行
+	case *layer.ComputeGraphNode:
+		m.Layers["node"+strconv.Itoa(len(m.Layers))] = l
 	case *layer.Conv:
-		m.Layers["conv"+strconv.Itoa(len(m.Layers))] = layer
+		m.Layers["conv"+strconv.Itoa(len(m.Layers))] = l
 	case *layer.Linear:
-		m.Layers["linear"+strconv.Itoa(len(m.Layers))] = layer
+		m.Layers["linear"+strconv.Itoa(len(m.Layers))] = l
+	case *layer.Activation:
+		m.Layers["relu"+strconv.Itoa(len(m.Layers))] = l
+		// case *layer.Softmax:
+		// 	m.Layers["softmax"+strconv.Itoa(len(m.Layers))] = l
+		// case *layer.MaxPooling:
+		// 	m.Layers["maxpooling"+strconv.Itoa(len(m.Layers))] = l
+		// case *layer.AvgPooling:
+		// 	m.Layers["avgpooling"+strconv.Itoa(len(m.Layers))] = l
+		// case *layer.Dropout:
+		// 	m.Layers["dropout"+strconv.Itoa(len(m.Layers))] = l
+		// case *layer.BatchNormalization:
+		// 	m.Layers["batchnorm"+strconv.Itoa(len(m.Layers))] = l
+		// case *layer.Flatten:
+		// 	m.Layers["flatten"+strconv.Itoa(len(m.Layers))] = l
+		// case *layer.Reshape:
+		// 	m.Layers["reshape"+strconv.Itoa(len(m.Layers))] = l
+		// case *layer.Transpose:
+		// 	m.Layers["transpose"+strconv.Itoa(len(m.Layers))] = l
+		// case *layer.Permute:
+		// 	m.Layers["permute"+strconv.Itoa(len(m.Layers))] = l
+
 	}
 	return m
 }
