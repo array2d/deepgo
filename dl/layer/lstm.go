@@ -18,7 +18,7 @@ type LSTMLayer struct {
 // NewLSTMLayer 创建一个新的LSTM层
 func NewLSTMLayer(inFeatures, outFeatures int) *LSTMLayer {
 	l := &LSTMLayer{
-		ComputeGraphNode: *NewNode(dl.NewTensor([]int{outFeatures}), nil, nil),
+		ComputeGraphNode: *NewNode(nil, nil),
 		inFeatures:       inFeatures,
 		outFeatures:      outFeatures,
 	}

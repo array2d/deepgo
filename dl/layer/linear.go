@@ -15,10 +15,11 @@ type Linear struct {
 // NewLinear 创建一个新的线性层
 func NewLinear(inFeatures, outFeatures int) *Linear {
 	l := &Linear{
-		ComputeGraphNode: *NewNode(dl.NewTensor([]int{outFeatures}), nil, nil),
+		ComputeGraphNode: *NewNode(nil, nil),
 		inFeatures:       inFeatures,
 		outFeatures:      outFeatures,
 	}
+
 	// 初始化权重和偏置
 	weight := dl.NewTensor([]int{outFeatures, inFeatures})
 	bias := dl.NewTensor([]int{outFeatures})

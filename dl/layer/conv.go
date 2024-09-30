@@ -10,12 +10,12 @@ type Conv struct {
 
 func NewConv(inFeatures, outFeatures int) *Conv {
 	r := &Conv{
-		ComputeGraphNode: *NewNode(nil, nil, nil),
+		ComputeGraphNode: *NewNode(nil, nil),
 		inFeatures:       inFeatures,
 		outFeatures:      outFeatures,
 	}
-	r.ComputeGraphNode.Forward = r.Forward
-	r.ComputeGraphNode.Backward = r.Backward
+	r.ComputeGraphNode.forward = r.Forward
+	r.ComputeGraphNode.backward = r.Backward
 	return r
 }
 
