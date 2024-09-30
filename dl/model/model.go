@@ -12,11 +12,11 @@ type Model struct {
 	TrainFunc TrainFunc
 }
 
-func (m *Model) AddLayer(l layer.Layer) *Model {
+func (m *Model) Layer(l layer.Layer) *Model {
 	if len(m.Layers) == 0 {
 		node := layer.NewNode(nil, nil)
 		node.Parameters()["output"] = dl.NewTensor([]int{1})
-		m.AddLayer(node)
+		m.Layer(node)
 	}
 	prevLayer := m.Layers[len(m.Layers)-1]
 	// 设置前一层的输出为当前层的输入
@@ -28,8 +28,8 @@ func (m *Model) AddLayer(l layer.Layer) *Model {
 	return m
 }
 
-func (m *Model) Train() {
-	m.TrainFunc(nil)
+func (m *Model) Forward(input *dl.Tensor) {
+
 }
 func (m *Model) SetParam(name string, param *dl.Tensor) {
 	// 根据参数名设置对应的参数
