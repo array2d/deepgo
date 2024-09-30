@@ -7,9 +7,9 @@ import (
 )
 
 type Model struct {
-	Layers    []layer.Layer
-	Optimizer optimizer.Optimizer
-	TrainFunc TrainFunc
+	Layers      []layer.Layer
+	Optimizer   optimizer.Optimizer
+	ForwardFunc func(input *dl.Tensor) (output *dl.Tensor)
 }
 
 func (m *Model) Layer(l layer.Layer) *Model {
@@ -30,9 +30,5 @@ func (m *Model) Layer(l layer.Layer) *Model {
 
 func (m *Model) Forward(input *dl.Tensor) {
 
-}
-func (m *Model) SetParam(name string, param *dl.Tensor) {
-	// 根据参数名设置对应的参数
-	// 例如，name为"weights0"时，设置第一个层的weights参数
-	// name为"biases1"时，设置第二个层的biases参数
+	m.ForwardFunc(input)
 }

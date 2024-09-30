@@ -2,6 +2,7 @@ package main
 
 import (
 	"deepgo/datasetloader/mnist"
+	"deepgo/dl"
 	"deepgo/dl/layer"
 	"deepgo/dl/model"
 	"deepgo/dl/optimizer"
@@ -31,7 +32,9 @@ func main() {
 		Optimizer: optimizer.NewSGD(0.01),
 	}
 	m.Layer(l).Layer(l2).Layer(l3).Layer(l4)
+	m.ForwardFunc = func(input *dl.Tensor) (output *dl.Tensor) {
 
+	}
 	for i := 0; i < mnist.TRAIN_MNIST.Len()/100; i++ {
 		inputs, label := mnist.TRAIN_MNIST.GetBatch(i, 100)
 		for _, v := range inputs {
