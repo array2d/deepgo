@@ -28,7 +28,6 @@ func (m *Model) Layer(l *layer.ComputeGraphNode) *Model {
 	return m
 }
 
-func (m *Model) Forward(input *dl.Tensor) {
-
-	m.ForwardFunc(input)
+func (m *Model) Forward(input *dl.Tensor) (output *dl.Tensor) {
+	return m.ForwardFunc(input)
 }

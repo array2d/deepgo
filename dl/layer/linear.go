@@ -34,16 +34,16 @@ func Linear(in_features, out_features int) (l *ComputeGraphNode) {
 		l.parameters["output"] = output
 	}
 	l.backward = func() {
-
 		gradOutput := l.parameters["grad.output"]
-		// 计算输入的梯度
-		inputGrad := gradOutput.Mul(l.Parameters()["weight"].Transpose([]int{1, 0}))
 
-		// 计算权重的梯度
-		weightGrad := gradOutput.Transpose([]int{1, 0}).Mul(inputGrad)
+		// 计算输入的梯度：outputGrad * weight.T
+		inputGrad := gradOutput.Mul(l.Parameters()["weight"]) // 不需要转置
+
+		// 计算权重的梯度：input.T * gradOutput
+		input := l.Inputs[0].parameters["output"]
+		weightGrad := input.Transpose([]int{1, 0}).Mul(gradOutput)
 
 		// 计算偏置的梯度
-		// 对gradOutput在第一个维度上求和
 		biasGrad := gradOutput.Sum([]int{0})
 
 		// 更新权重和偏置的梯度
