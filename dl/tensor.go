@@ -127,3 +127,17 @@ func (t *Tensor) Clone() *Tensor {
 
 	return clone
 }
+func (t *Tensor) Reshape(newShape []int) *Tensor {
+	// 确保新形状的元素数量与原始数据匹配
+	totalElements := 1
+	for _, dim := range newShape {
+		totalElements *= dim
+	}
+	if totalElements != len(t.Data) {
+		panic("新形状与 Tensor 数据不匹配")
+	}
+	return &Tensor{
+		Shape: newShape,
+		Data:  t.Data,
+	}
+}

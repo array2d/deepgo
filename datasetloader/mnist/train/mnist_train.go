@@ -4,6 +4,7 @@ import (
 	"deepgo/datasetloader/mnist"
 	"deepgo/dl"
 	"deepgo/dl/layer"
+	"deepgo/dl/loss"
 	"deepgo/dl/model"
 	"deepgo/dl/optimizer"
 	"fmt"
@@ -20,10 +21,10 @@ func main() {
 	}
 
 	// 定义神经网络结构
-	l := layer.NewLinear(mnist.TRAIN_MNIST.ImageSize, 16*8)
-	l2 := layer.NewLinear(16*8, 128)
-	l3 := layer.NewLinear(128, 64)
-	l4 := layer.NewLinear(64, 10)
+	l := layer.Linear(mnist.TRAIN_MNIST.ImageSize, 16*8)
+	l2 := layer.Linear(16*8, 128)
+	l3 := layer.Linear(128, 64)
+	l4 := layer.Linear(64, 10)
 
 	fmt.Println(l4.Parameters()["weight"].Shape)
 
@@ -33,19 +34,26 @@ func main() {
 	}
 	m.Layer(l).Layer(l2).Layer(l3).Layer(l4)
 	m.ForwardFunc = func(input *dl.Tensor) (output *dl.Tensor) {
+		input = input.Reshape([]int{1, mnist.TRAIN_MNIST.ImageSize})
 		m.Layers[0].Parameters()["output"] = input
 		for _, layer := range m.Layers {
 			layer.Forward() // 每一层依次处理前一层的输出
 		}
 		return m.Layers[len(m.Layers)-1].Parameters()["output"]
 	}
-	for i := 0; i < mnist.TRAIN_MNIST.Len()/100; i++ {
-		inputs, label := mnist.TRAIN_MNIST.GetBatch(i, 100)
-		for _, v := range inputs {
-			m.Forward(v)
-		}
+	for i := 0; i < mnist.TRAIN_MNIST.Len(); i++ {
+		inputs, label := mnist.TRAIN_MNIST.GetBatch(i, 1)
+		v := inputs[0]
+		m.Forward(v)
+		output := m.Layers[len(m.Layers)-1].Parameters()["output"]
+		loss_val := loss.CrossEntropyLoss(output, label[0])
+		fmt.Println("loss_val", loss_val)
+		//m.Backward() // 计算损失的梯度，更新梯度
+		m.Optimizer.Update()
+
 		fmt.Println(inputs[0], label[0].Get(0))
 	}
+	m.Optimizer.SetLearningRate(0.001)
 	//
 
 	//// 测试模型

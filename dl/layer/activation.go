@@ -25,37 +25,25 @@ var Tanh ActivationFunc = func(x float64) float64 {
 	return math.Tanh(x)
 }
 
-// Activation 定义激活层结构体
-type Activation struct {
-	ComputeGraphNode
-	ActivationFunc ActivationFunc
-}
-
-// NewActivationLayer 创建一个新的激活层
-func NewActivationLayer(activationFunc ActivationFunc) *Activation {
-	var a = &Activation{
-		ActivationFunc: activationFunc,
+// Activation 创建一个新的激活层
+func Activation(activationFunc ActivationFunc) (a *ComputeGraphNode) {
+	a = NewNode(nil, nil)
+	a.forward = func() {
+		input := a.Inputs[0].parameters["output"]
+		output := input.Clone()
+		for i := range output.Data {
+			output.Data[i] = activationFunc(output.Data[i])
+		}
+		a.parameters["output"] = output
 	}
-	a.ComputeGraphNode.forward = a.Forward
-	a.ComputeGraphNode.backward = a.Backward
+	a.backward = func() {
+		gradOutput := a.parameters["grad.output"]
+		input := a.Inputs[0].parameters["output"]
+		gradInput := input.Clone()
+		for i := range gradInput.Data {
+			gradInput.Data[i] = activationFunc(input.Data[i]) * gradOutput.Data[i]
+		}
+		a.parameters["grad.input"] = gradInput
+	}
 	return a
-}
-
-// Forward 前向传播函数
-func (l *Activation) Forward() {
-	input := l.Inputs[0].parameters["output"]
-	output := input.Clone()
-	for i := range output.Data {
-		output.Data[i] = l.ActivationFunc(output.Data[i])
-	}
-	l.parameters["output"] = output
-}
-func (l *Activation) Backward() {
-	gradOutput := l.parameters["grad.output"]
-	input := l.Inputs[0].parameters["output"]
-	gradInput := input.Clone()
-	for i := range gradInput.Data {
-		gradInput.Data[i] = l.ActivationFunc(input.Data[i]) * gradOutput.Data[i]
-	}
-	l.parameters["grad.input"] = gradInput
 }
