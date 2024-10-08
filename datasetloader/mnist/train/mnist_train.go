@@ -23,9 +23,9 @@ func main() {
 		Optimizer: optimizer.NewSGD(0.01), // 学习率设置为0.01
 	}
 	m.Layer(layer.Linear(mnist.TRAIN_MNIST.ImageSize, 128)).
-		Layer(layer.Activation(layer.Relu)).
+		Layer(layer.Activation(layer.Relu, layer.ReluDerivative)).
 		Layer(layer.Linear(128, 64)).
-		Layer(layer.Activation(layer.Relu)).
+		Layer(layer.Activation(layer.Relu, layer.ReluDerivative)).
 		Layer(layer.Linear(64, 10)) // 将各个层添加到模型中
 
 	// 定义前向传播函数
