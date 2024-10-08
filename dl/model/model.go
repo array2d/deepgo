@@ -23,11 +23,18 @@ func (m *Model) Layer(l *layer.ComputeGraphNode) *Model {
 	prevLayer.Inputs = append(prevLayer.Inputs, l)
 	// 设置当前层的输入为前一层的输出
 	l.Inputs = append(l.Inputs, prevLayer)
-
 	m.Layers = append(m.Layers, l) // 添加新层
 	return m
 }
 
 func (m *Model) Forward(input *dl.Tensor) (output *dl.Tensor) {
 	return m.ForwardFunc(input)
+}
+func (m *Model) Backward() {
+	// 从最后一层开始反向传播
+	for i := len(m.Layers) - 1; i >= 0; i-- {
+		layer := m.Layers[i]
+		// 调用当前层的反向传播方法
+		layer.Backward()
+	}
 }

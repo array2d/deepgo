@@ -43,7 +43,7 @@ func Activation(activationFunc ActivationFunc) (a *ComputeGraphNode) {
 		for i := range gradInput.Data {
 			gradInput.Data[i] = activationFunc(input.Data[i]) * gradOutput.Data[i]
 		}
-		a.parameters["grad.input"] = gradInput
+		a.Inputs[0].parameters["grad.output"] = gradInput
 	}
 	return a
 }

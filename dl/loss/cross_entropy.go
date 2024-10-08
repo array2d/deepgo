@@ -18,13 +18,68 @@ import (
 
 	交叉熵损失函数常用于分类问题，特别是二分类问题。它可以用来评估模型预测结果与真实标签之间的偏差，越小表示模型的预测越准确
 */
-func CrossEntropyLoss(y_true, y_pred *dl.Tensor) float64 {
-	if y_true.Shape[0] != y_pred.Shape[0] {
-		panic("Input arrays must have the same length")
+//func CrossEntropyLoss(y_true, y_pred *dl.Tensor) float64 {
+//	if y_true.Shape[0] != y_pred.Shape[0] {
+//		panic("Input arrays must have the same length")
+//	}
+//	sum := 0.0
+//	for i := 0; i < y_true.Shape[0]; i++ {
+//		sum += y_true.Get(i) * math.Log(y_pred.Get(i))
+//	}
+//	return -sum
+//}
+
+func LogSoftmax(logits *dl.Tensor) *dl.Tensor {
+	maxVal := logits.Data[0]
+	for _, v := range logits.Data {
+		if v > maxVal {
+			maxVal = v
+		}
 	}
-	sum := 0.0
-	for i := 0; i < y_true.Shape[0]; i++ {
-		sum += y_true.Get(i) * math.Log(y_pred.Get(i))
+
+	logSumExp := 0.0
+	for _, v := range logits.Data {
+		logSumExp += math.Exp(v - maxVal)
 	}
-	return -sum
+	logSumExp = math.Log(logSumExp)
+
+	output := logits.Clone()
+	for i := range logits.Data {
+		output.Data[i] = logits.Data[i] - maxVal - logSumExp
+	}
+
+	return output
 }
+
+func CrossEntropyLoss(logits *dl.Tensor, label int) (float64, *dl.Tensor) {
+	// 计算 LogSoftmax
+	logProbs := LogSoftmax(logits)
+
+	// 计算损失：-log(prob[label])
+	loss := -logProbs.Data[label]
+
+	// 计算梯度：softmax(logits) - one_hot(label)
+	// 因为 logProbs = log(softmax(logits))
+	// 所以 softmax(logits) = exp(logProbs)
+	probs := logits.Softmax()
+	gradOutput := probs.Clone()
+	gradOutput.Data[label] -= 1.0
+
+	return loss, gradOutput
+}
+
+//func CrossEntropyLossBatch(logits *dl.Tensor, labels []int) float64 {
+//	if len(logits.Shape) != 2 || logits.Shape[0] != len(labels) {
+//		panic("Logits should be a 2D tensor and match the number of labels")
+//	}
+//
+//	batchSize := logits.Shape[0]
+//	totalLoss := 0.0
+//
+//	for i := 0; i < batchSize; i++ {
+//		sampleLogits := logits.Slice(i) // 假设有一个 Slice 方法用于获取某个样本的 logits
+//		totalLoss += CrossEntropyLoss(sampleLogits, labels[i])
+//	}
+//
+//	return totalLoss / float64(batchSize)
+//}

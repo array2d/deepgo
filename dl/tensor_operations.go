@@ -34,7 +34,17 @@ func (t *Tensor) DivInPlace(factor *Tensor) {
 		t.Data[i] /= float64(factor.Data[i])
 	}
 }
+func (t *Tensor) DivScalar(scalar float64) *Tensor {
+	// 创建一个新的张量用于存储结果
+	result := t.Clone() // 克隆当前张量以保持原始数据不变
 
+	// 遍历张量的数据并进行除法运算
+	for i := range result.Data {
+		result.Data[i] /= scalar
+	}
+
+	return result
+}
 func (t *Tensor) Add(other *Tensor) *Tensor {
 	n := t.Clone()
 	n.AddInPlace(other)
@@ -59,20 +69,29 @@ func (t *Tensor) Div(other *Tensor) *Tensor {
 }
 
 // Softmax 实现softmax函数
-func (t *Tensor) Softmax(axis int) *Tensor {
-	expData := make([]float64, len(t.Data))
-	sumExp := 0.0
-	for i, v := range t.Data {
-		expData[i] = math.Exp(v)
-		sumExp += expData[i]
+func (t *Tensor) Softmax() *Tensor {
+	maxVal := t.Data[0]
+	for _, v := range t.Data {
+		if v > maxVal {
+			maxVal = v
+		}
 	}
-	for i := range expData {
-		expData[i] /= sumExp
+
+	expSum := 0.0
+	output := t.Clone()
+
+	// 计算每个 logit 的指数值，减去 maxVal 以提高数值稳定性
+	for i := range t.Data {
+		output.Data[i] = math.Exp(t.Data[i] - maxVal)
+		expSum += output.Data[i]
 	}
-	return &Tensor{
-		Shape: t.Shape,
-		Data:  expData,
+
+	// 归一化，确保每个输出都是一个概率分布
+	for i := range output.Data {
+		output.Data[i] /= expSum
 	}
+
+	return output
 }
 
 func (t *Tensor) Sum(indices []int) *Tensor {
@@ -94,28 +113,27 @@ func (t *Tensor) Sum(indices []int) *Tensor {
 	// 创建新的数据切片
 	newData := make([]float64, calculateSize(newShape))
 
-	// 使用辅助函数进行求和
-	var sumHelper func([]int, int)
-	sumHelper = func(index []int, dim int) {
-		if dim == len(t.Shape) {
-			oldIndex := calculateIndex(index, t.Shape)
-			newIndex := calculateNewIndexS(index, newShape, indices)
-			newData[newIndex] += t.Data[oldIndex]
-			return
-		}
+	// 使用迭代方法进行求和
+	index := make([]int, len(t.Shape))
+	for i := 0; i < calculateSize(t.Shape); i++ {
+		// 计算当前索引
+		oldIndex := calculateIndex(index, t.Shape)
 
-		for i := 0; i < t.Shape[dim]; i++ {
-			index[dim] = i
-			if !contains(indices, dim) {
-				sumHelper(index, dim+1)
-			} else {
-				sumHelper(index, dim)
+		// 计算新的索引
+		newIndex := calculateNewIndexS(index, newShape, indices)
+
+		// 将当前值加到新的数据中
+		newData[newIndex] += t.Data[oldIndex]
+
+		// 更新索引
+		for j := len(index) - 1; j >= 0; j-- {
+			index[j]++
+			if index[j] < t.Shape[j] {
+				break
 			}
+			index[j] = 0
 		}
 	}
-
-	index := make([]int, len(t.Shape))
-	sumHelper(index, 0)
 
 	return &Tensor{
 		Shape: newShape,
