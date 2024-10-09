@@ -7,18 +7,17 @@ import (
 
 // Xavier 使用Xavier初始化方法初始化张量
 func (t *Tensor) Xavier(inFeatures int) {
+	// 计算标准差
 	stdv := 1.0 / math.Sqrt(float64(inFeatures))
-	for i := range t.Data {
-		t.Data[i] = rand.Float64()*2*stdv - stdv
-	}
+	// 使用Uniform函数生成随机数
+	t.Uniform(-stdv, stdv)
 }
 
 // He 使用He初始化方法初始化张量
 func (t *Tensor) He(inFeatures int) {
 	stdv := math.Sqrt(2.0 / float64(inFeatures))
-	for i := range t.Data {
-		t.Data[i] = rand.NormFloat64() * stdv
-	}
+	// 使用均匀分布生成随机数，范围为[-stdv, stdv]
+	t.Uniform(-stdv, stdv)
 }
 
 // Normal 使用正态分布初始化张量
