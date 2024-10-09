@@ -20,7 +20,9 @@ func TestGetMNISTDataset(t *testing.T) {
 
 	fmt.Println("成功解析标签数据，总共", len(TRAIN_MNIST.Labels), "个标签")
 	// 打印第一张图像和对应的标签
-	index := 0
-	fmt.Println("第一张图像的像素值：", TRAIN_MNIST.Images[index])
-	fmt.Println("第一张图像的标签：", TRAIN_MNIST.Labels[index])
+
+	fmt.Println("第一张图像的像素值：")
+	input, labels := m.GetBatch(0, 1)
+	input[0].Reshape([]int{28, 28}).Print("%3.f")
+	fmt.Println("第一张图像的标签：", labels[0].Get(0))
 }
