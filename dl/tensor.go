@@ -141,3 +141,39 @@ func (t *Tensor) Reshape(newShape []int) *Tensor {
 		Data:  t.Data,
 	}
 }
+
+// Concat 函数用于将多个张量沿指定的轴连接起来
+func Concat(tensors []*Tensor, axis int) *Tensor {
+	if len(tensors) == 0 {
+		panic("at least one tensor is required for concatenation")
+	}
+
+	// 检查所有张量的形状是否匹配
+	for i := 1; i < len(tensors); i++ {
+		if len(tensors[i].Shape) != len(tensors[0].Shape) {
+			panic("all tensors must have the same number of dimensions")
+		}
+		for j, dim := range tensors[i].Shape {
+			if j != axis && dim != tensors[0].Shape[j] {
+				panic("all tensors must have the same size in all dimensions except the concatenation axis")
+			}
+		}
+	}
+
+	// 计算新张量的形状
+	newShape := make([]int, len(tensors[0].Shape))
+	copy(newShape, tensors[0].Shape)
+	for _, t := range tensors {
+		newShape[axis] += t.Shape[axis]
+	}
+
+	// 创建新的数据切片
+	newData := make([]float64, 0, newShape[axis]*len(tensors[0].Data)/tensors[0].Shape[axis])
+
+	// 将所有张量的数据复制到新的数据切片中
+	for _, t := range tensors {
+		newData = append(newData, t.Data...)
+	}
+
+	return &Tensor{Shape: newShape, Data: newData}
+}

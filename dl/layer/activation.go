@@ -1,6 +1,7 @@
 package layer
 
 import (
+	"deepgo/dl"
 	"math"
 )
 
@@ -49,6 +50,7 @@ var TanhDerivative ActivationFunc = func(x float64) float64 {
 func Activation(activationFunc, derivativeFunc ActivationFunc) (a *ComputeGraphNode) {
 	a = NewNode(nil, nil)
 	a.forward = func() {
+		// 获取输入，形状为 [batchSize, features]
 		input := a.Inputs[0].parameters["output"]
 		output := input.Clone()
 		for i := range output.Data {
@@ -57,13 +59,21 @@ func Activation(activationFunc, derivativeFunc ActivationFunc) (a *ComputeGraphN
 		a.parameters["output"] = output
 	}
 	a.backward = func() {
+		// 获取反向传播传入的梯度，形状为 [batchSize, features]
 		gradOutput := a.parameters["grad.output"]
-		input := a.Inputs[0].parameters["output"]
-		gradInput := input.Clone()
+		// 获取当前层的输出，形状为 [batchSize, features]
+		output := a.parameters["output"]
+		gradInput := dl.NewTensor(output.Shape)
 		for i := range gradInput.Data {
-			gradInput.Data[i] = derivativeFunc(input.Data[i]) * gradOutput.Data[i]
+			gradInput.Data[i] = derivativeFunc(output.Data[i]) * gradOutput.Data[i]
 		}
-		a.Inputs[0].parameters["grad.output"] = gradInput
+		// 累加梯度到前一层的 grad.output
+		prevLayer := a.Inputs[0]
+		if existingGrad, ok := prevLayer.parameters["grad.output"]; ok {
+			existingGrad.Add(gradInput)
+		} else {
+			prevLayer.parameters["grad.output"] = gradInput
+		}
 	}
 	return a
 }
