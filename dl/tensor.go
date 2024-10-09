@@ -58,7 +58,11 @@ func (t *Tensor) Get(indices ...int) float64 {
 }
 
 // Print 打印Tensor的值
-func (t *Tensor) Print() {
+func (t *Tensor) Print(format_ ...string) {
+	var format string = "%.4f"
+	if len(format_) > 0 {
+		format = format_[0]
+	}
 	fmt.Printf("Tensor 形状: %v\n", t.Shape)
 	fmt.Println("数据:")
 
@@ -68,7 +72,7 @@ func (t *Tensor) Print() {
 			if i > 0 {
 				fmt.Print(" ")
 			}
-			fmt.Printf("%.4f", v)
+			fmt.Printf(format, v)
 		}
 		fmt.Println("]")
 	} else if len(t.Shape) == 2 {
@@ -83,7 +87,7 @@ func (t *Tensor) Print() {
 				if j > 0 {
 					fmt.Print(" ")
 				}
-				fmt.Printf("%.4f", t.Data[i*cols+j])
+				fmt.Printf(format, t.Data[i*cols+j])
 			}
 			if i == rows-1 {
 				fmt.Println("]]")
