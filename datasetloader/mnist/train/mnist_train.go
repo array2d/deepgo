@@ -85,7 +85,7 @@ func main() {
 
 			lossVal, gradOutput := loss.CrossEntropyLoss(output, labelsInt)
 			runningLoss += lossVal
-			fmt.Println("lossVal:", lossVal)
+			//fmt.Println("lossVal:", lossVal)
 			// 将损失函数的梯度赋值给最后一层的 grad.output
 			lastLayer := m.Layers[len(m.Layers)-1]
 			if existingGrad, ok := lastLayer.Parameters()["grad.output"]; ok {

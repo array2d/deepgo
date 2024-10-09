@@ -47,10 +47,9 @@ type MNIST struct {
 }
 
 func (mnist MNIST) GetBatch(idx int, batchsize int) (input, labels []*dl.Tensor) {
-	start := idx * batchsize
-	end := start + batchsize
-	batchImages := mnist.Images[start:end]
-	batchLabels := mnist.Labels[start:end]
+
+	batchImages := mnist.Images[idx : idx+batchsize]
+	batchLabels := mnist.Labels[idx : idx+batchsize]
 
 	// 将图像和标签封装成dl.Tensor类型
 	input = make([]*dl.Tensor, len(batchImages))
