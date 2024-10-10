@@ -15,8 +15,8 @@ func Linear(in_features, out_features int) (l *ComputeGraphNode) {
 	bias := dl.NewTensor([]int{out_features})
 
 	// 使用He初始化
-	weight.He(in_features)
-	bias.He(in_features)
+	weight.Xavier(in_features)
+	bias.Constant(0)
 
 	l.RegisterParameter("weight", weight)
 	l.RegisterParameter("bias", bias)
