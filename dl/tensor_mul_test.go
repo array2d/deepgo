@@ -1,59 +1,16 @@
 package dl
 
 import (
-	"encoding/json"
-	"fmt"
-	"os/exec"
-	"strings"
+	"deepgo/py"
 	"testing"
 )
-
-// 调用Python脚本计算预期结果
-func calculateExpectedResult(a, b []float64, shapeA, shapeB []int) (resultData []float64, resultShape []int, err error) {
-	aJSON, err := json.Marshal(a)
-	if err != nil {
-		return
-	}
-	bJSON, err := json.Marshal(b)
-	if err != nil {
-		return
-	}
-	shapeAJSON, err := json.Marshal(shapeA)
-	if err != nil {
-		return
-	}
-	shapeBJSON, err := json.Marshal(shapeB)
-	if err != nil {
-		return
-	}
-	cmd := exec.Command("python3", "tensor_mul.py", string(aJSON), string(shapeAJSON), string(bJSON), string(shapeBJSON))
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		fmt.Println(string(output))
-		return
-	}
-
-	// 解析Python返回的结果
-	var result []string = strings.Split(string(output), "\n")
-	result[1] = strings.Replace(result[1], "(", "[", -1)
-	result[1] = strings.Replace(result[1], ")", "]", -1)
-	// fmt.Println(result[0])
-	// fmt.Println(result[1])
-
-	err = json.Unmarshal([]byte(result[0]), &resultData)
-	if err != nil {
-		return
-	}
-	err = json.Unmarshal([]byte(result[1]), &resultShape)
-	return
-}
 
 func TestTensor_Mul(t *testing.T) {
 	// 测试2x3x2矩阵与2x2x3矩阵相乘
 	t7 := NewTensor([]int{2, 3, 2}, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
 	t8 := NewTensor([]int{2, 2, 3}, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
 
-	expected4, expectedShape, err := calculateExpectedResult(t7.Data, t8.Data, t7.Shape, t8.Shape)
+	expected4, expectedShape, err := py.CalculateExpectedResult("tensor_mul.py", t7.Data, t8.Data, t7.Shape, t8.Shape)
 	if err != nil {
 		t.Fatalf("计算预期结果时出错: %v", err)
 	}
@@ -168,11 +125,11 @@ func TestTensor_Mul2(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testCases {
+	for index, tc := range testCases {
 		tensorA := NewTensor(tc.shapeA, tc.dataA...)
 		tensorB := NewTensor(tc.shapeB, tc.dataB...)
 
-		expectedData, expectedShape, err := calculateExpectedResult(tc.dataA, tc.dataB, tc.shapeA, tc.shapeB)
+		expectedData, expectedShape, err := py.CalculateExpectedResult("tensor_mul.py", tc.dataA, tc.dataB, tc.shapeA, tc.shapeB)
 		if err != nil {
 			t.Log("计算预期结果时出错", tc.dataA, tc.dataB, tc.shapeA, tc.shapeB)
 			t.Errorf("计算预期结果时出错: %v", err)
@@ -183,6 +140,8 @@ func TestTensor_Mul2(t *testing.T) {
 		result := tensorA.Mul(tensorB)
 		if !IsTensorEqual(result, expectedTensor) {
 			t.Errorf("高维矩阵乘法错误。期望 %v，得到 %v", expectedTensor.Data, result.Data)
+		} else {
+			t.Log("计算预期结果与python一致", index)
 		}
 	}
 }
