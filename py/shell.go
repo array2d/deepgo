@@ -7,8 +7,34 @@ import (
 	"strings"
 )
 
+func CalculateAreturnB(scriptName string, input []float64, shape []int) (result []float64, resultShape []int, err error) {
+	inputJSON, err := json.Marshal(input)
+	if err != nil {
+		return
+	}
+	shapeJSON, err := json.Marshal(shape)
+	if err != nil {
+		return
+	}
+	cmd := exec.Command("python3", scriptName, string(inputJSON), string(shapeJSON))
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println(string(output))
+		return
+	}
+
+	// 解析Python返回的结果
+	var outputLines []string = strings.Split(string(output), "\n")
+	err = json.Unmarshal([]byte(outputLines[0]), &result)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal([]byte(outputLines[1]), &resultShape)
+	return
+}
+
 // 调用Python脚本计算预期结果
-func CalculateExpectedResult(scriptName string, a, b []float64, shapeA, shapeB []int) (resultData []float64, resultShape []int, err error) {
+func CalculateA_B_ReturnC(scriptName string, a, b []float64, shapeA, shapeB []int) (c []float64, resultShape []int, err error) {
 	aJSON, err := json.Marshal(a)
 	if err != nil {
 		return
@@ -39,7 +65,7 @@ func CalculateExpectedResult(scriptName string, a, b []float64, shapeA, shapeB [
 	// fmt.Println(result[0])
 	// fmt.Println(result[1])
 
-	err = json.Unmarshal([]byte(result[0]), &resultData)
+	err = json.Unmarshal([]byte(result[0]), &c)
 	if err != nil {
 		return
 	}
