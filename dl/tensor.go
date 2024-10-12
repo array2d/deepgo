@@ -3,6 +3,7 @@ package dl
 import (
 	"deepgo/dl/math/array"
 	"fmt"
+	"math"
 )
 
 /*
@@ -120,6 +121,17 @@ func IsTensorEqual(t1, t2 *Tensor) bool {
 	}
 	return array.Equal(t1.Data, t2.Data)
 
+}
+func TensorAlmostEqual(t1, t2 *Tensor, epsilon float64) bool {
+	if !array.Equal(t1.Shape, t2.Shape) {
+		return false
+	}
+	for i := range t1.Data {
+		if math.Abs(t1.Data[i]-t2.Data[i]) > epsilon {
+			return false
+		}
+	}
+	return true
 }
 func (t *Tensor) Clone() *Tensor {
 	clone := &Tensor{
