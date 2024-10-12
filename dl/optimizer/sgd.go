@@ -1,7 +1,7 @@
 package optimizer
 
 import (
-	"deepgo/dl"
+	"git.array2d.com/ai/deepgo/dl"
 )
 
 // SGD是一种随机梯度下降优化器

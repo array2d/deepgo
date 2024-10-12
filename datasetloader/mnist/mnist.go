@@ -2,10 +2,10 @@ package mnist
 
 import (
 	"compress/gzip"
-	"deepgo/dl"
-	"deepgo/dl/math/array"
 	"encoding/binary"
 	"fmt"
+	"git.array2d.com/ai/deepgo/dl"
+	"git.array2d.com/ai/deepgo/dl/math/array"
 	"io"
 	"os"
 	"path/filepath"

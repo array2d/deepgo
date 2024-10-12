@@ -1,8 +1,8 @@
 package layer
 
 import (
-	"deepgo/dl"
-	"deepgo/dl/math/array"
+	"git.array2d.com/ai/deepgo/dl"
+	"git.array2d.com/ai/deepgo/dl/math/array"
 	"testing"
 )
 

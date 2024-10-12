@@ -1,6 +1,6 @@
 package layer
 
-import "deepgo/dl"
+import "git.array2d.com/ai/deepgo/dl"
 
 type ComputeGraphNode struct {
 	parameters map[string]*dl.Tensor

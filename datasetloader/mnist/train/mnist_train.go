@@ -1,13 +1,13 @@
 package main
 
 import (
-	"deepgo/datasetloader/mnist"
-	"deepgo/dl"
-	"deepgo/dl/layer"
-	"deepgo/dl/loss"
-	"deepgo/dl/model"
-	"deepgo/dl/optimizer"
 	"fmt"
+	"git.array2d.com/ai/deepgo/datasetloader/mnist"
+	"git.array2d.com/ai/deepgo/dl"
+	"git.array2d.com/ai/deepgo/dl/layer"
+	"git.array2d.com/ai/deepgo/dl/loss"
+	"git.array2d.com/ai/deepgo/dl/model"
+	"git.array2d.com/ai/deepgo/dl/optimizer"
 	"log"
 )
 

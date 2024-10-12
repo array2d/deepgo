@@ -1,6 +1,6 @@
 package datasetloader
 
-import "deepgo/dl"
+import "git.array2d.com/ai/deepgo/dl"
 
 type Dataset interface {
 	// GetBatch 获取从idx开始，长度为batchsize的数据

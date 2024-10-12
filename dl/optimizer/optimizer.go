@@ -1,6 +1,6 @@
 package optimizer
 
-import "deepgo/dl"
+import "git.array2d.com/ai/deepgo/dl"
 
 // Optimizer 定义了优化器的方法
 type Optimizer interface {

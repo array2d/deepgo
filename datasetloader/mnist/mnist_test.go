@@ -1,8 +1,8 @@
 package mnist
 
 import (
-	"deepgo/datasetloader"
 	"fmt"
+	"git.array2d.com/ai/deepgo/datasetloader"
 	"testing"
 )
 

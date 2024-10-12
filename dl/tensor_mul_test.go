@@ -1,7 +1,7 @@
 package dl
 
 import (
-	"deepgo/py"
+	"git.array2d.com/ai/deepgo/py"
 	"testing"
 )
 

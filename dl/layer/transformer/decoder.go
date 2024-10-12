@@ -1,6 +1,6 @@
 package transformer
 
-import "deepgo/dl/layer"
+import "git.array2d.com/ai/deepgo/dl/layer"
 
 // 定义一个Encoder层类
 type EncoderLayer struct {

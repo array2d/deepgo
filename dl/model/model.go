@@ -1,9 +1,9 @@
 package model
 
 import (
-	"deepgo/dl"
-	"deepgo/dl/layer"
-	"deepgo/dl/optimizer"
+	"git.array2d.com/ai/deepgo/dl"
+	"git.array2d.com/ai/deepgo/dl/layer"
+	"git.array2d.com/ai/deepgo/dl/optimizer"
 	"strings"
 )
 

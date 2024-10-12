@@ -1,7 +1,7 @@
 package loss
 
 import (
-	"deepgo/dl"
+	"git.array2d.com/ai/deepgo/dl"
 	"math"
 )
 

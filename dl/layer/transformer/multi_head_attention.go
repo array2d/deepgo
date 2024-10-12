@@ -1,6 +1,6 @@
 package transformer
 
-import "deepgo/dl/layer"
+import "git.array2d.com/ai/deepgo/dl/layer"
 
 // 定义多头注意力类
 type MultiHeadAttention struct {

@@ -1,7 +1,7 @@
 package layer
 
 import (
-	"deepgo/dl"
+	"git.array2d.com/ai/deepgo/dl"
 	"testing"
 )
 

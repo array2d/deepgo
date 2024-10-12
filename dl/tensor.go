@@ -1,8 +1,8 @@
 package dl
 
 import (
-	"deepgo/dl/math/array"
 	"fmt"
+	"git.array2d.com/ai/deepgo/dl/math/array"
 	"math"
 )
 
