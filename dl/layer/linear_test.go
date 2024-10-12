@@ -17,7 +17,7 @@ func TestLinear(t *testing.T) {
 	// 创建一个线性层，输入特征为2，输出特征为3
 	inFeatures := 2
 	outFeatures := 3
-	linearLayer := Linear(inFeatures, outFeatures)
+	linearLayer := Linear(inFeatures, outFeatures, true)
 
 	// 创建输入张量，形状为 [batchSize, inFeatures]
 	inputTensor := dl.NewTensor([]int{1, inFeatures}, 1.0, 2.0) // 输入为 [1, 2]

@@ -2,10 +2,11 @@ package layer
 
 import (
 	"deepgo/dl"
+	"math"
 )
 
 // NewLinear 创建一个新的线性层，支持批处理
-func Linear(in_features, out_features int) (l *ComputeGraphNode) {
+func Linear(in_features, out_features int, biasInit bool) (l *ComputeGraphNode) {
 	l = NewNode(nil, nil)
 
 	l.SetAttr("in_features", in_features)
@@ -14,10 +15,21 @@ func Linear(in_features, out_features int) (l *ComputeGraphNode) {
 	weight := dl.NewTensor([]int{out_features, in_features})
 	bias := dl.NewTensor([]int{out_features})
 
-	// 使用He初始化
-	weight.He(in_features)
-	bias.He(in_features)
+	// 初始化权重
 
+	weight.KaimingUniform(math.Sqrt(5))
+	l.RegisterParameter("weight", weight)
+
+	if biasInit {
+		// 初始化偏置
+		biasT := dl.NewTensor([]int{out_features})
+		fanIn, _ := dl.CalculateFanInAndFanOut(weight)
+		bound := 1 / math.Sqrt(float64(fanIn))
+		biasT.Uniform(-bound, bound)
+		l.RegisterParameter("bias", biasT)
+	} else {
+		l.RegisterParameter("bias", nil)
+	}
 	l.RegisterParameter("weight", weight)
 	l.RegisterParameter("bias", bias)
 

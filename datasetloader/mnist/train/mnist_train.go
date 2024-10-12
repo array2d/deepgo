@@ -19,19 +19,19 @@ func main() {
 	}
 	// 设置超参数
 
-	numClasses := 10      // 分类数量
-	batchSize := 32       // 批处理大小
-	learningRate := 0.001 // 学习率
-	epochs := 30          // 训练轮数
+	numClasses := 10     // 分类数量
+	batchSize := 32      // 批处理大小
+	learningRate := 0.01 // 学习率
+	epochs := 30         // 训练轮数
 	// 创建模型
 	m := &model.Model{
 		Optimizer: optimizer.NewSGD(learningRate), // 学习率设置为0.01
 	}
-	m.Layer(layer.Linear(mnist.TRAIN_MNIST.ImageSize, 128)).
+	m.Layer(layer.Linear(mnist.TRAIN_MNIST.ImageSize, 128, true)).
 		Layer(layer.Activation(layer.Relu, layer.ReluDerivative)).
-		Layer(layer.Linear(128, 64)).
+		Layer(layer.Linear(128, 64, true)).
 		Layer(layer.Activation(layer.Relu, layer.ReluDerivative)).
-		Layer(layer.Linear(64, numClasses)) // 将各个层添加到模型中
+		Layer(layer.Linear(64, numClasses, true)) // 将各个层添加到模型中
 
 	// 定义前向传播函数
 	m.ForwardFunc = func(input *dl.Tensor) (output *dl.Tensor) {

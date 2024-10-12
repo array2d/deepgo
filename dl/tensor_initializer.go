@@ -13,11 +13,32 @@ func (t *Tensor) Xavier(inFeatures int) {
 	t.Uniform(-stdv, stdv)
 }
 
-// He 使用He初始化方法初始化张量
-func (t *Tensor) He(inFeatures int) {
-	stdv := math.Sqrt(2.0 / float64(inFeatures))
-	// 使用均匀分布生成随机数，范围为[-stdv, stdv]
-	t.Uniform(-stdv, stdv)
+// KaimingUniform 使用 Kaiming uniform 初始化方法初始化张量
+func (t *Tensor) KaimingUniform(a float64) {
+	fanIn, _ := CalculateFanInAndFanOut(t)
+	std := a / math.Sqrt(float64(fanIn))
+	bound := math.Sqrt(3.0) * std
+	t.Uniform(-bound, bound)
+}
+
+// calculateFanInAndFanOut 计算 fan_in 和 fan_out
+func CalculateFanInAndFanOut(t *Tensor) (fanIn, fanOut int) {
+	dimensions := len(t.Shape)
+	if dimensions < 2 {
+		return 1, 1
+	}
+
+	numInputFmaps := t.Shape[1]
+	numOutputFmaps := t.Shape[0]
+	receptiveFieldSize := 1
+	if dimensions > 2 {
+		for _, s := range t.Shape[2:] {
+			receptiveFieldSize *= s
+		}
+	}
+	fanIn = numInputFmaps * receptiveFieldSize
+	fanOut = numOutputFmaps * receptiveFieldSize
+	return fanIn, fanOut
 }
 
 // Normal 使用正态分布初始化张量
