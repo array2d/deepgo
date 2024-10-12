@@ -19,10 +19,10 @@ func main() {
 	}
 	// 设置超参数
 
-	numClasses := 10     // 分类数量
-	batchSize := 32      // 批处理大小
-	learningRate := 0.01 // 学习率
-	epochs := 30         // 训练轮数
+	numClasses := 10      // 分类数量
+	batchSize := 32       // 批处理大小
+	learningRate := 0.001 // 学习率
+	epochs := 30          // 训练轮数
 	// 创建模型
 	m := &model.Model{
 		Optimizer: optimizer.NewSGD(learningRate), // 学习率设置为0.01

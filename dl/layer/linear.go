@@ -16,7 +16,7 @@ func Linear(in_features, out_features int, biasInit bool) (l *ComputeGraphNode) 
 	bias := dl.NewTensor([]int{out_features})
 
 	// 初始化权重
-
+	//何凯明大神，永远的神！用了这个，loss下降飞快100倍
 	weight.KaimingUniform(math.Sqrt(5))
 	l.RegisterParameter("weight", weight)
 
