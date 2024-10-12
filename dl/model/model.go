@@ -12,6 +12,12 @@ type Model struct {
 	ForwardFunc func(input *dl.Tensor) (output *dl.Tensor)
 }
 
+func (m *Model) ResetGrad() {
+	for _, layer := range m.Layers {
+		layer.Parameters()["grad.output"] = dl.NewTensor(layer.Parameters()["grad.output"].Shape)
+	}
+}
+
 // Layer 添加一个新的层到模型中，并设置输入输出关系
 // 如果是第一个层，创建一个虚拟节点作为输入节点
 func (m *Model) Layer(l *layer.ComputeGraphNode) *Model {

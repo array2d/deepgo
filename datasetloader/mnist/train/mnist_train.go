@@ -112,7 +112,7 @@ func main() {
 			) // 使用优化器更新权重
 
 			// 重置梯度输出
-			lastLayer.Parameters()["grad.output"] = dl.NewTensor(lastLayer.Parameters()["grad.output"].Shape)
+			m.ResetGrad()
 		}
 		averageLoss := runningLoss / float64(numBatches)
 		fmt.Printf("Epoch %d complete, Average Loss: %.4f\n", epoch+1, averageLoss)

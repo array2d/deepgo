@@ -6,6 +6,13 @@ import (
 	"testing"
 )
 
+func TestNewLinear(t *testing.T) {
+	inFeatures := 2
+	outFeatures := 3
+	linearLayer := Linear(inFeatures, outFeatures)
+	linearLayer.Parameters()["weight"].Print()
+	linearLayer.Parameters()["bias"].Print()
+}
 func TestLinear(t *testing.T) {
 	// 创建一个线性层，输入特征为2，输出特征为3
 	inFeatures := 2
