@@ -14,6 +14,7 @@ func (t *Tensor) Xavier(inFeatures int) {
 }
 
 // KaimingUniform 使用 Kaiming uniform 初始化方法初始化张量
+// Kaiming 初始化是专门为使用 ReLU 激活函数的深度网络设计的。它可以帮助保持每一层输入和输出的方差，防止梯度消失或爆炸问题
 func (t *Tensor) KaimingUniform(a float64) {
 	fanIn, _ := CalculateFanInAndFanOut(t)
 	std := a / math.Sqrt(float64(fanIn))
