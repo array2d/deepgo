@@ -147,6 +147,11 @@ func (t *Tensor) Softmax() *Tensor {
 	return output
 }
 
+// Sum 函数实现对指定维度的求和操作
+// 它接受一个整数切片作为参数，表示需要求和的维度索引。
+// 函数首先检查输入的有效性，确保索引在张量的维度范围内。
+// 然后，它创建一个新的形状，去掉指定的求和维度，并初始化新的数据切片。
+// 最后，使用迭代方法遍历原始张量的数据，计算求和并返回新的张量。
 func (t *Tensor) Sum(indices []int) *Tensor {
 	// 检查输入的有效性
 	for _, idx := range indices {

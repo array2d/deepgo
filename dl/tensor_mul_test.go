@@ -10,7 +10,7 @@ func TestTensor_Mul(t *testing.T) {
 	t7 := NewTensor([]int{2, 3, 2}, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
 	t8 := NewTensor([]int{2, 2, 3}, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
 
-	expected4, expectedShape, err := py.CalculateA_B_ReturnC("tensor_mul.py", t7.Data, t8.Data, t7.Shape, t8.Shape)
+	expected4, expectedShape, err := py.CalculateA_B_ReturnC("tensor_op_A_B_return_C.py", "mul", t7.Data, t8.Data, t7.Shape, t8.Shape)
 	if err != nil {
 		t.Fatalf("计算预期结果时出错: %v", err)
 	}
@@ -129,7 +129,7 @@ func TestTensor_Mul2(t *testing.T) {
 		tensorA := NewTensor(tc.shapeA, tc.dataA...)
 		tensorB := NewTensor(tc.shapeB, tc.dataB...)
 
-		expectedData, expectedShape, err := py.CalculateA_B_ReturnC("tensor_mul.py", tc.dataA, tc.dataB, tc.shapeA, tc.shapeB)
+		expectedData, expectedShape, err := py.CalculateA_B_ReturnC("tensor_op_A_B_return_C.py", "mul", tc.dataA, tc.dataB, tc.shapeA, tc.shapeB)
 		if err != nil {
 			t.Log("计算预期结果时出错", tc.dataA, tc.dataB, tc.shapeA, tc.shapeB)
 			t.Errorf("计算预期结果时出错: %v", err)
