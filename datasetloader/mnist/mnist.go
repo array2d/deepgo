@@ -14,8 +14,8 @@ import (
 var TRAIN_MNIST = MNIST{
 	imageMagic:   0x00000803,
 	labelMagic:   0x00000801,
-	imageFile:    "train-images.idx3-ubyte",
-	labelFile:    "train-labels.idx1-ubyte",
+	imageFile:    "train-images-idx3-ubyte",
+	labelFile:    "train-labels-idx1-ubyte",
 	imageFileUrl: "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz",
 	labelFileUrl: "http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz",
 	ImageSize:    784,
@@ -26,8 +26,8 @@ var TRAIN_MNIST = MNIST{
 var TEST_MNIST = MNIST{
 	imageMagic:   0x00000803,
 	labelMagic:   0x00000801,
-	imageFile:    "t10k-images.idx3-ubyte",
-	labelFile:    "t10k-labels.idx1-ubyte",
+	imageFile:    "t10k-images-idx3-ubyte",
+	labelFile:    "t10k-labels-idx1-ubyte",
 	imageFileUrl: "http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz",
 	labelFileUrl: "http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz",
 	ImageSize:    784,

@@ -4,6 +4,7 @@ import (
 	"deepgo/dl"
 	"deepgo/dl/layer"
 	"deepgo/dl/optimizer"
+	"strings"
 )
 
 type Model struct {
@@ -14,7 +15,11 @@ type Model struct {
 
 func (m *Model) ResetGrad() {
 	for _, layer := range m.Layers {
-		layer.Parameters()["grad.output"] = dl.NewTensor(layer.Parameters()["grad.output"].Shape)
+		for name, param := range layer.Parameters() {
+			if strings.HasSuffix(name, ".grad") {
+				param.Constant(0)
+			}
+		}
 	}
 }
 

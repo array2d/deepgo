@@ -15,8 +15,8 @@ func Linear(in_features, out_features int) (l *ComputeGraphNode) {
 	bias := dl.NewTensor([]int{out_features})
 
 	// 使用He初始化
-	weight.Xavier(in_features)
-	bias.Xavier(in_features)
+	weight.He(in_features)
+	bias.He(in_features)
 
 	l.RegisterParameter("weight", weight)
 	l.RegisterParameter("bias", bias)
@@ -35,7 +35,7 @@ func Linear(in_features, out_features int) (l *ComputeGraphNode) {
 	}
 	l.backward = func() {
 		// 获取反向传播传入的梯度，形状为 [batchSize, out_features]
-		gradOutput := l.parameters["grad.output"]
+		gradOutput := l.parameters["output.grad"]
 
 		// 获取当前层的输入，形状为 [batchSize, in_features]
 		input := l.Inputs[0].parameters["output"]
@@ -44,12 +44,12 @@ func Linear(in_features, out_features int) (l *ComputeGraphNode) {
 		weight := l.Parameters()["weight"]  // [out_features, in_features]
 		inputGrad := gradOutput.Mul(weight) // [batchSize, in_features]
 
-		// 将 inputGrad 传递给前一层的 grad.output
+		// 将 inputGrad 传递给前一层的 output.grad
 		prevLayer := l.Inputs[0]
-		if _, ok := prevLayer.parameters["grad.output"]; !ok {
-			prevLayer.parameters["grad.output"] = dl.NewTensor([]int{inputGrad.Shape[0], inputGrad.Shape[1]})
+		if _, ok := prevLayer.parameters["output.grad"]; !ok {
+			prevLayer.parameters["output.grad"] = dl.NewTensor([]int{inputGrad.Shape[0], inputGrad.Shape[1]})
 		}
-		prevLayer.parameters["grad.output"].AddInPlace(inputGrad)
+		prevLayer.parameters["output.grad"].AddInPlace(inputGrad)
 
 		// 2. 计算权重的梯度：gradOutput^T [out_features, batchSize] * input [batchSize, in_features] = [out_features, in_features]
 		weightGrad := gradOutput.Transpose([]int{1, 0}).Mul(input) // [out_features, in_features]

@@ -13,7 +13,7 @@ import (
 
 func main() {
 	// 加载MNIST数据集
-	err := mnist.TRAIN_MNIST.Load("data")
+	err := mnist.TRAIN_MNIST.Load("/home/lipeng/code/ai/deepgo/data/MNIST/raw")
 	if err != nil {
 		log.Fatalf("Error during GetDataset: %v", err)
 	}
@@ -86,12 +86,12 @@ func main() {
 			lossVal, gradOutput := loss.CrossEntropyLoss(output, labelsInt)
 			runningLoss += lossVal
 			//fmt.Println("lossVal:", lossVal)
-			// 将损失函数的梯度赋值给最后一层的 grad.output
+			// 将损失函数的梯度赋值给最后一层的 output.grad
 			lastLayer := m.Layers[len(m.Layers)-1]
-			if existingGrad, ok := lastLayer.Parameters()["grad.output"]; ok {
+			if existingGrad, ok := lastLayer.Parameters()["output.grad"]; ok {
 				existingGrad.AddInPlace(gradOutput)
 			} else {
-				lastLayer.RegisterParameter("grad.output", gradOutput)
+				lastLayer.RegisterParameter("output.grad", gradOutput)
 			}
 
 			// 反向传播

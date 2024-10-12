@@ -60,19 +60,19 @@ func Activation(activationFunc, derivativeFunc ActivationFunc) (a *ComputeGraphN
 	}
 	a.backward = func() {
 		// 获取反向传播传入的梯度，形状为 [batchSize, features]
-		gradOutput := a.parameters["grad.output"]
+		gradOutput := a.parameters["output.grad"]
 		// 获取当前层的输出，形状为 [batchSize, features]
 		output := a.parameters["output"]
 		gradInput := dl.NewTensor(output.Shape)
 		for i := range gradInput.Data {
 			gradInput.Data[i] = derivativeFunc(output.Data[i]) * gradOutput.Data[i]
 		}
-		// 累加梯度到前一层的 grad.output
+		// 累加梯度到前一层的 output.grad
 		prevLayer := a.Inputs[0]
-		if existingGrad, ok := prevLayer.parameters["grad.output"]; ok {
+		if existingGrad, ok := prevLayer.parameters["output.grad"]; ok {
 			existingGrad.Add(gradInput)
 		} else {
-			prevLayer.parameters["grad.output"] = gradInput
+			prevLayer.parameters["output.grad"] = gradInput
 		}
 	}
 	return a
