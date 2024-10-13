@@ -34,35 +34,38 @@ func Linear(in_features, out_features int, biasInit bool) (l *ComputeGraphNode) 
 	l.RegisterParameter("weight", weight)
 	l.RegisterParameter("bias", bias)
 
-	l.forward = func() {
+	l.forward = func(inputs ...*dl.Tensor) []*dl.Tensor {
 		// 获取输入，形状为 [batchSize, in_features]
-		input := l.Inputs[0].parameters["output"]
+		input := inputs[0]
 
+		//由于backward需要input的梯度，所以这里需要保存input
+		l.RegisterParameter("input", input)
 		// 执行矩阵乘法：input [batchSize, in_features] * weight.T [in_features, out_features] = [batchSize, out_features]
 		transposedWeight := l.Parameters()["weight"].Transpose([]int{1, 0})
 		output := input.Mul(transposedWeight)
 
 		// 添加偏置，广播到每个样本
 		output = output.Add(l.Parameters()["bias"]) // [batchSize, out_features]
-		l.parameters["output"] = output
+		return []*dl.Tensor{output}
 	}
-	l.backward = func() {
+	l.backward = func(gradients ...*dl.Tensor) []*dl.Tensor {
 
+		// 在计算weight.Grad时，需要的是该层的input
 		// 获取当前层的输入，形状为 [batchSize, in_features]
-		input := l.Inputs[0].parameters["output"]
+		input := l.Parameters()["input"]
 
 		// 1. 计算输入的梯度：gradOutput [batchSize, out_features] * weight [out_features, in_features] = [batchSize, in_features]
 		weight := l.Parameters()["weight"] // [out_features, in_features]
 		// 获取反向传播传入的梯度，形状为 [batchSize, out_features]
-		gradOutput := l.parameters["output.grad"]
+		gradOutput := gradients[0]
 		inputGrad := gradOutput.Mul(weight) // [batchSize, in_features]
 
 		// 将 inputGrad 传递给前一层的 output.grad
 		prevLayer := l.Inputs[0]
-		if _, ok := prevLayer.parameters["output.grad"]; !ok {
-			prevLayer.parameters["output.grad"] = dl.NewTensor([]int{inputGrad.Shape[0], inputGrad.Shape[1]})
+		if _, ok := prevLayer.Parameters()["output.grad"]; !ok {
+			prevLayer.RegisterParameter("output.grad", dl.NewTensor([]int{inputGrad.Shape[0], inputGrad.Shape[1]}))
 		}
-		prevLayer.parameters["output.grad"].AddInPlace(inputGrad)
+		prevLayer.Parameters()["output.grad"].AddInPlace(inputGrad)
 
 		// 2. 计算权重的梯度：gradOutput^T [out_features, batchSize] * input [batchSize, in_features] = [out_features, in_features]
 		weightGrad := gradOutput.Transpose([]int{1, 0}).Mul(input) // [out_features, in_features]
@@ -79,6 +82,7 @@ func Linear(in_features, out_features int, biasInit bool) (l *ComputeGraphNode) 
 		} else {
 			l.Parameters()["bias.grad"].AddInPlace(biasGrad)
 		}
+		return []*dl.Tensor{inputGrad}
 	}
 	return l
 }

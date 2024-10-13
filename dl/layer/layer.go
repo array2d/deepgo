@@ -5,14 +5,14 @@ import "git.array2d.com/ai/deepgo/dl"
 type ComputeGraphNode struct {
 	parameters map[string]*dl.Tensor
 	attr       map[string]any
-	forward    func()
-	backward   func()
+	forward    func(inputs ...*dl.Tensor) []*dl.Tensor
+	backward   func(gradients ...*dl.Tensor) []*dl.Tensor
 	Inputs     []*ComputeGraphNode
 	Outputs    []*ComputeGraphNode
 }
 
 // NewNode 创建一个新的节点
-func NewNode(forward, backward func()) *ComputeGraphNode {
+func NewNode(forward func(inputs ...*dl.Tensor) []*dl.Tensor, backward func(gradients ...*dl.Tensor) []*dl.Tensor) *ComputeGraphNode {
 	node := &ComputeGraphNode{
 		parameters: make(map[string]*dl.Tensor),
 		attr:       map[string]any{},
@@ -45,13 +45,17 @@ func (n *ComputeGraphNode) Parameters() map[string]*dl.Tensor {
 	return n.parameters
 }
 
-func (n *ComputeGraphNode) Forward() {
+func (n *ComputeGraphNode) Forward(inputs ...*dl.Tensor) []*dl.Tensor {
 	if n.forward != nil {
-		n.forward()
+		return n.forward(inputs...)
 	}
+	return nil
 }
-func (n *ComputeGraphNode) Backward() {
+
+// Backward 执行反向传播
+func (n *ComputeGraphNode) Backward(gradients ...*dl.Tensor) []*dl.Tensor {
 	if n.backward != nil {
-		n.backward()
+		return n.backward(gradients...)
 	}
+	return nil
 }

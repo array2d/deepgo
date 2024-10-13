@@ -36,16 +36,15 @@ func main() {
 		Layer(layer.Linear(64, numClasses, true)) // 将各个层添加到模型中
 
 	// 定义前向传播函数
-	m.ForwardFunc = func(input *dl.Tensor) (output *dl.Tensor) {
+	m.ForwardFunc = func(inputs ...*dl.Tensor) (outputs []*dl.Tensor) {
 		// 1. 展平输入数据，和PyTorch中的 x.view(-1, 28*28) 相似
-		input = input.Reshape([]int{batchSize, 28 * 28})
-
+		inputs[0].Reshape([]int{batchSize, 28 * 28})
 		// 2. 通过第一层并应用 ReLU
-		m.Layers[0].Parameters()["output"] = input
+		outputs = inputs
 		for _, layer := range m.Layers {
-			layer.Forward() // 每一层依次处理前一层的输出
+			outputs = layer.Forward(outputs...) // 每一层依次处理前一层的输出
 		}
-		return m.Layers[len(m.Layers)-1].Parameters()["output"]
+		return outputs
 	}
 
 	// 计算批次数
@@ -78,8 +77,8 @@ func main() {
 			batchInputs = batchInputs.DivScalar(255.0)
 
 			// 前向传播
-			output := m.Forward(batchInputs) // 形状: [currentBatchSize, numClasses]
-
+			outputs := m.Forward(batchInputs) // 形状: [currentBatchSize, numClasses]
+			output := outputs[0]
 			// 计算损失和梯度
 			labelsInt := make([]int, currentBatchSize)
 			for i := 0; i < currentBatchSize; i++ {
