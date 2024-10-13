@@ -1,8 +1,9 @@
 package layer
 
 import (
-	"git.array2d.com/ai/deepgo/dl"
 	"math"
+
+	"git.array2d.com/ai/deepgo/dl"
 )
 
 // NewLinear 创建一个新的线性层，支持批处理
@@ -46,14 +47,14 @@ func Linear(in_features, out_features int, biasInit bool) (l *ComputeGraphNode) 
 		l.parameters["output"] = output
 	}
 	l.backward = func() {
-		// 获取反向传播传入的梯度，形状为 [batchSize, out_features]
-		gradOutput := l.parameters["output.grad"]
 
 		// 获取当前层的输入，形状为 [batchSize, in_features]
 		input := l.Inputs[0].parameters["output"]
 
 		// 1. 计算输入的梯度：gradOutput [batchSize, out_features] * weight [out_features, in_features] = [batchSize, in_features]
-		weight := l.Parameters()["weight"]  // [out_features, in_features]
+		weight := l.Parameters()["weight"] // [out_features, in_features]
+		// 获取反向传播传入的梯度，形状为 [batchSize, out_features]
+		gradOutput := l.parameters["output.grad"]
 		inputGrad := gradOutput.Mul(weight) // [batchSize, in_features]
 
 		// 将 inputGrad 传递给前一层的 output.grad

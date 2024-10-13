@@ -19,7 +19,7 @@ func CalculateAreturnB(scriptName string, op string, input []float64, shape []in
 	cmd := exec.Command("python3", scriptName, op, string(inputJSON), string(shapeJSON))
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Println(string(output))
+		fmt.Println("shell output:", string(output))
 		return
 	}
 

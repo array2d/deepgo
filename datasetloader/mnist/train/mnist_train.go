@@ -2,18 +2,20 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"time"
+
 	"git.array2d.com/ai/deepgo/datasetloader/mnist"
 	"git.array2d.com/ai/deepgo/dl"
 	"git.array2d.com/ai/deepgo/dl/layer"
 	"git.array2d.com/ai/deepgo/dl/loss"
 	"git.array2d.com/ai/deepgo/dl/model"
 	"git.array2d.com/ai/deepgo/dl/optimizer"
-	"log"
 )
 
 func main() {
 	// 加载MNIST数据集
-	err := mnist.TRAIN_MNIST.Load("/home/lipeng/code/ai/deepgo/data/MNIST/raw")
+	err := mnist.TRAIN_MNIST.Load("data/MNIST/raw")
 	if err != nil {
 		log.Fatalf("Error during GetDataset: %v", err)
 	}
@@ -57,6 +59,7 @@ func main() {
 	for epoch := 0; epoch < epochs; epoch++ {
 		runningLoss := 0.0
 		for batch := 0; batch < numBatches; batch++ {
+			start := time.Now()
 			startIdx := batch * batchSize
 			endIdx := startIdx + batchSize
 			if endIdx > numSamples {
@@ -103,7 +106,8 @@ func main() {
 			//	linear2.Parameters(),
 			//	outputLayer.Parameters(),
 			//)
-
+			end := time.Now()
+			fmt.Printf("batch time: %v\n", end.Sub(start))
 			// 使用优化器更新权重
 			m.Optimizer.Update(
 				m.Layers[1].Parameters(),
