@@ -20,7 +20,7 @@ func TestActivation_Relu(t *testing.T) {
 	output := reluLayer.parameters["output"]
 
 	// 验证ReLU输出
-	expectedOutput := []float64{0.0, 0.0, 1.0, 2.0, 0.0, 3.0}
+	expectedOutput := []float32{0.0, 0.0, 1.0, 2.0, 0.0, 3.0}
 	for i, v := range expectedOutput {
 		if output.Data[i] != v {
 			t.Errorf("ReLU激活函数输出错误，期望 %f，得到 %f", v, output.Data[i])
@@ -36,7 +36,7 @@ func TestActivation_Relu(t *testing.T) {
 	gradInput := reluLayer.Inputs[0].parameters["grad.output"]
 
 	// 验证ReLU的导数输出
-	expectedGradInput := []float64{0.0, 0.0, 1.0, 1.0, 0.0, 1.0}
+	expectedGradInput := []float32{0.0, 0.0, 1.0, 1.0, 0.0, 1.0}
 	for i, v := range expectedGradInput {
 		if gradInput.Data[i] != v {
 			t.Errorf("ReLU导数输出错误，期望 %f，得到 %f", v, gradInput.Data[i])
@@ -58,7 +58,7 @@ func TestActivation_Tanh(t *testing.T) {
 	output := tanhLayer.parameters["output"]
 
 	// 验证Tanh输出
-	expectedOutput := []float64{0.7616, 0.0, 0.7616, 0.9640, -0.9640, 0.9951}
+	expectedOutput := []float32{0.7616, 0.0, 0.7616, 0.9640, -0.9640, 0.9951}
 	for i, v := range expectedOutput {
 		if output.Data[i] != v {
 			t.Errorf("Tanh激活函数输出错误，期望 %f，得到 %f", v, output.Data[i])
@@ -74,7 +74,7 @@ func TestActivation_Tanh(t *testing.T) {
 	gradInput := tanhLayer.Inputs[0].parameters["grad.output"]
 
 	// 验证Tanh的导数输出
-	expectedGradInput := []float64{0.4199, 0.0, 0.4199, 0.0987, -0.0987, 0.0450}
+	expectedGradInput := []float32{0.4199, 0.0, 0.4199, 0.0987, -0.0987, 0.0450}
 	for i, v := range expectedGradInput {
 		if gradInput.Data[i] != v {
 			t.Errorf("Tanh导数输出错误，期望 %f，得到 %f", v, gradInput.Data[i])

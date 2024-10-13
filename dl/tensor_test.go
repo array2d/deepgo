@@ -7,7 +7,7 @@ import (
 
 func TestNewTensor(t *testing.T) {
 	shape := []int{2, 3}
-	data := []float64{1, 2, 3, 4, 5, 6}
+	data := []float32{1, 2, 3, 4, 5, 6}
 	tensor := NewTensor(shape, data...)
 
 	if !reflect.DeepEqual(tensor.Shape, shape) {
@@ -23,7 +23,7 @@ func TestNewTensor(t *testing.T) {
 func TestSetAndGet(t *testing.T) {
 	shape := []int{2, 3}
 	tensor := NewTensor(shape)
-	expectedValue := 1.0
+	expectedValue := float32(1.0)
 	tensor.Set([]int{0, 0}, expectedValue)
 	actualValue := tensor.Get(0, 0)
 	if actualValue != expectedValue {
@@ -53,10 +53,11 @@ func TestTensor_Get(t *testing.T) {
 
 func TestTensor_RandomInit(t *testing.T) {
 	tensor := NewTensor([]int{2, 2})
-	min, max := 0.0, 1.0
+	var min, max float64 = 0.0, 1.0
 	tensor.Uniform(min, max)
 
-	for _, v := range tensor.Data {
+	for _, v_ := range tensor.Data {
+		v := float64(v_)
 		if v < min || v > max {
 			t.Errorf("随机初始化的值 %f 不在范围 [%f, %f] 内", v, min, max)
 		}

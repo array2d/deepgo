@@ -15,16 +15,16 @@ import (
 
 func main() {
 	// 加载MNIST数据集
-	err := mnist.TRAIN_MNIST.Load("data/MNIST/raw")
+	err := mnist.TRAIN_MNIST.Load("C:\\Users\\timeloveboy\\dataset\\mnist\\raw")
 	if err != nil {
 		log.Fatalf("Error during GetDataset: %v", err)
 	}
 	// 设置超参数
 
-	numClasses := 10      // 分类数量
-	batchSize := 32       // 批处理大小
-	learningRate := 0.001 // 学习率
-	epochs := 30          // 训练轮数
+	numClasses := 10               // 分类数量
+	batchSize := 32                // 批处理大小
+	learningRate := float32(0.001) // 学习率
+	epochs := 30                   // 训练轮数
 	// 创建模型
 	m := &model.Model{
 		Optimizer: optimizer.NewSGD(learningRate), // 学习率设置为0.01
@@ -57,7 +57,7 @@ func main() {
 
 	// 训练循环
 	for epoch := 0; epoch < epochs; epoch++ {
-		runningLoss := 0.0
+		runningLoss := float32(0.0)
 		for batch := 0; batch < numBatches; batch++ {
 			start := time.Now()
 			startIdx := batch * batchSize
@@ -107,7 +107,9 @@ func main() {
 			//	outputLayer.Parameters(),
 			//)
 			end := time.Now()
-			fmt.Printf("batch time: %v\n", end.Sub(start))
+			usetime := end.Sub(start)
+			usetime = usetime
+			//fmt.Printf("batch time: %v\n", )
 			// 使用优化器更新权重
 			m.Optimizer.Update(
 				m.Layers[1].Parameters(),
@@ -118,7 +120,7 @@ func main() {
 			// 重置梯度输出
 			m.ResetGrad()
 		}
-		averageLoss := runningLoss / float64(numBatches)
+		averageLoss := runningLoss / float32(numBatches)
 		fmt.Printf("Epoch %d complete, Average Loss: %.4f\n", epoch+1, averageLoss)
 	}
 

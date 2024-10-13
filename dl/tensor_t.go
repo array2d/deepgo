@@ -17,7 +17,7 @@ func (t *Tensor) Transpose(order []int) *Tensor {
 	}
 
 	// 创建新的数据切片
-	newData := make([]float64, len(t.Data))
+	newData := make([]float32, len(t.Data))
 
 	// 使用辅助函数计算新的索引
 	var transposeHelper func([]int, []int, int)

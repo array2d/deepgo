@@ -35,14 +35,14 @@ func LogSoftmax(logits *dl.Tensor) *dl.Tensor {
 		}
 
 		// 计算 sum(exp(x - max))
-		sumExp := 0.0
+		sumExp := float32(0.0)
 		for c := 0; c < numClasses; c++ {
-			output.Data[b*numClasses+c] = math.Exp(logits.Data[b*numClasses+c] - maxVal)
+			output.Data[b*numClasses+c] = float32(math.Exp(float64(logits.Data[b*numClasses+c] - maxVal)))
 			sumExp += output.Data[b*numClasses+c]
 		}
 
 		// 计算 log(sum(exp(x - max))) + max
-		logSumExp := math.Log(sumExp) + maxVal
+		logSumExp := float32(math.Log(float64(sumExp)) + float64(maxVal))
 
 		// 计算 log softmax
 		for c := 0; c < numClasses; c++ {
@@ -62,7 +62,7 @@ func Softmax(logits *dl.Tensor) *dl.Tensor {
 
 	for b := 0; b < batchSize; b++ {
 		for c := 0; c < numClasses; c++ {
-			probs.Data[b*numClasses+c] = math.Exp(logProbs.Data[b*numClasses+c])
+			probs.Data[b*numClasses+c] = float32(math.Exp(float64(logProbs.Data[b*numClasses+c])))
 		}
 	}
 
@@ -70,7 +70,7 @@ func Softmax(logits *dl.Tensor) *dl.Tensor {
 }
 
 // CrossEntropyLoss 计算批次交叉熵损失，并返回梯度
-func CrossEntropyLoss(logits *dl.Tensor, labels []int) (float64, *dl.Tensor) {
+func CrossEntropyLoss(logits *dl.Tensor, labels []int) (float32, *dl.Tensor) {
 	batchSize := logits.Shape[0]
 	numClasses := logits.Shape[1]
 
@@ -82,7 +82,7 @@ func CrossEntropyLoss(logits *dl.Tensor, labels []int) (float64, *dl.Tensor) {
 	logProbs := LogSoftmax(logits)
 
 	// 计算损失：-sum(log(prob[y])) / batchSize
-	loss := 0.0
+	loss := float32(0.0)
 	for b := 0; b < batchSize; b++ {
 		label := labels[b]
 		if label < 0 || label >= numClasses {
@@ -90,7 +90,7 @@ func CrossEntropyLoss(logits *dl.Tensor, labels []int) (float64, *dl.Tensor) {
 		}
 		loss += -logProbs.Data[b*numClasses+label]
 	}
-	loss /= float64(batchSize)
+	loss /= float32(batchSize)
 
 	// 计算梯度：softmax(logits) - one_hot(labels)
 	probs := Softmax(logits)
@@ -99,9 +99,9 @@ func CrossEntropyLoss(logits *dl.Tensor, labels []int) (float64, *dl.Tensor) {
 	for b := 0; b < batchSize; b++ {
 		for c := 0; c < numClasses; c++ {
 			if c == labels[b] {
-				gradOutput.Data[b*numClasses+c] = (probs.Data[b*numClasses+c] - 1.0) / float64(batchSize)
+				gradOutput.Data[b*numClasses+c] = (probs.Data[b*numClasses+c] - 1.0) / float32(batchSize)
 			} else {
-				gradOutput.Data[b*numClasses+c] = probs.Data[b*numClasses+c] / float64(batchSize)
+				gradOutput.Data[b*numClasses+c] = probs.Data[b*numClasses+c] / float32(batchSize)
 			}
 		}
 	}

@@ -45,21 +45,21 @@ func CalculateFanInAndFanOut(t *Tensor) (fanIn, fanOut int) {
 // Normal 使用正态分布初始化张量
 func (t *Tensor) Normal(mean, stddev float64) {
 	for i := range t.Data {
-		t.Data[i] = rand.NormFloat64()*stddev + mean
+		t.Data[i] = float32(rand.NormFloat64()*stddev + mean)
 	}
 }
 
 // Uniform 使用均匀分布初始化张量
 func (t *Tensor) Uniform(low, high float64) {
 	for i := range t.Data {
-		t.Data[i] = low + rand.Float64()*(high-low)
+		t.Data[i] = float32(low + rand.Float64()*(high-low))
 	}
 }
 
 // Constant 使用常数初始化张量
 func (t *Tensor) Constant(value float64) {
 	for i := range t.Data {
-		t.Data[i] = value
+		t.Data[i] = float32(value)
 	}
 }
 
@@ -71,9 +71,9 @@ func (t *Tensor) Orthogonal(gain float64) {
 	}
 
 	// 生成随机矩阵
-	randomMatrix := make([]float64, rows*cols)
+	randomMatrix := make([]float32, rows*cols)
 	for i := range randomMatrix {
-		randomMatrix[i] = rand.NormFloat64()
+		randomMatrix[i] = float32(rand.NormFloat64())
 	}
 
 	// 执行QR分解
@@ -81,12 +81,12 @@ func (t *Tensor) Orthogonal(gain float64) {
 
 	// 将结果复制到张量中
 	for i := range t.Data {
-		t.Data[i] = q[i] * gain
+		t.Data[i] = q[i] * float32(gain)
 	}
 }
 
 // qrDecomposition 执行QR分解并返回Q矩阵
-func qrDecomposition(a []float64, m, n int) []float64 {
+func qrDecomposition(a []float32, m, n int) []float32 {
 	// 这里应该实现完整的QR分解算法
 	// 为了简化，我们只返回原始矩阵
 	// 在实际应用中，应该使用更复杂的数学库来实现QR分解

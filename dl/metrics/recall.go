@@ -4,7 +4,7 @@ package metrics
 // 召回率 = 真正例 / (真正例 + 假反例)
 // 其中，真正例是指真实标签为1且预测为1的样本数量，假反例是指真实标签为0但预测为1的样本数量。
 // 混淆矩阵是一个二维矩阵，其中行表示真实标签的类别，列表示模型预测的类别。混淆矩阵的每个元素表示真实标签为该行类别且模型预测为该列类别的样本数量
-func Recall(trueLabels []float64, predictedLabels []float64) float64 {
+func Recall(trueLabels []float32, predictedLabels []float32) float32 {
 	numClasses := 3
 	confusionMatrix := make([][]int, numClasses)
 	for i := 0; i < numClasses; i++ {
@@ -15,7 +15,7 @@ func Recall(trueLabels []float64, predictedLabels []float64) float64 {
 		confusionMatrix[int(trueLabels[i])-1][int(predictedLabels[i])-1]++
 	}
 	// 计算召回率
-	recallSum := 0.0
+	recallSum := float32(0.0)
 	for i := 0; i < numClasses; i++ {
 		tp := confusionMatrix[i][i]
 		fn := 0
@@ -24,8 +24,8 @@ func Recall(trueLabels []float64, predictedLabels []float64) float64 {
 				fn += confusionMatrix[i][j]
 			}
 		}
-		recall := float64(tp) / float64(tp+fn)
+		recall := float32(tp) / float32(tp+fn)
 		recallSum += recall
 	}
-	return recallSum / float64(numClasses)
+	return recallSum / float32(numClasses)
 }

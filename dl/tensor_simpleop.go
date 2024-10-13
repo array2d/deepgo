@@ -10,7 +10,7 @@ import (
 func (t *Tensor) AddInPlace(other *Tensor) {
 	if array.Equal(t.Shape, other.Shape) {
 		for i := range t.Data {
-			t.Data[i] += float64(other.Data[i])
+			t.Data[i] += float32(other.Data[i])
 		}
 	} else {
 		if !broadcastable(t.Shape, other.Shape) {
@@ -34,7 +34,7 @@ func (t *Tensor) AddInPlace(other *Tensor) {
 func (t *Tensor) SubInPlace(other *Tensor) {
 	if array.Equal(t.Shape, other.Shape) {
 		for i := range t.Data {
-			t.Data[i] -= float64(other.Data[i])
+			t.Data[i] -= float32(other.Data[i])
 		}
 	} else {
 		if !broadcastable(t.Shape, other.Shape) {
@@ -58,7 +58,7 @@ func (t *Tensor) SubInPlace(other *Tensor) {
 func (t *Tensor) DivInPlace(other *Tensor) {
 	if array.Equal(t.Shape, other.Shape) {
 		for i := range t.Data {
-			t.Data[i] /= float64(other.Data[i])
+			t.Data[i] /= float32(other.Data[i])
 		}
 	} else {
 		if !broadcastable(t.Shape, other.Shape) {
@@ -105,11 +105,11 @@ func (t *Tensor) Div(other *Tensor) *Tensor {
 // HadamardProductInPlace 逐元素相乘
 func (t *Tensor) HadamardProductInPlace(factor *Tensor) {
 	for i := range t.Data {
-		t.Data[i] *= float64(factor.Data[i])
+		t.Data[i] *= float32(factor.Data[i])
 	}
 }
 
-func (t *Tensor) DivScalar(scalar float64) *Tensor {
+func (t *Tensor) DivScalar(scalar float32) *Tensor {
 	// 创建一个新的张量用于存储结果
 	result := t.Clone() // 克隆当前张量以保持原始数据不变
 
@@ -130,12 +130,12 @@ func (t *Tensor) Softmax() *Tensor {
 		}
 	}
 
-	expSum := 0.0
+	expSum := float32(0.0)
 	output := t.Clone()
 
 	// 计算每个 logit 的指数值，减去 maxVal 以提高数值稳定性
 	for i := range t.Data {
-		output.Data[i] = math.Exp(t.Data[i] - maxVal)
+		output.Data[i] = float32(math.Exp(float64(t.Data[i] - maxVal)))
 		expSum += output.Data[i]
 	}
 
@@ -169,7 +169,7 @@ func (t *Tensor) Sum(indices []int) *Tensor {
 	}
 
 	// 创建新的数据切片
-	newData := make([]float64, calculateSize(newShape))
+	newData := make([]float32, calculateSize(newShape))
 
 	// 使用迭代方法进行求和
 	index := make([]int, len(t.Shape))

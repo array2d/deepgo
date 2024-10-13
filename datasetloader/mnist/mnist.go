@@ -54,13 +54,13 @@ func (mnist MNIST) GetBatch(idx int, batchsize int) (input, labels []*dl.Tensor)
 	// 将图像和标签封装成dl.Tensor类型
 	input = make([]*dl.Tensor, len(batchImages))
 	for i, image := range batchImages {
-		t := dl.NewTensor([]int{mnist.ImageSize}, array.ToFloat64s(image)...)
+		t := dl.NewTensor([]int{mnist.ImageSize}, array.ToFloat32s(image)...)
 		input[i] = t
 	}
 
 	labels = make([]*dl.Tensor, len(batchLabels))
 	for i, label := range batchLabels {
-		t := dl.NewTensor([]int{1}, float64(label))
+		t := dl.NewTensor([]int{1}, float32(label))
 		labels[i] = t
 	}
 	return

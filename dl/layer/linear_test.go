@@ -1,15 +1,16 @@
 package layer
 
 import (
+	"testing"
+
 	"git.array2d.com/ai/deepgo/dl"
 	"git.array2d.com/ai/deepgo/dl/math/array"
-	"testing"
 )
 
 func TestNewLinear(t *testing.T) {
 	inFeatures := 2
 	outFeatures := 3
-	linearLayer := Linear(inFeatures, outFeatures)
+	linearLayer := Linear(inFeatures, outFeatures, true)
 	linearLayer.Parameters()["weight"].Print()
 	linearLayer.Parameters()["bias"].Print()
 }
@@ -37,7 +38,7 @@ func TestLinear(t *testing.T) {
 
 	// 验证输出值（假设权重和偏置已初始化为某个值）
 	// 这里需要根据权重和偏置的初始化值来计算期望输出
-	expectedOutput := []float64{0.0, 0.0, 0.0} // 根据初始化的权重和偏置计算期望输出
+	expectedOutput := []float32{0.0, 0.0, 0.0} // 根据初始化的权重和偏置计算期望输出
 	for i, v := range expectedOutput {
 		if output.Data[i] != v {
 			t.Errorf("线性层输出错误，期望 %f，得到 %f", v, output.Data[i])
@@ -53,7 +54,7 @@ func TestLinear(t *testing.T) {
 	gradInput := linearLayer.Inputs[0].parameters["grad.output"]
 
 	// 验证输入的梯度（根据权重和偏置的初始化值计算期望梯度）
-	expectedGradInput := []float64{0.0, 0.0} // 根据权重和偏置计算期望输入梯度
+	expectedGradInput := []float32{0.0, 0.0} // 根据权重和偏置计算期望输入梯度
 	for i, v := range expectedGradInput {
 		if gradInput.Data[i] != v {
 			t.Errorf("线性层输入梯度错误，期望 %f，得到 %f", v, gradInput.Data[i])

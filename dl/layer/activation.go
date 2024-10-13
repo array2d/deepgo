@@ -6,10 +6,10 @@ import (
 )
 
 // ActivationFunc 定义激活函数接口
-type ActivationFunc func(float64) float64
+type ActivationFunc func(float32) float32
 
 // Relu 实现ReLU激活函数
-var Relu ActivationFunc = func(x float64) float64 {
+var Relu ActivationFunc = func(x float32) float32 {
 	if x < 0 {
 		return 0
 	}
@@ -17,7 +17,7 @@ var Relu ActivationFunc = func(x float64) float64 {
 }
 
 // ReluDerivative 计算ReLU的导数
-var ReluDerivative ActivationFunc = func(x float64) float64 {
+var ReluDerivative ActivationFunc = func(x float32) float32 {
 	if x > 0 {
 		return 1
 	}
@@ -25,23 +25,23 @@ var ReluDerivative ActivationFunc = func(x float64) float64 {
 }
 
 // Sigmoid 实现Sigmoid激活函数
-var Sigmoid ActivationFunc = func(x float64) float64 {
-	return 1 / (1 + math.Exp(-x))
+var Sigmoid ActivationFunc = func(x float32) float32 {
+	return float32(1 / (1 + math.Exp(float64(-x))))
 }
 
 // SigmoidDerivative 计算Sigmoid的导数
-var SigmoidDerivative ActivationFunc = func(x float64) float64 {
+var SigmoidDerivative ActivationFunc = func(x float32) float32 {
 	s := Sigmoid(x)
 	return s * (1 - s)
 }
 
 // Tanh 实现Tanh激活函数
-var Tanh ActivationFunc = func(x float64) float64 {
-	return math.Tanh(x)
+var Tanh ActivationFunc = func(x float32) float32 {
+	return float32(math.Tanh(float64(x)))
 }
 
 // TanhDerivative 计算Tanh的导数
-var TanhDerivative ActivationFunc = func(x float64) float64 {
+var TanhDerivative ActivationFunc = func(x float32) float32 {
 	t := Tanh(x)
 	return 1 - t*t
 }

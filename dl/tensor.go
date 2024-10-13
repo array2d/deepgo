@@ -2,14 +2,15 @@ package dl
 
 import (
 	"fmt"
-	"git.array2d.com/ai/deepgo/dl/math/array"
 	"math"
+
+	"git.array2d.com/ai/deepgo/dl/math/array"
 )
 
 /*
 type Tensor struct {
 	Shape []int
-	Data []float64 //
+	Data []float32 //
 }
 */
 
@@ -26,17 +27,17 @@ type Tensor struct {
 	// data：表示张量的值，即实际的数据。它是一个浮点数切片（slice），其中的元素按照顺序存储张量的值。
 	// 例如，如果一个张量的形状为[2, 3]，并且它的值为[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]，则data字段将存储[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]。
 	// 这个字段通常用于存储和操作张量的值
-	Data []float64 //
+	Data []float32 //
 }
 
 // NewTensor 创建一个新的Tensor
 // 函数接受一个可变参数shape，表示张量的形状。首先，计算出张量的总大小，即各个维度大小的乘积。然后，使用make函数创建一个大小为总大小的浮点数切片，用于存储张量的值。最后，返回一个新的Tensor对象，其中包含了形状和数据
-func NewTensor(shape []int, data ...float64) *Tensor {
+func NewTensor(shape []int, data ...float32) *Tensor {
 	size := 1
 	for _, dim := range shape {
 		size *= dim
 	}
-	_data := make([]float64, size)
+	_data := make([]float32, size)
 	copy(_data, data)
 	return &Tensor{
 		Data:  _data,
@@ -45,13 +46,13 @@ func NewTensor(shape []int, data ...float64) *Tensor {
 }
 
 // Set 设置Tensor的值
-func (t *Tensor) Set(indices []int, value float64) {
+func (t *Tensor) Set(indices []int, value float32) {
 	idx := t.calculateIndex(indices)
 	t.Data[idx] = value
 }
 
 // Get 获取Tensor的值
-func (t *Tensor) Get(indices ...int) float64 {
+func (t *Tensor) Get(indices ...int) float32 {
 	idx := t.calculateIndex(indices)
 
 	return t.Data[idx]
@@ -122,12 +123,12 @@ func IsTensorEqual(t1, t2 *Tensor) bool {
 	return array.Equal(t1.Data, t2.Data)
 
 }
-func TensorAlmostEqual(t1, t2 *Tensor, epsilon float64) bool {
+func TensorAlmostEqual(t1, t2 *Tensor, epsilon float32) bool {
 	if !array.Equal(t1.Shape, t2.Shape) {
 		return false
 	}
 	for i := range t1.Data {
-		if math.Abs(t1.Data[i]-t2.Data[i]) > epsilon {
+		if math.Abs(float64(t1.Data[i]-t2.Data[i])) > float64(epsilon) {
 			return false
 		}
 	}
@@ -136,7 +137,7 @@ func TensorAlmostEqual(t1, t2 *Tensor, epsilon float64) bool {
 func (t *Tensor) Clone() *Tensor {
 	clone := &Tensor{
 		Shape: make([]int, len(t.Shape)),
-		Data:  make([]float64, len(t.Data)),
+		Data:  make([]float32, len(t.Data)),
 	}
 	copy(clone.Shape, t.Shape)
 	copy(clone.Data, t.Data)
@@ -184,7 +185,7 @@ func Concat(tensors []*Tensor, axis int) *Tensor {
 	}
 
 	// 创建新的数据切片
-	newData := make([]float64, 0, newShape[axis]*len(tensors[0].Data)/tensors[0].Shape[axis])
+	newData := make([]float32, 0, newShape[axis]*len(tensors[0].Data)/tensors[0].Shape[axis])
 
 	// 将所有张量的数据复制到新的数据切片中
 	for _, t := range tensors {

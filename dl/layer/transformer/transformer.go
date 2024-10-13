@@ -15,7 +15,7 @@ func NewTransformer(numLayers int, hiddenSize int, numHeads int) *Transformer {
 	for i := 0; i < numLayers; i++ {
 		encoderLayers[i] = &EncoderLayer{
 			selfAttention: &MultiHeadAttention{
-				linearQ:   layer.NewLinear(hiddenSize, hiddenSize),
+				linearQ:   layer.Linear(hiddenSize, hiddenSize, true),
 				linearK:   layer.NewLinear(hiddenSize, hiddenSize),
 				linearV:   layer.NewLinear(hiddenSize, hiddenSize),
 				linearOut: layer.NewLinear(hiddenSize, hiddenSize),

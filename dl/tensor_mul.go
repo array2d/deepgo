@@ -37,7 +37,7 @@ func mulMatrix2D(a, b *Tensor) *Tensor {
 
 	for i := 0; i < rowA; i++ {
 		for j := 0; j < colB; j++ {
-			sum := 0.0
+			sum := float32(0.0)
 			for k := 0; k < colA; k++ {
 				sum += a.Data[i*colA+k] * b.Data[k*colB+j]
 			}
@@ -92,7 +92,7 @@ func mulMatrixND(a, b *Tensor) *Tensor {
 	for batch := 0; batch < batchSize; batch++ {
 		for i := 0; i < m; i++ {
 			for j := 0; j < p; j++ {
-				sum := 0.0
+				sum := float32(0.0)
 				for k := 0; k < n; k++ {
 					aIdx := batch*m*n + i*n + k
 					bIdx := batch*n*p + k*p + j

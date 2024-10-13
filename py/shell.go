@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func CalculateAreturnB(scriptName string, op string, input []float64, shape []int) (result []float64, resultShape []int, err error) {
+func CalculateAreturnB(scriptName string, op string, input []float32, shape []int) (result []float32, resultShape []int, err error) {
 	inputJSON, err := json.Marshal(input)
 	if err != nil {
 		return
@@ -32,7 +32,7 @@ func CalculateAreturnB(scriptName string, op string, input []float64, shape []in
 	err = json.Unmarshal([]byte(outputLines[1]), &resultShape)
 	return
 }
-func CalculateA_breturnC(scriptName string, op string, a []float64, shapeA []int, b []int) (c []float64, resultShape []int, err error) {
+func CalculateA_breturnC(scriptName string, op string, a []float32, shapeA []int, b []int) (c []float32, resultShape []int, err error) {
 	aJSON, err := json.Marshal(a)
 	if err != nil {
 		return
@@ -63,7 +63,7 @@ func CalculateA_breturnC(scriptName string, op string, a []float64, shapeA []int
 }
 
 // 调用Python脚本计算预期结果
-func CalculateA_B_ReturnC(scriptName string, op string, a, b []float64, shapeA, shapeB []int) (c []float64, resultShape []int, err error) {
+func CalculateA_B_ReturnC(scriptName string, op string, a, b []float32, shapeA, shapeB []int) (c []float32, resultShape []int, err error) {
 	aJSON, err := json.Marshal(a)
 	if err != nil {
 		return

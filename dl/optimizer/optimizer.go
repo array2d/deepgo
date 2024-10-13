@@ -11,5 +11,5 @@ type Optimizer interface {
 
 	//学习率是一个超参数，它决定了每次更新时参数变化的幅度
 	//调整学习率对于控制训练过程中的收敛速度和稳定性至关重要
-	SetLearningRate(learningRate float64)
+	SetLearningRate(learningRate float32)
 }

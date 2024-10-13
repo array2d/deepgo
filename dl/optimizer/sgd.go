@@ -6,11 +6,11 @@ import (
 
 // SGD是一种随机梯度下降优化器
 type SGD struct {
-	learningRate float64
+	learningRate float32
 }
 
 // NewSGD函数用于创建一个SGD优化器实例
-func NewSGD(learningRate float64) *SGD {
+func NewSGD(learningRate float32) *SGD {
 	return &SGD{learningRate: learningRate}
 }
 
@@ -32,6 +32,6 @@ func (s *SGD) Update(parameters ...map[string]*dl.Tensor) {
 	}
 }
 
-func (sgd *SGD) SetLearningRate(learningRate float64) {
+func (sgd *SGD) SetLearningRate(learningRate float32) {
 	sgd.learningRate = learningRate
 }
