@@ -14,7 +14,6 @@ func Linear(in_features, out_features int, biasInit bool) (l *ComputeGraphNode) 
 	l.SetAttr("out_features", out_features)
 	// 初始化权重和偏置
 	weight := dl.NewTensor([]int{out_features, in_features})
-	bias := dl.NewTensor([]int{out_features})
 
 	// 初始化权重
 	//何凯明大神，永远的神！用了这个，loss下降飞快100倍
@@ -29,10 +28,8 @@ func Linear(in_features, out_features int, biasInit bool) (l *ComputeGraphNode) 
 		biasT.Uniform(-bound, bound)
 		l.RegisterParameter("bias", biasT)
 	} else {
-		l.RegisterParameter("bias", nil)
+		l.RegisterParameter("bias", dl.NewTensor([]int{out_features}))
 	}
-	l.RegisterParameter("weight", weight)
-	l.RegisterParameter("bias", bias)
 
 	l.forward = func(inputs ...*dl.Tensor) []*dl.Tensor {
 		// 获取输入，形状为 [batchSize, in_features]
@@ -60,12 +57,7 @@ func Linear(in_features, out_features int, biasInit bool) (l *ComputeGraphNode) 
 		gradOutput := gradients[0]
 		inputGrad := gradOutput.Mul(weight) // [batchSize, in_features]
 
-		// 将 inputGrad 传递给前一层的 output.grad
-		prevLayer := l.Inputs[0]
-		if _, ok := prevLayer.Parameters()["output.grad"]; !ok {
-			prevLayer.RegisterParameter("output.grad", dl.NewTensor([]int{inputGrad.Shape[0], inputGrad.Shape[1]}))
-		}
-		prevLayer.Parameters()["output.grad"].AddInPlace(inputGrad)
+		// 将 inputGrad 传递给前一层的 output.grad放在model去做
 
 		// 2. 计算权重的梯度：gradOutput^T [out_features, batchSize] * input [batchSize, in_features] = [out_features, in_features]
 		weightGrad := gradOutput.Transpose([]int{1, 0}).Mul(input) // [out_features, in_features]

@@ -15,7 +15,7 @@ import (
 
 func main() {
 	// 加载MNIST数据集
-	err := mnist.TRAIN_MNIST.Load("C:\\Users\\timeloveboy\\dataset\\mnist\\raw")
+	err := mnist.TRAIN_MNIST.Load("data/MNIST/raw")
 	if err != nil {
 		log.Fatalf("Error during GetDataset: %v", err)
 	}
@@ -38,7 +38,7 @@ func main() {
 	// 定义前向传播函数
 	m.ForwardFunc = func(inputs ...*dl.Tensor) (outputs []*dl.Tensor) {
 		// 1. 展平输入数据，和PyTorch中的 x.view(-1, 28*28) 相似
-		inputs[0].Reshape([]int{batchSize, 28 * 28})
+		inputs[0] = inputs[0].Reshape([]int{batchSize, 28 * 28})
 		// 2. 通过第一层并应用 ReLU
 		outputs = inputs
 		for _, layer := range m.Layers {
@@ -87,17 +87,9 @@ func main() {
 
 			lossVal, gradOutput := loss.CrossEntropyLoss(output, labelsInt)
 			runningLoss += lossVal
-			//fmt.Println("lossVal:", lossVal)
-			// 将损失函数的梯度赋值给最后一层的 output.grad
-			lastLayer := m.Layers[len(m.Layers)-1]
-			if existingGrad, ok := lastLayer.Parameters()["output.grad"]; ok {
-				existingGrad.AddInPlace(gradOutput)
-			} else {
-				lastLayer.RegisterParameter("output.grad", gradOutput)
-			}
 
 			// 反向传播
-			m.Backward()
+			m.Backward(gradOutput)
 
 			//// 梯度裁剪（可选）
 			//ClipGradients(1.0,
@@ -111,9 +103,9 @@ func main() {
 			//fmt.Printf("batch time: %v\n", )
 			// 使用优化器更新权重
 			m.Optimizer.Update(
-				m.Layers[1].Parameters(),
-				m.Layers[3].Parameters(),
-				m.Layers[5].Parameters(),
+				m.Layers[0].Parameters(),
+				m.Layers[2].Parameters(),
+				m.Layers[4].Parameters(),
 			) // 使用优化器更新权重
 
 			// 重置梯度输出

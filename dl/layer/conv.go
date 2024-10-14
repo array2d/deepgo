@@ -17,15 +17,16 @@ func ConvNd(in_channels, out_channels int, kernel_size []int, stride []int, padd
 	weight.Xavier(in_channels)
 	r.RegisterParameter("weight", weight)
 
-	r.forward = func() {
+	r.forward = func(inputs ...*dl.Tensor) []*dl.Tensor {
 		weight := r.Parameters()["weight"]
-		input := r.Inputs[0].parameters["output"]
+		input := inputs[0]
 		output := input.ConvNd(weight, stride, padding)
 		r.parameters["output"] = output
+		return []*dl.Tensor{output}
 	}
 
-	r.backward = func() {
-		gradOutput := r.parameters["output.grad"]
+	r.backward = func(gradients ...*dl.Tensor) []*dl.Tensor {
+		gradOutput := gradients[0]
 		weight := r.Parameters()["weight"]
 
 		// 计算输入的梯度
@@ -43,6 +44,7 @@ func ConvNd(in_channels, out_channels int, kernel_size []int, stride []int, padd
 			prevLayer.parameters["output.grad"] = dl.NewTensor(inputGrad.Shape)
 		}
 		prevLayer.parameters["output.grad"].AddInPlace(inputGrad)
+		return []*dl.Tensor{inputGrad}
 	}
 
 	return r

@@ -1,8 +1,9 @@
 package layer
 
 import (
-	"git.array2d.com/ai/deepgo/dl"
 	"math"
+
+	"git.array2d.com/ai/deepgo/dl"
 )
 
 // ActivationFunc 定义激活函数接口
@@ -49,31 +50,28 @@ var TanhDerivative ActivationFunc = func(x float32) float32 {
 // Activation 创建一个新的激活层
 func Activation(activationFunc, derivativeFunc ActivationFunc) (a *ComputeGraphNode) {
 	a = NewNode(nil, nil)
-	a.forward = func() {
+	a.forward = func(inputs ...*dl.Tensor) []*dl.Tensor {
 		// 获取输入，形状为 [batchSize, features]
-		input := a.Inputs[0].parameters["output"]
+		input := inputs[0]
 		output := input.Clone()
 		for i := range output.Data {
 			output.Data[i] = activationFunc(output.Data[i])
 		}
 		a.parameters["output"] = output
+		return []*dl.Tensor{output}
 	}
-	a.backward = func() {
+	a.backward = func(gradients ...*dl.Tensor) []*dl.Tensor {
 		// 获取反向传播传入的梯度，形状为 [batchSize, features]
-		gradOutput := a.parameters["output.grad"]
+		outputGrad := gradients[0]
 		// 获取当前层的输出，形状为 [batchSize, features]
 		output := a.parameters["output"]
-		gradInput := dl.NewTensor(output.Shape)
-		for i := range gradInput.Data {
-			gradInput.Data[i] = derivativeFunc(output.Data[i]) * gradOutput.Data[i]
+
+		for i := range outputGrad.Data {
+			outputGrad.Data[i] = derivativeFunc(output.Data[i]) * outputGrad.Data[i]
 		}
-		// 累加梯度到前一层的 output.grad
-		prevLayer := a.Inputs[0]
-		if existingGrad, ok := prevLayer.parameters["output.grad"]; ok {
-			existingGrad.Add(gradInput)
-		} else {
-			prevLayer.parameters["output.grad"] = gradInput
-		}
+		// 将 inputGrad 传递给前一层的 output.grad放在model去做
+
+		return gradients
 	}
 	return a
 }
