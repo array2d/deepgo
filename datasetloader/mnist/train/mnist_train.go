@@ -7,6 +7,7 @@ import (
 
 	"git.array2d.com/ai/deepgo/datasetloader/mnist"
 	"git.array2d.com/ai/deepgo/dl"
+	"git.array2d.com/ai/deepgo/dl/activation"
 	"git.array2d.com/ai/deepgo/dl/layer"
 	"git.array2d.com/ai/deepgo/dl/loss"
 	"git.array2d.com/ai/deepgo/dl/model"
@@ -24,15 +25,15 @@ func main() {
 	numClasses := 10               // 分类数量
 	batchSize := 32                // 批处理大小
 	learningRate := float32(0.001) // 学习率
-	epochs := 30                   // 训练轮数
+	epochs := 100                  // 训练轮数
 	// 创建模型
 	m := &model.Model{
 		Optimizer: optimizer.NewSGD(learningRate), // 学习率设置为0.01
 	}
 	m.Layer(layer.Linear(mnist.TRAIN_MNIST.ImageSize, 128, true)).
-		Layer(layer.Activation(layer.Relu, layer.ReluDerivative)).
+		Layer(layer.Activation(activation.Relu, activation.ReluDerivative)).
 		Layer(layer.Linear(128, 64, true)).
-		Layer(layer.Activation(layer.Relu, layer.ReluDerivative)).
+		Layer(layer.Activation(activation.Relu, activation.ReluDerivative)).
 		Layer(layer.Linear(64, numClasses, true)) // 将各个层添加到模型中
 
 	// 定义前向传播函数
