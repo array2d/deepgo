@@ -39,7 +39,7 @@ func main() {
 	// 定义前向传播函数
 	m.ForwardFunc = func(inputs ...*dl.Tensor) (outputs []*dl.Tensor) {
 		// 1. 展平输入数据，和PyTorch中的 x.view(-1, 28*28) 相似
-		inputs[0] = inputs[0].Reshape([]int{batchSize, 28 * 28})
+		inputs[0].Reshape([]int{batchSize, 28 * 28})
 		// 2. 通过第一层并应用 ReLU
 		outputs = inputs
 		for _, layer := range m.Layers {

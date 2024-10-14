@@ -144,7 +144,7 @@ func (t *Tensor) Clone() *Tensor {
 
 	return clone
 }
-func (t *Tensor) Reshape(newShape []int) *Tensor {
+func (t *Tensor) Reshape(newShape []int) {
 	// 确保新形状的元素数量与原始数据匹配
 	totalElements := 1
 	for _, dim := range newShape {
@@ -153,10 +153,7 @@ func (t *Tensor) Reshape(newShape []int) *Tensor {
 	if totalElements != len(t.Data) {
 		panic("新形状与 Tensor 数据不匹配")
 	}
-	return &Tensor{
-		Shape: newShape,
-		Data:  t.Data,
-	}
+	t.Shape = newShape
 }
 
 // Concat 函数用于将多个张量沿指定的轴连接起来

@@ -11,7 +11,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 num_classes = 10
 batch_size = 32
 learning_rate = 0.001
-epochs = 30
+epochs = 100
 
 # 加载MNIST数据集
 transform = transforms.Compose([
@@ -56,6 +56,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=learning_rate)
 
 # 训练循环
+idx=1
 while True:  # 不限制epochs，使用无限循环
     model.train()  # 设置模型为训练模式
     running_loss = 0.0
@@ -75,8 +76,8 @@ while True:  # 不限制epochs，使用无限循环
 
     # 打印每个epoch的平均训练损失
     average_loss = running_loss / len(train_loader)
-    print(f"Average Training Loss: {average_loss:.4f}", end="")
-
+    print(f"{idx},Average Training Loss: {average_loss:.4f}", end="")
+    idx+=1
     # 验证集评测
     model.eval()  # 设置模型为评估模式
     val_loss = 0.0
