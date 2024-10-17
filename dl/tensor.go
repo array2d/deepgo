@@ -44,6 +44,13 @@ func NewTensor(shape []int, data ...float32) *Tensor {
 		Shape: shape,
 	}
 }
+func (t *Tensor) Len() int {
+	size := 1
+	for _, dim := range t.Shape {
+		size *= dim
+	}
+	return size
+}
 
 // Set 设置Tensor的值
 func (t *Tensor) Set(indices []int, value float32) {

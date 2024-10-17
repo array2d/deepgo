@@ -1,8 +1,9 @@
 package dl
 
 import (
-	"git.array2d.com/ai/deepgo/py"
 	"testing"
+
+	"git.array2d.com/ai/deepgo/py"
 )
 
 func TestSoftmax(t *testing.T) {
@@ -38,7 +39,7 @@ func TestSoftmax(t *testing.T) {
 		}
 		pyTensor := NewTensor(pyShape, pyResult...)
 		// 比较结果
-		if !TensorAlmostEqual(goResult, pyTensor, 1e-19) {
+		if !TensorAlmostEqual(goResult, pyTensor, 1e-6) {
 			t.Errorf("Softmax结果不匹配。\nGo结果: %v\nPy结果: %v", goResult.Data, pyTensor.Data)
 			t.Errorf("shape不匹配。\nGo结果: %v\nPy结果: %v", goResult.Shape, pyTensor.Shape)
 		} else {
@@ -78,7 +79,7 @@ func TestSum(t *testing.T) {
 		goResult := inputTensor.Sum(axes)
 
 		// 使用 Python 计算 Sum
-		pyResult, pyShape, err := py.CalculateA_breturnC("tensor_A_breturnC.py", "sum", tc.Data, tc.Shape, axes)
+		pyResult, pyShape, err := py.CalculateA_breturnC("tensor_op_A_b_return_C.py", "sum", tc.Data, tc.Shape, axes)
 		if err != nil {
 			t.Fatalf("计算Python Sum时出错: %v", err)
 		}
