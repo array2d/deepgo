@@ -5,8 +5,6 @@ import (
 	"git.array2d.com/ai/deepgo/dl/activation"
 )
 
-// ActivationFunc 定义激活函数接口
-
 // Activation 创建一个新的激活层
 func Activation(activationFunc, derivativeFunc activation.ActivationFunc) (a *ComputeGraphNode) {
 	a = NewNode(nil, nil)

@@ -4,8 +4,7 @@ type LayerType int
 
 const (
  
-	LossFunctionLayer // 损失函数层
-
+ 
 	//AttentionLayer
 	//注意力层对输入进行加权处理，以关注重要的特征
 	AttentionLayer // 注意力层
