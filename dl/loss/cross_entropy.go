@@ -1,8 +1,9 @@
 package loss
 
 import (
-	"git.array2d.com/ai/deepgo/dl"
 	"math"
+
+	"git.array2d.com/ai/deepgo/dl"
 )
 
 /*
@@ -19,8 +20,8 @@ import (
 - gradOutput: 交叉熵损失对 logits 的梯度，形状为 [batchSize, numClasses]
 */
 
-// LogSoftmax 计算数值稳定的 log softmax，支持批处理
-func LogSoftmax(logits *dl.Tensor) *dl.Tensor {
+// logSoftmax 计算数值稳定的 log softmax，支持批处理
+func logSoftmax(logits *dl.Tensor) *dl.Tensor {
 	batchSize := logits.Shape[0]
 	numClasses := logits.Shape[1]
 	output := dl.NewTensor(logits.Shape)
@@ -53,9 +54,9 @@ func LogSoftmax(logits *dl.Tensor) *dl.Tensor {
 	return output
 }
 
-// Softmax 计算 softmax，支持批处理
-func Softmax(logits *dl.Tensor) *dl.Tensor {
-	logProbs := LogSoftmax(logits)
+// softmax 计算 softmax，支持批处理
+func softmax(logits *dl.Tensor) *dl.Tensor {
+	logProbs := logSoftmax(logits)
 	batchSize := logits.Shape[0]
 	numClasses := logits.Shape[1]
 	probs := dl.NewTensor(logits.Shape)
@@ -79,7 +80,7 @@ func CrossEntropyLoss(logits *dl.Tensor, labels []int) (float32, *dl.Tensor) {
 	}
 
 	// 计算 LogSoftmax
-	logProbs := LogSoftmax(logits)
+	logProbs := logSoftmax(logits)
 
 	// 计算损失：-sum(log(prob[y])) / batchSize
 	loss := float32(0.0)
@@ -93,7 +94,7 @@ func CrossEntropyLoss(logits *dl.Tensor, labels []int) (float32, *dl.Tensor) {
 	loss /= float32(batchSize)
 
 	// 计算梯度：softmax(logits) - one_hot(labels)
-	probs := Softmax(logits)
+	probs := softmax(logits)
 	gradOutput := dl.NewTensor(logits.Shape)
 
 	for b := 0; b < batchSize; b++ {

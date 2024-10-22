@@ -24,8 +24,6 @@ func (m *Model) ResetGrad() {
 	}
 }
 
-// Layer 添加一个新的层到模型中，并设置输入输出关系
-// 如果是第一个层，创建一个虚拟节点作为输入节点
 func (m *Model) Layer(l *layer.ComputeGraphNode) *Model {
 	if len(m.Layers) == 0 {
 		m.Layers = append(m.Layers, l)
@@ -37,7 +35,6 @@ func (m *Model) Layer(l *layer.ComputeGraphNode) *Model {
 		prevLayer.Outputs = append(prevLayer.Outputs, l)
 		m.Layers = append(m.Layers, l)
 	}
-	// 将当前层添加到 Layers 列表
 
 	return m
 }
