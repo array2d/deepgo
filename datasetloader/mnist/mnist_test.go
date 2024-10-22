@@ -2,14 +2,15 @@ package mnist
 
 import (
 	"fmt"
-	"git.array2d.com/ai/deepgo/datasetloader"
 	"testing"
+
+	"git.array2d.com/ai/deepgo/datasetloader"
 )
 
 func TestGetMNISTDataset(t *testing.T) {
 	// 解析图像数据
 	var m datasetloader.Dataset = &TRAIN_MNIST
-	err := m.Load("../../data")
+	err := m.Load("../../data/MNIST/raw")
 
 	if err != nil {
 		fmt.Println("解析图像数据失败:", err)
@@ -23,6 +24,7 @@ func TestGetMNISTDataset(t *testing.T) {
 
 	fmt.Println("第一张图像的像素值：")
 	input, labels := m.GetBatch(0, 1)
-	input[0].Reshape([]int{28, 28}).Print("%3.f")
+	input[0].Reshape([]int{28, 28})
+	input[0].Print("%3.f")
 	fmt.Println("第一张图像的标签：", labels[0].Get(0))
 }

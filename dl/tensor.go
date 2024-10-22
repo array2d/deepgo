@@ -7,31 +7,11 @@ import (
 	"git.array2d.com/ai/deepgo/dl/math/array"
 )
 
-/*
 type Tensor struct {
 	Shape []int
-	Data []float32 //
-}
-*/
-
-// Tensor
-// Tensor是一个自定义的结构体类型，用于表示神经网络中的张量（Tensor）。
-// 它包含两个字段：Shape和data。
-type Tensor struct {
-	// Shape：表示张量的形状，即每个维度的大小。
-	//它是一个整数切片（slice），其中的元素按照顺序存储各个维度的大小。
-	//例如，如果一个张量的形状为[2, 3]，则Shape字段将存储[2, 3]。
-	//这个字段通常用于在创建张量时指定其形状，或者在其他操作中获取张量的形状信息。
-	Shape []int
-	//
-	// data：表示张量的值，即实际的数据。它是一个浮点数切片（slice），其中的元素按照顺序存储张量的值。
-	// 例如，如果一个张量的形状为[2, 3]，并且它的值为[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]，则data字段将存储[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]。
-	// 这个字段通常用于存储和操作张量的值
-	Data []float32 //
+	Data  []float32 //
 }
 
-// NewTensor 创建一个新的Tensor
-// 函数接受一个可变参数shape，表示张量的形状。首先，计算出张量的总大小，即各个维度大小的乘积。然后，使用make函数创建一个大小为总大小的浮点数切片，用于存储张量的值。最后，返回一个新的Tensor对象，其中包含了形状和数据
 func NewTensor(shape []int, data ...float32) *Tensor {
 	size := 1
 	for _, dim := range shape {
@@ -161,6 +141,62 @@ func (t *Tensor) Reshape(newShape []int) {
 		panic("新形状与 Tensor 数据不匹配")
 	}
 	t.Shape = newShape
+}
+
+// Transpose 方法实现
+func (t *Tensor) Transpose(order []int) *Tensor {
+	// 检查order的有效性
+	if len(order) != len(t.Shape) {
+		panic("转置顺序的长度必须与张量的维度相同")
+	}
+
+	// 新的形状
+	newShape := make([]int, len(t.Shape))
+	for i, o := range order {
+		if o < 0 || o >= len(t.Shape) {
+			panic("无效的转置顺序")
+		}
+		newShape[i] = t.Shape[o]
+	}
+
+	// 创建新的数据切片
+	newData := make([]float32, len(t.Data))
+
+	// 使用辅助函数计算新的索引
+	var transposeHelper func([]int, []int, int)
+	transposeHelper = func(oldIdx, newIdx []int, dim int) {
+		if dim == len(t.Shape) {
+			oldIndex := t.calculateIndex(oldIdx)
+			newIndex := calculateNewIndex(newIdx, newShape)
+			newData[newIndex] = t.Data[oldIndex]
+			return
+		}
+		for i := 0; i < t.Shape[order[dim]]; i++ {
+			oldIdx[order[dim]] = i
+			newIdx[dim] = i
+			transposeHelper(oldIdx, newIdx, dim+1)
+		}
+	}
+
+	oldIdx := make([]int, len(t.Shape))
+	newIdx := make([]int, len(t.Shape))
+	transposeHelper(oldIdx, newIdx, 0)
+
+	return &Tensor{
+		Shape: newShape,
+		Data:  newData,
+	}
+}
+
+// calculateNewIndex 计算新的索引
+func calculateNewIndex(indices []int, shape []int) int {
+	index := 0
+	stride := 1
+	for i := len(shape) - 1; i >= 0; i-- {
+		index += indices[i] * stride
+		stride *= shape[i]
+	}
+	return index
 }
 
 // Concat 函数用于将多个张量沿指定的轴连接起来
