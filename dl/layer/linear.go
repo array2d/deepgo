@@ -52,7 +52,6 @@ func Linear(in_features, out_features int, biasInit bool) (l *ComputeGraphNode) 
 
 		// 将 inputGrad 传递给前一层的 output.grad放在model去做
 
-		// 2. 计算权重的梯度：gradOutput^T [out_features, batchSize] * input [batchSize, in_features] = [out_features, in_features]
 		weightGrad := outputGrad.Transpose([]int{1, 0}).MatMul(input) // [out_features, in_features]
 		if _, ok := l.Parameters()["weight.grad"]; !ok {
 			l.RegisterParameter("weight.grad", weightGrad)
@@ -67,7 +66,7 @@ func Linear(in_features, out_features int, biasInit bool) (l *ComputeGraphNode) 
 		} else {
 			l.Parameters()["bias.grad"].AddInPlace(biasGrad)
 		}
-		return inputGrad
+		return
 	}
 	l.backward[[2]int{1, 1}] = b
 	return l

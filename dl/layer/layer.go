@@ -71,6 +71,8 @@ func (n *ComputeGraphNode) Forward(inputs ...*dl.Tensor) []*dl.Tensor {
 		case fN_N:
 			return f(inputs)
 		}
+	} else {
+		panic("need input")
 	}
 	return nil
 }
