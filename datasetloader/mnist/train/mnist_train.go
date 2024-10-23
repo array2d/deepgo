@@ -20,6 +20,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error during GetDataset: %v", err)
 	}
+	err = mnist.TEST_MNIST.Load("data/MNIST/raw")
+	if err != nil {
+		log.Fatalf("Error during loading test dataset: %v", err)
+	}
 	// 设置超参数
 
 	numClasses := 10               // 分类数量
@@ -87,8 +91,8 @@ func main() {
 				labelsInt[i] = int(batchLabels.Data[i])
 			}
 
-			lossVal, gradOutput := loss.CrossEntropyLoss(output, labelsInt)
-			runningLoss += lossVal
+			trainloss, gradOutput := loss.CrossEntropyLoss(output, labelsInt)
+			runningLoss += trainloss
 
 			// 反向传播
 			m.Backward(gradOutput)
@@ -113,7 +117,44 @@ func main() {
 			m.ResetGrad()
 		}
 		averageLoss := runningLoss / float32(numBatches)
-		fmt.Printf("Epoch %d complete, Average Loss: %.4f\n", epoch+1, averageLoss)
+		averageVarLoss := float32(0.0)
+		correct := 0
+		for i := 0; i < mnist.TEST_MNIST.Len()/batchSize; i++ {
+			inputs, labels := mnist.TEST_MNIST.GetBatch(i*batchSize, batchSize)
+
+			// 组合输入和标签为批量张量
+			batchInputs := dl.Concat(inputs, 0) // 形状: [currentBatchSize, 784]
+			batchLabels := dl.Concat(labels, 0) // 形状: [currentBatchSize]
+
+			// 归一化
+			batchInputs = batchInputs.DivScalar(255.0)
+			outputs := m.Forward(batchInputs)
+			output := outputs[0]
+			// 计算损失和梯度
+			labelsInt := make([]int, batchSize)
+			for b := 0; b < batchSize; b++ {
+				labelsInt[b] = int(batchLabels.Data[b])
+			}
+			varloss, _ := loss.CrossEntropyLoss(output, labelsInt)
+			averageVarLoss += varloss
+			for x := 0; x < batchSize; x++ {
+				max := float32(0)
+				maxn := 0
+				for y := 0; y < numClasses; y++ {
+					if output.Get(x, y) > max {
+						max = output.Get(x, y)
+						maxn = y
+					}
+				}
+				if maxn == labelsInt[x] {
+					correct++
+				}
+			}
+		}
+		averageVarLoss = averageVarLoss / float32(mnist.TEST_MNIST.Len()/batchSize)
+		accuracy := float32(correct) / float32(mnist.TEST_MNIST.Len()) * 100.0
+
+		fmt.Printf("Epoch %d complete, Average Loss: %.4f,Average Varloss : %.4f,VarDataset Accuracy: %.2f%%\n", epoch+1, averageLoss, averageVarLoss, accuracy)
 	}
 
 	// 保存模型

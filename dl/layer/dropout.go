@@ -12,7 +12,7 @@ func Dropout(dropRate float32, training bool) *ComputeGraphNode {
 	l.SetAttr("dropRate", dropRate)
 	l.SetAttr("training", training)
 	var f f1_1 = func(input *dl.Tensor) (output *dl.Tensor) {
-		if !training {
+		if !l.Attr("training").(bool) {
 			return input
 		}
 		output = input.Clone()
