@@ -13,6 +13,7 @@ func Activation(activationFunc, derivativeFunc activation.ActivationFunc) (a *Co
 		// 获取输入，形状为 [batchSize, features]
 		output := input.Clone()
 		dl.Activation(output, activationFunc)
+		a.RegisterParameter("output", output)
 		return output
 	}
 	a.forward[[2]int{1, 1}] = f
@@ -21,7 +22,7 @@ func Activation(activationFunc, derivativeFunc activation.ActivationFunc) (a *Co
 		// 获取反向传播传入的梯度，形状为 [batchSize, features]
 
 		// 获取当前层的输出，也就是下一层的输入，形状为 [batchSize, features]
-		output := a.Outputs[0].parameters["input"]
+		output := a.Parameters()["output"]
 
 		dl.ActivationDerivative(outputGrad, output, derivativeFunc)
 		// 将 inputGrad 传递给前一层的 output.grad放在model去做
