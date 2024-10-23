@@ -100,8 +100,7 @@ func main() {
 			//)
 			end := time.Now()
 			usetime := end.Sub(start)
-
-			fmt.Printf("batch time: %v\n", usetime)
+			usetime = usetime
 			// 使用优化器更新权重
 			m.Optimizer.Update(
 				m.Layers[0].Parameters(),

@@ -2,15 +2,15 @@ package dl
 
 import "fmt"
 
-// Mul 实现高维矩阵 Tensor 的矩阵乘法
+// MatMul 实现高维矩阵 Tensor 的矩阵乘法
 // 矩阵的最后两维满足:A矩阵的列数B矩阵的行数相等
-func (a *Tensor) Mul(b *Tensor) (c *Tensor) {
+func (a *Tensor) MatMul(b *Tensor) (c *Tensor) {
 	// 检查两个 Tensor 的维度是否匹配
 	if len(a.Shape) < 2 || len(b.Shape) < 2 {
-		panic("Tensor 维度不匹配")
+		panic(fmt.Sprintf("Tensor 维度长度不匹配: A %v, B %v", a.Shape, b.Shape))
 	}
 	if a.Shape[len(a.Shape)-1] != b.Shape[len(b.Shape)-2] {
-		panic("Tensor 维度不匹配")
+		panic(fmt.Sprintf("Tensor 维度后两维不匹配: A %v, B %v", a.Shape, b.Shape))
 	}
 
 	// 根据输入 Tensor 的维度情况选择对应的计算方法

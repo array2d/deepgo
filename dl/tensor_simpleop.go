@@ -83,6 +83,30 @@ func (t *Tensor) DivInPlace(other *Tensor) {
 	}
 }
 
+// MulInPlace 逐元素相乘
+func (t *Tensor) MulInPlace(other *Tensor) {
+	if array.Equal(t.Shape, other.Shape) {
+		for i := range t.Data {
+			t.Data[i] *= float32(other.Data[i])
+		}
+	} else {
+		if !broadcastable(t.Shape, other.Shape) {
+			panic(fmt.Sprintf("Shapes %v and %v are not broadcastable for multiplication", t.Shape, other.Shape))
+		}
+
+		outputShape := broadcastShape(t.Shape, other.Shape)
+		if !array.Equal(t.Shape, outputShape) {
+			panic("MulInPlace only supports in-place multiplication when output shape matches the target tensor's shape")
+		}
+
+		for idx := 0; idx < len(t.Data); idx++ {
+			tIdx := getBroadcastIndex(idx, outputShape, t.Shape)
+			otherIdx := getBroadcastIndex(idx, outputShape, other.Shape)
+			t.Data[tIdx] *= other.Data[otherIdx]
+		}
+	}
+}
+
 // Add 执行两个张量的加法，支持广播，返回新的张量
 func (t *Tensor) Add(other *Tensor) *Tensor {
 	n := t.Clone()
@@ -104,11 +128,11 @@ func (t *Tensor) Div(other *Tensor) *Tensor {
 	return n
 }
 
-// HadamardProductInPlace 逐元素相乘
-func (t *Tensor) HadamardProductInPlace(factor *Tensor) {
-	for i := range t.Data {
-		t.Data[i] *= float32(factor.Data[i])
-	}
+// Mul 逐元素相乘
+func (t *Tensor) Mul(other *Tensor) *Tensor {
+	n := t.Clone()
+	n.MulInPlace(other)
+	return n
 }
 
 func (t *Tensor) DivScalar(scalar float32) *Tensor {
