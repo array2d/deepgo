@@ -7,24 +7,27 @@ import (
 
 // Activation 创建一个新的激活层
 func Activation(activationFunc, derivativeFunc activation.ActivationFunc) (a *ComputeGraphNode) {
-	a = NewNode(nil, nil)
-	a.forward = func(inputs ...*dl.Tensor) []*dl.Tensor {
+	a = NewNode(1, 1)
+	var f f1_1 = func(input *dl.Tensor) *dl.Tensor {
+
 		// 获取输入，形状为 [batchSize, features]
-		input := inputs[0]
 		output := input.Clone()
 		dl.Activation(output, activationFunc)
-		return []*dl.Tensor{output}
+		return output
 	}
-	a.backward = func(gradients ...*dl.Tensor) []*dl.Tensor {
+	a.forward[[2]int{1, 1}] = f
+
+	var b f1_1 = func(outputGrad *dl.Tensor) *dl.Tensor {
 		// 获取反向传播传入的梯度，形状为 [batchSize, features]
-		outputGrad := gradients[0]
+
 		// 获取当前层的输出，也就是下一层的输入，形状为 [batchSize, features]
 		output := a.Outputs[0].parameters["input"]
 
 		dl.ActivationDerivative(outputGrad, output, derivativeFunc)
 		// 将 inputGrad 传递给前一层的 output.grad放在model去做
 
-		return gradients
+		return outputGrad
 	}
+	a.backward[[2]int{1, 1}] = b
 	return a
 }
