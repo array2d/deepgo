@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"runtime"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -20,15 +21,13 @@ type Job struct {
 	inputs, labels []*dl.Tensor
 }
 
-func workerTrain(exitDuration time.Duration, done *int32, ch chan Job, id int, m *model.Model, runningLoss *float32) {
+func workerTrain(exitDuration time.Duration, ch chan Job, id int, m *model.Model, runningLoss *float32) {
 
 	for {
 		select {
 		case job := <-ch:
 			train(id, m, job.inputs, job.labels, runningLoss)
 		case <-time.After(exitDuration):
-			// 超时未收到新任务
-			atomic.AddInt32(done, 1)
 			return
 		}
 	}
@@ -67,16 +66,13 @@ func train(id int, m *model.Model, inputs, labels []*dl.Tensor, runningLoss *flo
 	// 重置梯度输出
 	m.ResetGrad()
 }
-func workerTest(exitDuration time.Duration, done *int32, ch chan Job, id int, m *model.Model, totalLoss *float32, correct *int64) {
+func workerTest(exitDuration time.Duration, ch chan Job, id int, m *model.Model, totalLoss *float32, correct *int64) {
 
 	for {
 		select {
 		case job := <-ch:
-
 			test(id, m, job.inputs, job.labels, totalLoss, correct)
 		case <-time.After(exitDuration):
-			// 超时未收到新任务
-			atomic.AddInt32(done, 1)
 			return
 		}
 	}
@@ -126,7 +122,7 @@ func main() {
 	// 设置超参数
 
 	numClasses := 10               // 分类数量
-	batchSize := 32                // 批处理大小
+	batchSize := 64                // 批处理大小
 	learningRate := float32(0.001) // 学习率
 	epochs := 1000                 // 训练轮数
 	// 创建模型
@@ -144,40 +140,39 @@ func main() {
 	for epoch := 0; epoch < epochs; epoch++ {
 		runningLoss := float32(0.0)
 		jobs := make(chan Job, 10)
-		done := int32(0)
+
 		curcurent := runtime.NumCPU()
+		var wg sync.WaitGroup
 		for i := 0; i < curcurent; i++ {
-			go workerTrain(1*time.Second, &done, jobs, i, m, &runningLoss)
+			wg.Add(1)
+			go func(i int) {
+				defer wg.Done()
+				workerTrain(1*time.Second, jobs, i, m, &runningLoss)
+			}(i)
 		}
 		for batch := 0; batch < mnist.TRAIN_MNIST.Len()/batchSize; batch++ {
 			// 获取一个批次的数据
 			inputs, labels := mnist.TRAIN_MNIST.GetBatch(batch*batchSize, batchSize)
 			jobs <- Job{inputs, labels}
 		}
-		for {
-			if done == int32(curcurent) {
-				break
-			}
-			time.Sleep(1 * time.Second)
-		}
+		wg.Wait()
 		averageLoss := runningLoss / float32(mnist.TRAIN_MNIST.Len()/batchSize)
 		averageVarLoss := float32(0.0)
 		correct := int64(0)
 
-		done = 0
+		wg = sync.WaitGroup{}
 		for i := 0; i < curcurent; i++ {
-			go workerTest(1*time.Second, &done, jobs, i, m, &averageVarLoss, &correct)
+			wg.Add(1)
+			go func(i int) {
+				defer wg.Done()
+				workerTest(1*time.Second, jobs, i, m, &averageVarLoss, &correct)
+			}(i)
 		}
 		for i := 0; i < mnist.TEST_MNIST.Len()/batchSize; i++ {
 			inputs, labels := mnist.TEST_MNIST.GetBatch(i*batchSize, batchSize)
 			jobs <- Job{inputs, labels}
 		}
-		for {
-			if done == int32(curcurent) {
-				break
-			}
-			time.Sleep(1 * time.Second)
-		}
+		wg.Wait()
 		averageVarLoss = averageVarLoss / float32(mnist.TEST_MNIST.Len()/batchSize)
 		accuracy := float32(correct) / float32(mnist.TEST_MNIST.Len()) * 100.0
 
