@@ -91,11 +91,11 @@ func main() {
 				labelsInt[i] = int(batchLabels.Data[i])
 			}
 
-			trainloss, gradOutput := loss.CrossEntropyLoss(output, labelsInt)
+			trainloss, outputGrad := loss.CrossEntropyLoss(output, labelsInt, false)
 			runningLoss += trainloss
 
 			// 反向传播
-			m.Backward(gradOutput)
+			m.Backward(outputGrad)
 
 			//// 梯度裁剪（可选）
 			//ClipGradients(1.0,
@@ -135,7 +135,7 @@ func main() {
 			for b := 0; b < batchSize; b++ {
 				labelsInt[b] = int(batchLabels.Data[b])
 			}
-			varloss, _ := loss.CrossEntropyLoss(output, labelsInt)
+			varloss, _ := loss.CrossEntropyLoss(output, labelsInt, true)
 			averageVarLoss += varloss
 			for x := 0; x < batchSize; x++ {
 				max := float32(0)

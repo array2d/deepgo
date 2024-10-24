@@ -71,7 +71,7 @@ func softmax(logits *dl.Tensor) *dl.Tensor {
 }
 
 // CrossEntropyLoss 计算批次交叉熵损失，并返回梯度
-func CrossEntropyLoss(logits *dl.Tensor, labels []int) (float32, *dl.Tensor) {
+func CrossEntropyLoss(logits *dl.Tensor, labels []int, lossonly bool) (loss float32, outputGrad *dl.Tensor) {
 	batchSize := logits.Shape[0]
 	numClasses := logits.Shape[1]
 
@@ -83,7 +83,7 @@ func CrossEntropyLoss(logits *dl.Tensor, labels []int) (float32, *dl.Tensor) {
 	logProbs := logSoftmax(logits)
 
 	// 计算损失：-sum(log(prob[y])) / batchSize
-	loss := float32(0.0)
+
 	for b := 0; b < batchSize; b++ {
 		label := labels[b]
 		if label < 0 || label >= numClasses {
@@ -92,20 +92,21 @@ func CrossEntropyLoss(logits *dl.Tensor, labels []int) (float32, *dl.Tensor) {
 		loss += -logProbs.Data[b*numClasses+label]
 	}
 	loss /= float32(batchSize)
+	if !lossonly {
+		// 计算梯度：softmax(logits) - one_hot(labels)
+		probs := softmax(logits)
+		outputGrad = dl.NewTensor(logits.Shape)
 
-	// 计算梯度：softmax(logits) - one_hot(labels)
-	probs := softmax(logits)
-	gradOutput := dl.NewTensor(logits.Shape)
-
-	for b := 0; b < batchSize; b++ {
-		for c := 0; c < numClasses; c++ {
-			if c == labels[b] {
-				gradOutput.Data[b*numClasses+c] = (probs.Data[b*numClasses+c] - 1.0) / float32(batchSize)
-			} else {
-				gradOutput.Data[b*numClasses+c] = probs.Data[b*numClasses+c] / float32(batchSize)
+		for b := 0; b < batchSize; b++ {
+			for c := 0; c < numClasses; c++ {
+				if c == labels[b] {
+					outputGrad.Data[b*numClasses+c] = (probs.Data[b*numClasses+c] - 1.0) / float32(batchSize)
+				} else {
+					outputGrad.Data[b*numClasses+c] = probs.Data[b*numClasses+c] / float32(batchSize)
+				}
 			}
 		}
 	}
 
-	return loss, gradOutput
+	return loss, outputGrad
 }
