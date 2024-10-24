@@ -19,10 +19,14 @@ type RWTensor struct {
 }
 
 type ComputeGraphNode struct {
-	in, out    int
-	forward    map[[2]int]any
-	backward   map[[2]int]any
-	paramLock  sync.RWMutex
+	in, out  int
+	forward  map[[2]int]any
+	backward map[[2]int]any
+	// 参数
+	//weight,bias
+	//linear的input0~n
+	//activation的output0~n
+	//weight.grad,bias.grad
 	parameters map[string]*RWTensor
 	attr       map[string]any
 	Inputs     []*ComputeGraphNode
@@ -34,7 +38,7 @@ func NewNode(in, out int) *ComputeGraphNode {
 	node := &ComputeGraphNode{
 		in:         in,
 		out:        out,
-		parameters: make(map[string]*RWTensor, runtime.NumCPU()+4),
+		parameters: make(map[string]*RWTensor, runtime.NumCPU()*2+4),
 		attr:       map[string]any{},
 		forward:    make(map[[2]int]any),
 		backward:   make(map[[2]int]any),
@@ -57,15 +61,14 @@ func (n *ComputeGraphNode) Attr(name string) (attr any) {
 
 // RegisterParameter 注册一个参数
 func (n *ComputeGraphNode) RegisterParameter(name string, param *dl.Tensor) {
-	n.paramLock.Lock()
-	n.parameters[name] = &RWTensor{Tensor: param}
-	n.paramLock.Unlock()
+	if _, ok := n.parameters[name]; !ok {
+		n.parameters[name] = &RWTensor{}
+	}
+	n.parameters[name].Tensor = param
 }
 
 // Parameters 返回所有注册的参数
 func (n *ComputeGraphNode) Parameter(name string) *RWTensor {
-	n.paramLock.RLock()
-	defer n.paramLock.RUnlock()
 	return n.parameters[name]
 }
 
