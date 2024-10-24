@@ -11,7 +11,7 @@ func Dropout(dropRate float32, training bool) *ComputeGraphNode {
 	l := NewNode(1, 1)
 	l.SetAttr("dropRate", dropRate)
 	l.SetAttr("training", training)
-	var f f1_1 = func(input *dl.Tensor) (output *dl.Tensor) {
+	var f f1_1 = func(id int, input *dl.Tensor) (output *dl.Tensor) {
 		if !l.Attr("training").(bool) {
 			return input
 		}
@@ -26,7 +26,7 @@ func Dropout(dropRate float32, training bool) *ComputeGraphNode {
 	}
 	l.forward[[2]int{1, 1}] = f
 
-	var b f1_1 = func(outputGrad *dl.Tensor) (inputGrad *dl.Tensor) {
+	var b f1_1 = func(id int, outputGrad *dl.Tensor) (inputGrad *dl.Tensor) {
 		inputGrad = outputGrad
 		return
 	}

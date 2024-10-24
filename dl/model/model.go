@@ -1,8 +1,6 @@
 package model
 
 import (
-	"strings"
-
 	"git.array2d.com/ai/deepgo/dl"
 	"git.array2d.com/ai/deepgo/dl/layer"
 	"git.array2d.com/ai/deepgo/dl/optimizer"
@@ -15,10 +13,15 @@ type Model struct {
 
 func (m *Model) ResetGrad() {
 	for _, layer := range m.Layers {
-		for name, param := range layer.Parameters() {
-			if strings.HasSuffix(name, ".grad") {
-				param.Constant(0)
-			}
+		if weightGrad := layer.Parameter("weight.grad"); weightGrad != nil {
+			weightGrad.Lock()
+			weightGrad.Constant(0)
+			weightGrad.Unlock()
+		}
+		if biases := layer.Parameter("bias"); biases != nil {
+			biases.Lock()
+			biases.Constant(0)
+			biases.Unlock()
 		}
 	}
 }
@@ -38,21 +41,21 @@ func (m *Model) Layer(l *layer.ComputeGraphNode) *Model {
 	return m
 }
 
-func (m *Model) Forward(input *dl.Tensor) (output *dl.Tensor) {
+func (m *Model) Forward(id int, input *dl.Tensor) (output *dl.Tensor) {
 
 	output = input
 	for _, layer := range m.Layers {
-		output = layer.Forward(output)[0] // 每一层依次处理前一层的输出
+		output = layer.Forward(id, output)[0] // 每一层依次处理前一层的输出
 	}
 	return output
 }
 
-func (m *Model) Backward(outputGrad_ *dl.Tensor) *dl.Tensor {
+func (m *Model) Backward(id int, outputGrad_ *dl.Tensor) *dl.Tensor {
 	// 从最后一层开始反向传播
 	outputGrad := outputGrad_
 	for i := len(m.Layers) - 1; i >= 0; i-- {
 		l := m.Layers[i]
-		inputGrad := l.Backward(outputGrad)
+		inputGrad := l.Backward(id, outputGrad)
 
 		// 累加梯度到前一层的 output.grad
 		if i > 0 {

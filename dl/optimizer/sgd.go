@@ -12,23 +12,28 @@ func NewSGD(learningRate float32) *SGD {
 	return &SGD{learningRate: learningRate}
 }
 
-func (s *SGD) Update(parameters ...map[string]*layer.RWTensor) {
+func (s *SGD) Update(layers ...*layer.ComputeGraphNode) {
 	// 遍历所有传入的参数集合
-	for _, paramMap := range parameters {
-		for name, param := range paramMap {
-			// 查找对应的梯度名
-			grad, ok := paramMap[name+".grad"]
-			if !ok {
-				continue // 如果没有找到对应的梯度，跳过这个参数
-			}
+	for _, layer := range layers {
+		if weight := layer.Parameter("weight"); weight != nil {
+			grad := layer.Parameter("weight.grad")
+			weight.Lock()
 			grad.RLock()
-			param.Lock()
-			// 对每个参数逐元素进行更新：new_param = old_param - learning_rate * grad
-			for i := 0; i < len(param.Data); i++ {
-				param.Data[i] -= s.learningRate * grad.Data[i]
+			for i := 0; i < len(weight.Data); i++ {
+				weight.Data[i] -= s.learningRate * grad.Data[i]
 			}
 			grad.RUnlock()
-			param.Unlock()
+			weight.Unlock()
+		}
+		if biases := layer.Parameter("bias"); biases != nil {
+			grad := layer.Parameter("bias.grad")
+			biases.Lock()
+			grad.RLock()
+			for i := 0; i < len(biases.Data); i++ {
+				biases.Data[i] -= s.learningRate * grad.Data[i]
+			}
+			grad.RUnlock()
+			biases.Unlock()
 		}
 	}
 }

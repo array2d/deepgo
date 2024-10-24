@@ -2,6 +2,7 @@ package layer
 
 import (
 	"math"
+	"strconv"
 
 	"git.array2d.com/ai/deepgo/dl"
 )
@@ -30,9 +31,9 @@ func Linear(in_features, out_features int, biasInit bool) (l *ComputeGraphNode) 
 	} else {
 		l.RegisterParameter("bias", dl.NewTensor([]int{out_features}))
 	}
-	var f f1_1 = func(input *dl.Tensor) (output *dl.Tensor) {
+	var f f1_1 = func(id int, input *dl.Tensor) (output *dl.Tensor) {
 		//由于backward需要input的梯度，所以这里需要保存input
-		l.RegisterParameter("input", input)
+		l.RegisterParameter("input"+strconv.Itoa(id), input)
 		l.Parameter("weight").RLock()
 		output = input.MatMul(l.Parameter("weight").Tensor.Transpose([]int{1, 0}))
 		l.Parameter("weight").RUnlock()
@@ -42,12 +43,13 @@ func Linear(in_features, out_features int, biasInit bool) (l *ComputeGraphNode) 
 		return
 	}
 	l.forward[[2]int{1, 1}] = f
-
-	var b f1_1 = func(outputGrad *dl.Tensor) (inputGrad *dl.Tensor) {
+	l.RegisterParameter("weight.grad", dl.NewTensor([]int{out_features, in_features}))
+	l.RegisterParameter("bias.grad", dl.NewTensor([]int{out_features}))
+	var b f1_1 = func(id int, outputGrad *dl.Tensor) (inputGrad *dl.Tensor) {
 
 		// 在计算weight.Grad时，需要的是该层的input
 		// 获取当前层的输入，形状为 [batchSize, in_features]
-		input := l.Parameter("input").Tensor
+		input := l.Parameter("input" + strconv.Itoa(id)).Tensor
 		// 1. 计算输入的梯度：gradOutput [batchSize, out_features] * weight [out_features, in_features] = [batchSize, in_features]
 		weight := l.Parameter("weight").Tensor // [out_features, in_features]
 		// 获取反向传播传入的梯度，形状为 [batchSize, out_features]
@@ -58,23 +60,18 @@ func Linear(in_features, out_features int, biasInit bool) (l *ComputeGraphNode) 
 		// 将 inputGrad 传递给前一层的 output.grad放在model去做
 
 		weightGrad := outputGrad.Transpose([]int{1, 0}).MatMul(input) // [out_features, in_features]
-		if l.Parameter("weight.grad") == nil {
-			l.RegisterParameter("weight.grad", weightGrad)
-		} else {
-			l.Parameter("weight.grad").RLock()
-			l.Parameter("weight.grad").AddInPlace(weightGrad)
-			l.Parameter("weight.grad").RUnlock()
-		}
+
+		l.Parameter("weight.grad").RLock()
+		l.Parameter("weight.grad").AddInPlace(weightGrad)
+		l.Parameter("weight.grad").RUnlock()
 
 		// 3. 计算偏置的梯度：对 gradOutput 在第一个维度上求和 [batchSize, out_features] -> [1, out_features]
 		biasGrad := outputGrad.Sum([]int{0}) // [1, out_features]
-		if l.Parameter("bias.grad") == nil {
-			l.RegisterParameter("bias.grad", biasGrad)
-		} else {
-			l.Parameter("bias.grad").RLock()
-			l.Parameter("bias.grad").AddInPlace(biasGrad)
-			l.Parameter("bias.grad").RUnlock()
-		}
+
+		l.Parameter("bias.grad").RLock()
+		l.Parameter("bias.grad").AddInPlace(biasGrad)
+		l.Parameter("bias.grad").RUnlock()
+
 		return
 	}
 	l.backward[[2]int{1, 1}] = b

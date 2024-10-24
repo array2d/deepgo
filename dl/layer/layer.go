@@ -1,16 +1,17 @@
 package layer
 
 import (
+	"runtime"
 	"sync"
 
 	"git.array2d.com/ai/deepgo/dl"
 )
 
-type f1_1 func(input *dl.Tensor) *dl.Tensor
-type f2_1 func(input1, input2 *dl.Tensor) *dl.Tensor
-type f1_2 func(input *dl.Tensor) [2]*dl.Tensor
-type fN_1 func(inputs []*dl.Tensor) *dl.Tensor
-type fN_N func(inputs []*dl.Tensor) []*dl.Tensor
+type f1_1 func(id int, input *dl.Tensor) *dl.Tensor
+type f2_1 func(id int, input1, input2 *dl.Tensor) *dl.Tensor
+type f1_2 func(id int, input *dl.Tensor) [2]*dl.Tensor
+type fN_1 func(id int, inputs []*dl.Tensor) *dl.Tensor
+type fN_N func(id int, inputs []*dl.Tensor) []*dl.Tensor
 
 type RWTensor struct {
 	*dl.Tensor
@@ -21,6 +22,7 @@ type ComputeGraphNode struct {
 	in, out    int
 	forward    map[[2]int]any
 	backward   map[[2]int]any
+	paramLock  sync.RWMutex
 	parameters map[string]*RWTensor
 	attr       map[string]any
 	Inputs     []*ComputeGraphNode
@@ -32,7 +34,7 @@ func NewNode(in, out int) *ComputeGraphNode {
 	node := &ComputeGraphNode{
 		in:         in,
 		out:        out,
-		parameters: make(map[string]*RWTensor),
+		parameters: make(map[string]*RWTensor, runtime.NumCPU()+4),
 		attr:       map[string]any{},
 		forward:    make(map[[2]int]any),
 		backward:   make(map[[2]int]any),
@@ -55,33 +57,32 @@ func (n *ComputeGraphNode) Attr(name string) (attr any) {
 
 // RegisterParameter 注册一个参数
 func (n *ComputeGraphNode) RegisterParameter(name string, param *dl.Tensor) {
+	n.paramLock.Lock()
 	n.parameters[name] = &RWTensor{Tensor: param}
+	n.paramLock.Unlock()
 }
 
 // Parameters 返回所有注册的参数
 func (n *ComputeGraphNode) Parameter(name string) *RWTensor {
+	n.paramLock.RLock()
+	defer n.paramLock.RUnlock()
 	return n.parameters[name]
 }
 
-// Parameters 返回所有注册的参数
-func (n *ComputeGraphNode) Parameters() map[string]*RWTensor {
-	return n.parameters
-}
-
-func (n *ComputeGraphNode) Forward(inputs ...*dl.Tensor) []*dl.Tensor {
+func (n *ComputeGraphNode) Forward(id int, inputs ...*dl.Tensor) []*dl.Tensor {
 	if f, ok := n.forward[[2]int{n.in, n.out}]; ok {
 		switch f := f.(type) {
 		case f1_1:
-			return []*dl.Tensor{f(inputs[0])}
+			return []*dl.Tensor{f(id, inputs[0])}
 		case f2_1:
-			return []*dl.Tensor{f(inputs[0], inputs[1])}
+			return []*dl.Tensor{f(id, inputs[0], inputs[1])}
 		case f1_2:
-			r := f(inputs[0])
+			r := f(id, inputs[0])
 			return []*dl.Tensor{r[0], r[1]}
 		case fN_1:
-			return []*dl.Tensor{f(inputs)}
+			return []*dl.Tensor{f(id, inputs)}
 		case fN_N:
-			return f(inputs)
+			return f(id, inputs)
 		}
 	} else {
 		panic("need input")
@@ -90,20 +91,20 @@ func (n *ComputeGraphNode) Forward(inputs ...*dl.Tensor) []*dl.Tensor {
 }
 
 // Backward 执行反向传播
-func (n *ComputeGraphNode) Backward(gradients ...*dl.Tensor) []*dl.Tensor {
+func (n *ComputeGraphNode) Backward(id int, gradients ...*dl.Tensor) []*dl.Tensor {
 	if f, ok := n.backward[[2]int{n.in, n.out}]; ok {
 		switch f := f.(type) {
 		case f1_1:
-			return []*dl.Tensor{f(gradients[0])}
+			return []*dl.Tensor{f(id, gradients[0])}
 		case f2_1:
-			return []*dl.Tensor{f(gradients[0], gradients[1])}
+			return []*dl.Tensor{f(id, gradients[0], gradients[1])}
 		case f1_2:
-			r := f(gradients[0])
+			r := f(id, gradients[0])
 			return []*dl.Tensor{r[0], r[1]}
 		case fN_1:
-			return []*dl.Tensor{f(gradients)}
+			return []*dl.Tensor{f(id, gradients)}
 		case fN_N:
-			return f(gradients)
+			return f(id, gradients)
 		}
 	}
 	return nil
