@@ -25,10 +25,7 @@ func Activation(activationFunc, derivativeFunc activation.ActivationFunc) (a *Co
 
 		// 获取当前层的输出，也就是下一层的输入，形状为 [batchSize, features]
 		output := a.Parameter("output" + strconv.Itoa(id)).Tensor
-		a.Parameter("output" + strconv.Itoa(id)).RLock()
 		dl.ActivationDerivative(outputGrad, output, derivativeFunc)
-		// 将 inputGrad 传递给前一层的 output.grad放在model去做
-		a.Parameter("output" + strconv.Itoa(id)).RUnlock()
 		return outputGrad
 	}
 	a.backward[[2]int{1, 1}] = b
