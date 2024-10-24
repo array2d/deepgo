@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"runtime"
+	"sync/atomic"
 	"time"
 
 	"git.array2d.com/ai/deepgo/datasetloader/mnist"
@@ -15,29 +16,25 @@ import (
 	"git.array2d.com/ai/deepgo/dl/optimizer"
 )
 
-func worker(id int, m *model.Model, ch chan Job, runningLoss *float32, exitDuration time.Duration, donemap *map[int]int32) {
-	lastReceive := time.Now()
-	for {
-		select {
-		case job := <-ch:
-			lastReceive = time.Now()
-			do(id, m, job.inputs, job.labels, runningLoss)
-		default:
-			// 如果没有工作，执行其他操作或等待
-			if time.Since(lastReceive) > exitDuration {
-				(*donemap)[id]++
-				return
-			}
-			runtime.Gosched() // 让出当前 goroutine 的时间片
-		}
-	}
-}
-
 type Job struct {
 	inputs, labels []*dl.Tensor
 }
 
-func do(id int, m *model.Model, inputs, labels []*dl.Tensor, runningLoss *float32) {
+func workerTrain(exitDuration time.Duration, done *int32, ch chan Job, id int, m *model.Model, runningLoss *float32) {
+
+	for {
+		select {
+		case job := <-ch:
+			train(id, m, job.inputs, job.labels, runningLoss)
+		case <-time.After(exitDuration):
+			// 超时未收到新任务
+			atomic.AddInt32(done, 1)
+			return
+		}
+	}
+}
+
+func train(id int, m *model.Model, inputs, labels []*dl.Tensor, runningLoss *float32) {
 
 	// 组合输入和标签为批量张量
 	batchInputs := dl.Concat(inputs, 0) // 形状: [currentBatchSize, 784]
@@ -70,6 +67,52 @@ func do(id int, m *model.Model, inputs, labels []*dl.Tensor, runningLoss *float3
 	// 重置梯度输出
 	m.ResetGrad()
 }
+func workerTest(exitDuration time.Duration, done *int32, ch chan Job, id int, m *model.Model, totalLoss *float32, correct *int64) {
+
+	for {
+		select {
+		case job := <-ch:
+
+			test(id, m, job.inputs, job.labels, totalLoss, correct)
+		case <-time.After(exitDuration):
+			// 超时未收到新任务
+			atomic.AddInt32(done, 1)
+			return
+		}
+	}
+}
+
+func test(id int, m *model.Model, inputs, labels []*dl.Tensor, totalLoss *float32, correct *int64) {
+	// 组合输入和标签为批量张量
+	batchInputs := dl.Concat(inputs, 0) // 形状: [currentBatchSize, 784]
+	batchLabels := dl.Concat(labels, 0) // 形状: [currentBatchSize]
+
+	// 归一化
+	batchInputs = batchInputs.DivScalar(255.0)
+	batchInputs.Reshape([]int{len(inputs), 784})
+	output := m.Forward(0, batchInputs)
+
+	// 计算损失和梯度
+	labelsInt := make([]int, len(inputs))
+	for i := 0; i < len(inputs); i++ {
+		labelsInt[i] = int(batchLabels.Data[i])
+	}
+	varloss, _ := loss.CrossEntropyLoss(output, labelsInt, true)
+	*totalLoss += varloss
+	for x := 0; x < len(inputs); x++ {
+		max := float32(0)
+		maxn := 0
+		for y := 0; y < output.Shape[1]; y++ {
+			if output.Get(x, y) > max {
+				max = output.Get(x, y)
+				maxn = y
+			}
+		}
+		if maxn == labelsInt[x] {
+			atomic.AddInt64(correct, 1)
+		}
+	}
+}
 func main() {
 	// 加载MNIST数据集
 	err := mnist.TRAIN_MNIST.Load("data/MNIST/raw")
@@ -101,9 +144,10 @@ func main() {
 	for epoch := 0; epoch < epochs; epoch++ {
 		runningLoss := float32(0.0)
 		jobs := make(chan Job, 10)
-		doneMap := make(map[int]int32, runtime.NumCPU())
-		for i := 0; i < runtime.NumCPU(); i++ {
-			go worker(i, m, jobs, &runningLoss, 1*time.Second, &doneMap)
+		done := int32(0)
+		curcurent := runtime.NumCPU()
+		for i := 0; i < curcurent; i++ {
+			go workerTrain(1*time.Second, &done, jobs, i, m, &runningLoss)
 		}
 		for batch := 0; batch < mnist.TRAIN_MNIST.Len()/batchSize; batch++ {
 			// 获取一个批次的数据
@@ -111,47 +155,28 @@ func main() {
 			jobs <- Job{inputs, labels}
 		}
 		for {
-			if len(doneMap) == runtime.NumCPU() {
+			if done == int32(curcurent) {
 				break
 			}
 			time.Sleep(1 * time.Second)
 		}
 		averageLoss := runningLoss / float32(mnist.TRAIN_MNIST.Len()/batchSize)
 		averageVarLoss := float32(0.0)
-		correct := 0
+		correct := int64(0)
 
+		done = 0
+		for i := 0; i < curcurent; i++ {
+			go workerTest(1*time.Second, &done, jobs, i, m, &averageVarLoss, &correct)
+		}
 		for i := 0; i < mnist.TEST_MNIST.Len()/batchSize; i++ {
 			inputs, labels := mnist.TEST_MNIST.GetBatch(i*batchSize, batchSize)
-
-			// 组合输入和标签为批量张量
-			batchInputs := dl.Concat(inputs, 0) // 形状: [currentBatchSize, 784]
-			batchLabels := dl.Concat(labels, 0) // 形状: [currentBatchSize]
-
-			// 归一化
-			batchInputs = batchInputs.DivScalar(255.0)
-			batchInputs.Reshape([]int{batchSize, 784})
-			output := m.Forward(0, batchInputs)
-
-			// 计算损失和梯度
-			labelsInt := make([]int, batchSize)
-			for b := 0; b < batchSize; b++ {
-				labelsInt[b] = int(batchLabels.Data[b])
+			jobs <- Job{inputs, labels}
+		}
+		for {
+			if done == int32(curcurent) {
+				break
 			}
-			varloss, _ := loss.CrossEntropyLoss(output, labelsInt, true)
-			averageVarLoss += varloss
-			for x := 0; x < batchSize; x++ {
-				max := float32(0)
-				maxn := 0
-				for y := 0; y < numClasses; y++ {
-					if output.Get(x, y) > max {
-						max = output.Get(x, y)
-						maxn = y
-					}
-				}
-				if maxn == labelsInt[x] {
-					correct++
-				}
-			}
+			time.Sleep(1 * time.Second)
 		}
 		averageVarLoss = averageVarLoss / float32(mnist.TEST_MNIST.Len()/batchSize)
 		accuracy := float32(correct) / float32(mnist.TEST_MNIST.Len()) * 100.0
