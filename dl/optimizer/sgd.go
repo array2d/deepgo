@@ -17,23 +17,25 @@ func (s *SGD) Update(layers ...*layer.ComputeGraphNode) {
 	for _, layer := range layers {
 		if weight := layer.Parameter("weight"); weight != nil {
 			grad := layer.Parameter("weight.grad")
-			weight.Lock()
-			grad.RLock()
+			//由于深度学习模型通常具有一定的容错性，以及参数维度高、稀疏性等特点，少量的冲突对最终结果影响不大。
+			//Hogwild!是一种在参数更新时不使用锁的并行随机梯度下降算法
+			// weight.Lock()
+			// grad.RLock()
 			for i := 0; i < len(weight.Data); i++ {
 				weight.Data[i] -= s.learningRate * grad.Data[i]
 			}
-			grad.RUnlock()
-			weight.Unlock()
+			// grad.RUnlock()
+			// weight.Unlock()
 		}
 		if biases := layer.Parameter("bias"); biases != nil {
 			grad := layer.Parameter("bias.grad")
-			biases.Lock()
-			grad.RLock()
+			// biases.Lock()
+			// grad.RLock()
 			for i := 0; i < len(biases.Data); i++ {
 				biases.Data[i] -= s.learningRate * grad.Data[i]
 			}
-			grad.RUnlock()
-			biases.Unlock()
+			// grad.RUnlock()
+			// biases.Unlock()
 		}
 	}
 }
