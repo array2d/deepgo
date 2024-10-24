@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"git.array2d.com/ai/deepgo/datasetloader/mnist"
 	"git.array2d.com/ai/deepgo/dl"
@@ -29,7 +28,7 @@ func main() {
 	numClasses := 10               // 分类数量
 	batchSize := 32                // 批处理大小
 	learningRate := float32(0.001) // 学习率
-	epochs := 100                  // 训练轮数
+	epochs := 1000                 // 训练轮数
 	// 创建模型
 	m := &model.Model{
 		Optimizer: optimizer.NewSGD(learningRate), // 学习率设置为0.01
@@ -41,39 +40,13 @@ func main() {
 		Layer(layer.Activation(activation.Relu, activation.ReluDerivative)).
 		Layer(layer.Linear(64, numClasses, true)) // 将各个层添加到模型中
 
-	// 定义前向传播函数
-	m.ForwardFunc = func(inputs ...*dl.Tensor) (outputs []*dl.Tensor) {
-		// 1. 展平输入数据，和PyTorch中的 x.view(-1, 28*28) 相似
-		inputs[0].Reshape([]int{batchSize, 28 * 28})
-		// 2. 通过第一层并应用 ReLU
-		outputs = inputs
-		for _, layer := range m.Layers {
-			outputs = layer.Forward(outputs...) // 每一层依次处理前一层的输出
-		}
-		return outputs
-	}
-
-	// 计算批次数
-	numSamples := mnist.TRAIN_MNIST.Len()
-	numBatches := numSamples / batchSize
-	if numSamples%batchSize != 0 {
-		numBatches++ // 处理最后一个不完整的批次
-	}
-
 	// 训练循环
 	for epoch := 0; epoch < epochs; epoch++ {
 		runningLoss := float32(0.0)
-		for batch := 0; batch < numBatches; batch++ {
-			start := time.Now()
-			startIdx := batch * batchSize
-			endIdx := startIdx + batchSize
-			if endIdx > numSamples {
-				endIdx = numSamples
-			}
-			currentBatchSize := endIdx - startIdx
+		for batch := 0; batch < mnist.TRAIN_MNIST.Len()/batchSize; batch++ {
 
 			// 获取一个批次的数据
-			inputs, labels := mnist.TRAIN_MNIST.GetBatch(startIdx, currentBatchSize)
+			inputs, labels := mnist.TRAIN_MNIST.GetBatch(batch*batchSize, batchSize)
 
 			// 组合输入和标签为批量张量
 			batchInputs := dl.Concat(inputs, 0) // 形状: [currentBatchSize, 784]
@@ -81,13 +54,13 @@ func main() {
 
 			// 归一化
 			batchInputs = batchInputs.DivScalar(255.0)
-
+			batchInputs.Reshape([]int{len(inputs), 784})
 			// 前向传播
-			outputs := m.Forward(batchInputs) // 形状: [currentBatchSize, numClasses]
-			output := outputs[0]
+			output := m.Forward(batchInputs) // 形状: [currentBatchSize, numClasses]
+
 			// 计算损失和梯度
-			labelsInt := make([]int, currentBatchSize)
-			for i := 0; i < currentBatchSize; i++ {
+			labelsInt := make([]int, len(inputs))
+			for i := 0; i < len(inputs); i++ {
 				labelsInt[i] = int(batchLabels.Data[i])
 			}
 
@@ -97,15 +70,6 @@ func main() {
 			// 反向传播
 			m.Backward(outputGrad)
 
-			//// 梯度裁剪（可选）
-			//ClipGradients(1.0,
-			//	linear1.Parameters(),
-			//	linear2.Parameters(),
-			//	outputLayer.Parameters(),
-			//)
-			end := time.Now()
-			usetime := end.Sub(start)
-			usetime = usetime
 			// 使用优化器更新权重
 			m.Optimizer.Update(
 				m.Layers[0].Parameters(),
@@ -116,7 +80,7 @@ func main() {
 			// 重置梯度输出
 			m.ResetGrad()
 		}
-		averageLoss := runningLoss / float32(numBatches)
+		averageLoss := runningLoss / float32(mnist.TRAIN_MNIST.Len()/batchSize)
 		averageVarLoss := float32(0.0)
 		correct := 0
 		for i := 0; i < mnist.TEST_MNIST.Len()/batchSize; i++ {
@@ -128,8 +92,9 @@ func main() {
 
 			// 归一化
 			batchInputs = batchInputs.DivScalar(255.0)
-			outputs := m.Forward(batchInputs)
-			output := outputs[0]
+			batchInputs.Reshape([]int{batchSize, 784})
+			output := m.Forward(batchInputs)
+
 			// 计算损失和梯度
 			labelsInt := make([]int, batchSize)
 			for b := 0; b < batchSize; b++ {

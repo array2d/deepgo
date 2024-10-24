@@ -9,9 +9,8 @@ import (
 )
 
 type Model struct {
-	Layers      []*layer.ComputeGraphNode
-	Optimizer   optimizer.Optimizer
-	ForwardFunc func(inputs ...*dl.Tensor) (outputs []*dl.Tensor)
+	Layers    []*layer.ComputeGraphNode
+	Optimizer optimizer.Optimizer
 }
 
 func (m *Model) ResetGrad() {
@@ -39,28 +38,34 @@ func (m *Model) Layer(l *layer.ComputeGraphNode) *Model {
 	return m
 }
 
-func (m *Model) Forward(inputs ...*dl.Tensor) (outputs []*dl.Tensor) {
-	return m.ForwardFunc(inputs...)
+func (m *Model) Forward(input *dl.Tensor) (output *dl.Tensor) {
+
+	output = input
+	for _, layer := range m.Layers {
+		output = layer.Forward(output)[0] // 每一层依次处理前一层的输出
+	}
+	return output
 }
-func (m *Model) Backward(outputGradients_ ...*dl.Tensor) []*dl.Tensor {
+
+func (m *Model) Backward(outputGrad_ *dl.Tensor) *dl.Tensor {
 	// 从最后一层开始反向传播
-	outputGradients := outputGradients_
+	outputGrad := outputGrad_
 	for i := len(m.Layers) - 1; i >= 0; i-- {
 		layer := m.Layers[i]
-		inputGradients := layer.Backward(outputGradients...)
+		inputGrad := layer.Backward(outputGrad)
 
 		// 累加梯度到前一层的 output.grad
 		if i > 0 {
 			prevLayer := m.Layers[i-1]
 			outputGrad, ok := prevLayer.Parameters()["output.grad"]
 			if !ok {
-				outputGrad = dl.NewTensor(inputGradients[0].Shape)
+				outputGrad = dl.NewTensor(inputGrad[0].Shape)
 				prevLayer.RegisterParameter("output.grad", outputGrad)
 			}
-			outputGrad.AddInPlace(inputGradients[0])
+			outputGrad.AddInPlace(inputGrad[0])
 		}
 
-		outputGradients = inputGradients
+		outputGrad = inputGrad[0]
 	}
-	return outputGradients
+	return outputGrad
 }

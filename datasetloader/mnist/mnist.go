@@ -4,11 +4,12 @@ import (
 	"compress/gzip"
 	"encoding/binary"
 	"fmt"
-	"git.array2d.com/ai/deepgo/dl"
-	"git.array2d.com/ai/deepgo/dl/math/array"
 	"io"
 	"os"
 	"path/filepath"
+
+	"git.array2d.com/ai/deepgo/dl"
+	"git.array2d.com/ai/deepgo/dl/math/array"
 )
 
 var TRAIN_MNIST = MNIST{
@@ -47,7 +48,9 @@ type MNIST struct {
 }
 
 func (mnist MNIST) GetBatch(idx int, batchsize int) (input, labels []*dl.Tensor) {
-
+	if idx+batchsize > len(mnist.Images) {
+		batchsize = len(mnist.Images) - idx
+	}
 	batchImages := mnist.Images[idx : idx+batchsize]
 	batchLabels := mnist.Labels[idx : idx+batchsize]
 
