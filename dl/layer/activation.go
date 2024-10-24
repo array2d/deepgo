@@ -22,11 +22,11 @@ func Activation(activationFunc, derivativeFunc activation.ActivationFunc) (a *Co
 		// 获取反向传播传入的梯度，形状为 [batchSize, features]
 
 		// 获取当前层的输出，也就是下一层的输入，形状为 [batchSize, features]
-		output := a.Parameters()["output"]
-
+		output := a.Parameter("output").Tensor
+		a.Parameter("output").RLock()
 		dl.ActivationDerivative(outputGrad, output, derivativeFunc)
 		// 将 inputGrad 传递给前一层的 output.grad放在model去做
-
+		a.Parameter("output").RUnlock()
 		return outputGrad
 	}
 	a.backward[[2]int{1, 1}] = b

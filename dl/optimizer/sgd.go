@@ -1,8 +1,6 @@
 package optimizer
 
-import (
-	"git.array2d.com/ai/deepgo/dl"
-)
+import "git.array2d.com/ai/deepgo/dl/layer"
 
 // SGD是一种随机梯度下降优化器
 type SGD struct {
@@ -14,7 +12,7 @@ func NewSGD(learningRate float32) *SGD {
 	return &SGD{learningRate: learningRate}
 }
 
-func (s *SGD) Update(parameters ...map[string]*dl.Tensor) {
+func (s *SGD) Update(parameters ...map[string]*layer.RWTensor) {
 	// 遍历所有传入的参数集合
 	for _, paramMap := range parameters {
 		for name, param := range paramMap {
@@ -23,11 +21,14 @@ func (s *SGD) Update(parameters ...map[string]*dl.Tensor) {
 			if !ok {
 				continue // 如果没有找到对应的梯度，跳过这个参数
 			}
-
+			grad.RLock()
+			param.Lock()
 			// 对每个参数逐元素进行更新：new_param = old_param - learning_rate * grad
 			for i := 0; i < len(param.Data); i++ {
 				param.Data[i] -= s.learningRate * grad.Data[i]
 			}
+			grad.RUnlock()
+			param.Unlock()
 		}
 	}
 }

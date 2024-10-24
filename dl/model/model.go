@@ -51,18 +51,19 @@ func (m *Model) Backward(outputGrad_ *dl.Tensor) *dl.Tensor {
 	// 从最后一层开始反向传播
 	outputGrad := outputGrad_
 	for i := len(m.Layers) - 1; i >= 0; i-- {
-		layer := m.Layers[i]
-		inputGrad := layer.Backward(outputGrad)
+		l := m.Layers[i]
+		inputGrad := l.Backward(outputGrad)
 
 		// 累加梯度到前一层的 output.grad
 		if i > 0 {
 			prevLayer := m.Layers[i-1]
-			outputGrad, ok := prevLayer.Parameters()["output.grad"]
-			if !ok {
-				outputGrad = dl.NewTensor(inputGrad[0].Shape)
-				prevLayer.RegisterParameter("output.grad", outputGrad)
+			if prevLayer.Parameter("output.grad") == nil {
+				prevLayer.RegisterParameter("output.grad", dl.NewTensor(inputGrad[0].Shape))
 			}
+			outputGrad := prevLayer.Parameter("output.grad")
+			outputGrad.Lock()
 			outputGrad.AddInPlace(inputGrad[0])
+			outputGrad.Unlock()
 		}
 
 		outputGrad = inputGrad[0]

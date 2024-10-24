@@ -1,6 +1,8 @@
 package layer
 
 import (
+	"sync"
+
 	"git.array2d.com/ai/deepgo/dl"
 )
 
@@ -10,11 +12,16 @@ type f1_2 func(input *dl.Tensor) [2]*dl.Tensor
 type fN_1 func(inputs []*dl.Tensor) *dl.Tensor
 type fN_N func(inputs []*dl.Tensor) []*dl.Tensor
 
+type RWTensor struct {
+	*dl.Tensor
+	sync.RWMutex
+}
+
 type ComputeGraphNode struct {
 	in, out    int
 	forward    map[[2]int]any
 	backward   map[[2]int]any
-	parameters map[string]*dl.Tensor
+	parameters map[string]*RWTensor
 	attr       map[string]any
 	Inputs     []*ComputeGraphNode
 	Outputs    []*ComputeGraphNode
@@ -25,7 +32,7 @@ func NewNode(in, out int) *ComputeGraphNode {
 	node := &ComputeGraphNode{
 		in:         in,
 		out:        out,
-		parameters: make(map[string]*dl.Tensor),
+		parameters: make(map[string]*RWTensor),
 		attr:       map[string]any{},
 		forward:    make(map[[2]int]any),
 		backward:   make(map[[2]int]any),
@@ -48,11 +55,16 @@ func (n *ComputeGraphNode) Attr(name string) (attr any) {
 
 // RegisterParameter 注册一个参数
 func (n *ComputeGraphNode) RegisterParameter(name string, param *dl.Tensor) {
-	n.parameters[name] = param
+	n.parameters[name] = &RWTensor{Tensor: param}
 }
 
 // Parameters 返回所有注册的参数
-func (n *ComputeGraphNode) Parameters() map[string]*dl.Tensor {
+func (n *ComputeGraphNode) Parameter(name string) *RWTensor {
+	return n.parameters[name]
+}
+
+// Parameters 返回所有注册的参数
+func (n *ComputeGraphNode) Parameters() map[string]*RWTensor {
 	return n.parameters
 }
 
