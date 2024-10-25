@@ -113,12 +113,20 @@ func (t *Tensor) Add(other *Tensor) *Tensor {
 	n.AddInPlace(other)
 	return n
 }
+func (t *Tensor) AddAt(indices []int, value float32) {
+	idx := t.calculateIndex(indices)
+	t.Data[idx] += value
+}
 
 // Sub 执行两个张量的减法，支持广播，返回新的张量
 func (t *Tensor) Sub(other *Tensor) *Tensor {
 	n := t.Clone()
 	n.SubInPlace(other)
 	return n
+}
+func (t *Tensor) SubAt(indices []int, value float32) {
+	idx := t.calculateIndex(indices)
+	t.Data[idx] -= value
 }
 
 // Div 执行两个张量的除法，支持广播，返回新的张量
@@ -127,6 +135,10 @@ func (t *Tensor) Div(other *Tensor) *Tensor {
 	n.DivInPlace(other)
 	return n
 }
+func (t *Tensor) DivAt(indices []int, value float32) {
+	idx := t.calculateIndex(indices)
+	t.Data[idx] /= value
+}
 
 // Mul 逐元素相乘
 func (t *Tensor) Mul(other *Tensor) *Tensor {
@@ -134,7 +146,10 @@ func (t *Tensor) Mul(other *Tensor) *Tensor {
 	n.MulInPlace(other)
 	return n
 }
-
+func (t *Tensor) MulAt(indices []int, value float32) {
+	idx := t.calculateIndex(indices)
+	t.Data[idx] *= value
+}
 func (t *Tensor) DivScalar(scalar float32) *Tensor {
 	// 创建一个新的张量用于存储结果
 	result := t.Clone() // 克隆当前张量以保持原始数据不变

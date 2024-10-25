@@ -18,3 +18,7 @@ if __name__ == "__main__":
         # 输出结果和形状
         print(json.dumps(C.flatten().tolist()))
         print(json.dumps(list(C.shape)))
+    elif op == "padding":
+        C=np.pad(A,b)
+        print(json.dumps(C.flatten().tolist()))
+        print(json.dumps(list(C.shape)))

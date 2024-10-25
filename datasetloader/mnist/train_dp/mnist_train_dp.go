@@ -125,9 +125,10 @@ func main() {
 		Optimizer: optimizer.NewSGD(learningRate), // 学习率设置为0.01
 	}
 	m.Layer(layer.Linear(mnist.TRAIN_MNIST.ImageSize, 128, true)).
+		Layer(layer.Dropout(0.3, true)).
 		Layer(layer.Activation(activation.Relu, activation.ReluDerivative)).
-		//Layer(layer.Dropout(0.3, true)).
 		Layer(layer.Linear(128, 64, true)).
+		Layer(layer.Dropout(0.3, true)).
 		Layer(layer.Activation(activation.Relu, activation.ReluDerivative)).
 		Layer(layer.Linear(64, numClasses, true)) // 将各个层添加到模型中
 
