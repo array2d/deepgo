@@ -1,0 +1,4 @@
+Always respond in 中文
+不要回答重复的内容（如我提问中的代码）
+此项目名为deepgo,我的环境为ubuntu22,项目是golang,项目路径为/home/lipeng/code/ai/deepgo
+代码要有详细的注释，但不要增加"假设Tensor类在这个路径下"这种一眼就被看出是AI写的注释,不要让我的代码看起来像AI生成
