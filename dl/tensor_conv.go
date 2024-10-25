@@ -1,9 +1,13 @@
 package dl
 
+import "fmt"
+
 func (t *Tensor) Padding(padding []int) *Tensor {
-	padding2N := make([][2]int, len(padding))
+	padding2N := make([][2]int, 2+len(padding))
+	padding2N[0] = [2]int{0, 0}
+	padding2N[1] = [2]int{0, 0}
 	for i := 0; i < len(padding); i++ {
-		padding2N[i] = [2]int{padding[i], padding[i]}
+		padding2N[i+2] = [2]int{padding[i], padding[i]}
 	}
 	return t.Padding2N(padding2N)
 }
@@ -85,7 +89,7 @@ func (t *Tensor) Conv(kernel *Tensor, stride []int, padding []int) *Tensor {
 
 	// 检查 stride 和 padding 的长度
 	if len(stride) != dims || len(padding) != dims {
-		panic("Stride and padding must match the number of dimensions.")
+		panic(fmt.Sprintf("Stride and padding must match the number of dimensions.dims: %d, stride: %v, padding: %v", dims, stride, padding))
 	}
 
 	// 计算输出形状
