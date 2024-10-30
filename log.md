@@ -30,3 +30,5 @@ cpu利用率达到了总cpu的100%
 
 感觉padding是ok
 其它的conv、maxpooling不太ok
+
+## 2024-10-30 用range方法，重新实现Transpose
