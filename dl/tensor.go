@@ -155,12 +155,11 @@ func (t *Tensor) Transpose(dims []int) *Tensor {
 			newIndices[i] = indices[dim]
 		}
 		result.Set(newIndices, t.Get(indices...))
-	})
+	}, len(t.Shape))
 	return result
 }
-func (t *Tensor) Range(f func(indices []int)) {
+func (t *Tensor) Range(f func(indices []int), dimensionCount int) {
 	shape := t.Shape
-	dimensionCount := len(shape)
 	indexSlice := make([]int, dimensionCount)
 
 	var recursiveFunc func(depth int)

@@ -31,4 +31,10 @@ cpu利用率达到了总cpu的100%
 感觉padding是ok
 其它的conv、maxpooling不太ok
 
-## 2024-10-30 用range方法，重新实现Transpose
+## 2024-10-29 用range方法，重新实现Transpose
+
+## 2024-10-30 matrix重新定义
+
+matrix的M,N,rows,cols这些真容易搞混
+比如rows是行数，cols是列数,我还以为rows是每行元素个数
+干脆参考tensor,使用shape来表示

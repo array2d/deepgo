@@ -93,3 +93,15 @@ func TestTensor_Clone(t *testing.T) {
 		t.Error("修改克隆后，克隆的张量仍然与原始张量相等")
 	}
 }
+
+func TestTensor_Transpose(t *testing.T) {
+	a := NewTensor([]int{2, 3}, 1, 2, 3, 4, 5, 6)
+	at := a.Transpose([]int{1, 0})
+	at.Print()
+
+	b := NewTensor([]int{4, 3, 2})
+	b.Linear(0, float64(b.Len()))
+	b.Print()
+	bt := b.Transpose([]int{0, 2, 1})
+	bt.Print()
+}
