@@ -1,11 +1,12 @@
 package dl
 
 import (
-	"git.array2d.com/ai/deepgo/py"
 	"testing"
+
+	"git.array2d.com/ai/deepgo/py"
 )
 
-func TestTensor_Mul(t *testing.T) {
+func TestTensor_MatMul(t *testing.T) {
 	// 测试2x3x2矩阵与2x2x3矩阵相乘
 	t7 := NewTensor([]int{2, 3, 2}, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
 	t8 := NewTensor([]int{2, 2, 3}, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
@@ -21,7 +22,7 @@ func TestTensor_Mul(t *testing.T) {
 		t.Errorf("高维矩阵乘法错误。期望 %v，得到 %v", expectedTensor.Data, result4.Data)
 	}
 }
-func TestTensor_Mul2(t *testing.T) {
+func TestTensor_MatMul2(t *testing.T) {
 	// 测试2x3x2矩阵与2x2x3矩阵相乘
 	testCases := []struct {
 		shapeA, shapeB []int
@@ -129,7 +130,7 @@ func TestTensor_Mul2(t *testing.T) {
 		tensorA := NewTensor(tc.shapeA, tc.dataA...)
 		tensorB := NewTensor(tc.shapeB, tc.dataB...)
 
-		expectedData, expectedShape, err := py.CalculateA_B_ReturnC("tensor_op_A_B_return_C.py", "mul", tc.dataA, tc.dataB, tc.shapeA, tc.shapeB)
+		expectedData, expectedShape, err := py.CalculateA_B_ReturnC("tensor_op_A_B_return_D.py", "mul", tc.dataA, tc.dataB, tc.shapeA, tc.shapeB)
 		if err != nil {
 			t.Log("计算预期结果时出错", tc.dataA, tc.dataB, tc.shapeA, tc.shapeB)
 			t.Errorf("计算预期结果时出错: %v", err)
@@ -137,11 +138,47 @@ func TestTensor_Mul2(t *testing.T) {
 		}
 
 		expectedTensor := NewTensor(expectedShape, expectedData...)
-		result := tensorA.Mul(tensorB)
+		result := tensorA.MatMul(tensorB)
 		if !IsTensorEqual(result, expectedTensor) {
 			t.Errorf("高维矩阵乘法错误。期望 %v，得到 %v", expectedTensor.Data, result.Data)
 		} else {
 			t.Log("计算预期结果与python一致", index)
 		}
+	}
+}
+
+func TestTensor_MatMul3(t *testing.T) {
+	// 测试2x3x2矩阵与2x2x3矩阵相乘
+	testCases := []struct {
+		shapeA, shapeB []int
+		dataA, dataB   []float32
+	}{
+		{
+			shapeA: []int{3, 4},
+			shapeB: []int{4, 5},
+			dataA:  []float32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12},
+			dataB:  []float32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20},
+		},
+	}
+
+	for index, tc := range testCases {
+		tensorA := NewTensor(tc.shapeA, tc.dataA...)
+		tensorB := NewTensor(tc.shapeB, tc.dataB...)
+
+		expectedData, expectedShape, err := py.CalculateA_B_ReturnC("tensor_op_A_B_return_D.py", "mul", tc.dataA, tc.dataB, tc.shapeA, tc.shapeB)
+		if err != nil {
+			t.Log("计算预期结果时出错", tc.dataA, tc.dataB, tc.shapeA, tc.shapeB)
+			t.Errorf("计算预期结果时出错: %v", err)
+			continue
+		}
+
+		expectedTensor := NewTensor(expectedShape, expectedData...)
+		result := tensorA.MatMul(tensorB)
+		if !IsTensorEqual(result, expectedTensor) {
+			t.Errorf("高维矩阵乘法错误。期望 %v，得到 %v", expectedTensor.Data, result.Data)
+		} else {
+			t.Log("计算预期结果与python一致", index)
+		}
+		expectedTensor.Print()
 	}
 }
