@@ -27,16 +27,8 @@ func (m *Model) ResetGrad() {
 }
 
 func (m *Model) Layer(l *layer.ComputeGraphNode) *Model {
-	if len(m.Layers) == 0 {
-		m.Layers = append(m.Layers, l)
-	} else {
-		// 获取前一层（最后一个添加的层）
-		prevLayer := m.Layers[len(m.Layers)-1]
-		// 设置当前层的输入为前一层
-		l.Inputs = append(l.Inputs, prevLayer)
-		prevLayer.Outputs = append(prevLayer.Outputs, l)
-		m.Layers = append(m.Layers, l)
-	}
+
+	m.Layers = append(m.Layers, l)
 
 	return m
 }

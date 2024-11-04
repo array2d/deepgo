@@ -29,8 +29,6 @@ type ComputeGraphNode struct {
 	//weight.grad,bias.grad
 	parameters map[string]*RWTensor
 	attr       map[string]any
-	Inputs     []*ComputeGraphNode
-	Outputs    []*ComputeGraphNode
 }
 
 // NewNode 创建一个新的节点
@@ -42,11 +40,6 @@ func NewNode(in, out int) *ComputeGraphNode {
 		attr:       map[string]any{},
 		forward:    make(map[[2]int]any),
 		backward:   make(map[[2]int]any),
-		Inputs:     []*ComputeGraphNode{},
-		Outputs:    []*ComputeGraphNode{},
-	}
-	for _, input := range node.Inputs {
-		input.Outputs = append(input.Outputs, node)
 	}
 	return node
 }
