@@ -64,9 +64,7 @@ func train(id int, m *model.Model, inputs, labels []*dl.Tensor, runningLoss *flo
 	m.Backward(id, outputGrad)
 	// 使用优化器更新权重
 	m.Optimizer.Update(
-		m.Layers[0],
-		m.Layers[2],
-		m.Layers[4],
+		m.Layers...,
 	) // 使用优化器更新权重
 
 	// 重置梯度输出
@@ -125,10 +123,10 @@ func main() {
 		Optimizer: optimizer.NewSGD(learningRate), // 学习率设置为0.01
 	}
 	m.Layer(layer.Linear(mnist.TRAIN_MNIST.ImageSize, 128, true)).
-		Layer(layer.Dropout(0.3, true)).
+		//Layer(layer.Dropout(0.3, true)).
 		Layer(layer.Activation(activation.Relu, activation.ReluDerivative)).
 		Layer(layer.Linear(128, 64, true)).
-		Layer(layer.Dropout(0.3, true)).
+		//Layer(layer.Dropout(0.3, true)).
 		Layer(layer.Activation(activation.Relu, activation.ReluDerivative)).
 		Layer(layer.Linear(64, numClasses, true)) // 将各个层添加到模型中
 
