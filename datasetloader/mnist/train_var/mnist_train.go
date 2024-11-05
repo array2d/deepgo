@@ -81,8 +81,45 @@ func main() {
 			m.ResetGrad()
 		}
 		averageLoss := runningLoss / float32(mnist.TRAIN_MNIST.Len()/batchSize)
+		averageVarLoss := float32(0.0)
+		correct := 0
+		for i := 0; i < mnist.TEST_MNIST.Len()/batchSize; i++ {
+			inputs, labels := mnist.TEST_MNIST.GetBatch(i*batchSize, batchSize)
 
-		fmt.Printf("Epoch %d complete, Average Loss: %.4f", epoch+1, averageLoss)
+			// 组合输入和标签为批量张量
+			batchInputs := dl.Concat(inputs, 0) // 形状: [currentBatchSize, 784]
+			batchLabels := dl.Concat(labels, 0) // 形状: [currentBatchSize]
+
+			// 归一化
+			batchInputs = batchInputs.DivScalar(255.0)
+			batchInputs.Reshape([]int{batchSize, 784})
+			output := m.Forward(0, batchInputs)
+
+			// 计算损失和梯度
+			labelsInt := make([]int, batchSize)
+			for b := 0; b < batchSize; b++ {
+				labelsInt[b] = int(batchLabels.Data[b])
+			}
+			varloss, _ := loss.CrossEntropyLoss(output, labelsInt, true)
+			averageVarLoss += varloss
+			for x := 0; x < batchSize; x++ {
+				max := float32(0)
+				maxn := 0
+				for y := 0; y < numClasses; y++ {
+					if output.Get(x, y) > max {
+						max = output.Get(x, y)
+						maxn = y
+					}
+				}
+				if maxn == labelsInt[x] {
+					correct++
+				}
+			}
+		}
+		averageVarLoss = averageVarLoss / float32(mnist.TEST_MNIST.Len()/batchSize)
+		accuracy := float32(correct) / float32(mnist.TEST_MNIST.Len()) * 100.0
+
+		fmt.Printf("Epoch %d complete, Average Loss: %.4f,Average Varloss : %.4f,VarDataset Accuracy: %.2f%%\n", epoch+1, averageLoss, averageVarLoss, accuracy)
 	}
 
 	// 保存模型
