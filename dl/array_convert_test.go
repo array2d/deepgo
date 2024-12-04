@@ -1,4 +1,4 @@
-package array
+package dl
 
 import (
 	"testing"

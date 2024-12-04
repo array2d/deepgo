@@ -38,3 +38,7 @@ cpu利用率达到了总cpu的100%
 matrix的M,N,rows,cols这些真容易搞混
 比如rows是行数，cols是列数,我还以为rows是每行元素个数
 干脆参考tensor,使用shape来表示
+
+## 2024-12-04 Tensor支持泛型
+重构tensor，支持泛型
+优化tensor的运算

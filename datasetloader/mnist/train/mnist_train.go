@@ -82,7 +82,7 @@ func main() {
 		}
 		averageLoss := runningLoss / float32(mnist.TRAIN_MNIST.Len()/batchSize)
 
-		fmt.Printf("Epoch %d complete, Average Loss: %.4f", epoch+1, averageLoss)
+		fmt.Printf("Epoch %d complete, Average Loss: %.4f \n", epoch+1, averageLoss)
 	}
 
 	// 保存模型

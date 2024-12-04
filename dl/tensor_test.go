@@ -22,7 +22,7 @@ func TestNewTensor(t *testing.T) {
 // 测试Set和Get函数
 func TestSetAndGet(t *testing.T) {
 	shape := []int{2, 3}
-	tensor := NewTensor(shape)
+	tensor := NewTensor[float32](shape)
 	expectedValue := float32(1.0)
 	tensor.Set([]int{0, 0}, expectedValue)
 	actualValue := tensor.Get(0, 0)
@@ -34,7 +34,7 @@ func TestSetAndGet(t *testing.T) {
 }
 
 func TestTensor_Set(t *testing.T) {
-	tensor := NewTensor([]int{2, 2})
+	tensor := NewTensor[float32]([]int{2, 2})
 	tensor.Set([]int{0, 1}, 5.0)
 
 	if tensor.Data[1] != 5.0 {
@@ -52,7 +52,7 @@ func TestTensor_Get(t *testing.T) {
 }
 
 func TestTensor_RandomInit(t *testing.T) {
-	tensor := NewTensor([]int{2, 2})
+	tensor := NewTensor[float32]([]int{2, 2})
 	var min, max float64 = 0.0, 1.0
 	tensor.Uniform(min, max)
 
@@ -99,7 +99,7 @@ func TestTensor_Transpose(t *testing.T) {
 	at := a.Transpose([]int{1, 0})
 	at.Print()
 
-	b := NewTensor([]int{4, 3, 2})
+	b := NewTensor[float32]([]int{4, 3, 2})
 	b.Linear(0, float64(b.Len()))
 	b.Print()
 	bt := b.Transpose([]int{0, 2, 1})
