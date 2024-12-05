@@ -29,15 +29,15 @@ func main() {
 	learningRate := float32(0.001) // 学习率
 	epochs := 1000                 // 训练轮数
 	// 创建模型
-	m := &model.Model{
+	m := &model.Model[float32]{
 		Optimizer: optimizer.NewSGD(learningRate), // 学习率设置为0.01
 	}
-	m.Layer(layer.Linear(mnist.TRAIN_MNIST.ImageSize, 128, true)).
-		Layer(layer.Activation(dl.Relu, dl.ReluDerivative)).
+	m.Layer(layer.Linear[float32](mnist.TRAIN_MNIST.ImageSize, 128, true)).
+		Layer(layer.Activation(dl.Relu[float32], dl.ReluDerivative)).
 		//Layer(layer.Dropout(0.3, true)).
-		Layer(layer.Linear(128, 64, true)).
-		Layer(layer.Activation(dl.Relu, dl.ReluDerivative)).
-		Layer(layer.Linear(64, numClasses, true)) // 将各个层添加到模型中
+		Layer(layer.Linear[float32](128, 64, true)).
+		Layer(layer.Activation(dl.Relu[float32], dl.ReluDerivative)).
+		Layer(layer.Linear[float32](64, numClasses, true)) // 将各个层添加到模型中
 
 	// 训练循环
 	for epoch := 0; epoch < epochs; epoch++ {
@@ -45,14 +45,15 @@ func main() {
 		for batch := 0; batch < mnist.TRAIN_MNIST.Len()/batchSize; batch++ {
 
 			// 获取一个批次的数据
-			inputs, labels := mnist.TRAIN_MNIST.GetBatch(batch*batchSize, batchSize)
-
+			inputs_, labels_ := mnist.TRAIN_MNIST.GetBatch(batch*batchSize, batchSize)
+			inputs := dl.BatchClone[uint8, float32](inputs_)
+			labels := dl.BatchClone[uint8, float32](labels_)
 			// 组合输入和标签为批量张量
 			batchInputs := dl.Concat(inputs, 0) // 形状: [currentBatchSize, 784]
 			batchLabels := dl.Concat(labels, 0) // 形状: [currentBatchSize]
 
 			// 归一化
-			batchInputs = batchInputs.DivScalar(255.0)
+			batchInputs.DivNumberInPlace(255.0)
 			batchInputs.Reshape([]int{len(inputs), 784})
 			// 前向传播
 			output := m.Forward(0, batchInputs) // 形状: [currentBatchSize, numClasses]

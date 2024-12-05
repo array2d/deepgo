@@ -180,3 +180,17 @@ func (t *Tensor[T]) Clone() *Tensor[T] {
 	copy(clone.Data, t.Data)
 	return clone
 }
+func Clone[T1, T2 Number](t *Tensor[T1]) *Tensor[T2] {
+	clone := NewTensor[T2](t.Shape)
+	for i := range t.Data {
+		clone.Data[i] = T2(t.Data[i])
+	}
+	return clone
+}
+func BatchClone[T1, T2 Number](t []*Tensor[T1]) (clone []*Tensor[T2]) {
+	clone = make([]*Tensor[T2], len(t))
+	for i := range t {
+		clone[i] = Clone[T1, T2](t[i])
+	}
+	return clone
+}

@@ -6,12 +6,12 @@ import (
 	"git.array2d.com/ai/deepgo/dl/optimizer"
 )
 
-type Model struct {
-	Layers    []*layer.ComputeGraphNode
+type Model[T dl.Number] struct {
+	Layers    []*layer.ComputeGraphNode[T]
 	Optimizer optimizer.Optimizer
 }
 
-func (m *Model) ResetGrad() {
+func (m *Model[T]) ResetGrad() {
 	for _, layer := range m.Layers {
 		if weightGrad := layer.Parameter("weight.grad"); weightGrad != nil {
 			weightGrad.Lock()
@@ -26,14 +26,14 @@ func (m *Model) ResetGrad() {
 	}
 }
 
-func (m *Model) Layer(l *layer.ComputeGraphNode) *Model {
+func (m *Model[T]) Layer(l *layer.ComputeGraphNode[T]) *Model[T] {
 
 	m.Layers = append(m.Layers, l)
 
 	return m
 }
 
-func (m *Model) Forward(id int, input *dl.Tensor) (output *dl.Tensor) {
+func (m *Model[T]) Forward(id int, input *dl.Tensor[T]) (output *dl.Tensor[T]) {
 
 	output = input
 	for _, layer := range m.Layers {
@@ -42,9 +42,9 @@ func (m *Model) Forward(id int, input *dl.Tensor) (output *dl.Tensor) {
 	return output
 }
 
-func (m *Model) Backward(id int, outputGrad_ *dl.Tensor) *dl.Tensor {
+func (m *Model[T]) Backward(id int, outputGrad_ *dl.Tensor[T]) (outputGrad *dl.Tensor[T]) {
 	// 从最后一层开始反向传播
-	outputGrad := outputGrad_
+	outputGrad = outputGrad_
 	for i := len(m.Layers) - 1; i >= 0; i-- {
 		l := m.Layers[i]
 		inputGrad := l.Backward(id, outputGrad)

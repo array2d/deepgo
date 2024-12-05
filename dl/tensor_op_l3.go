@@ -2,6 +2,7 @@ package dl
 
 import (
 	"fmt"
+	"math"
 	"sort"
 )
 
@@ -160,5 +161,9 @@ func (t *Tensor[T]) DivInPlace(other *Tensor[T]) *Tensor[T] {
 }
 func (t *Tensor[T]) DivNumberInPlace(other T) *Tensor[T] {
 	t.OpNumberInPlace(other, func(a, b T) T { return a / b })
+	return t
+}
+func (t *Tensor[T]) ExpInPlace() *Tensor[T] {
+	t.OpTensorInPlace(t, func(a, b T) T { return T(math.Exp(float64(a))) })
 	return t
 }
