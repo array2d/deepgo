@@ -6,7 +6,6 @@ import (
 
 	"git.array2d.com/ai/deepgo/datasetloader/mnist"
 	"git.array2d.com/ai/deepgo/dl"
-	"git.array2d.com/ai/deepgo/dl/activation"
 	"git.array2d.com/ai/deepgo/dl/layer"
 	"git.array2d.com/ai/deepgo/dl/loss"
 	"git.array2d.com/ai/deepgo/dl/model"
@@ -34,14 +33,14 @@ func main() {
 		Optimizer: optimizer.NewSGD(learningRate), // 学习率设置为0.01
 	}
 	m.Layer(layer.Conv2d(1, 32, []int{3, 3}, []int{1, 1}, []int{1, 1})). // 输入通道1（灰度图像），输出通道32，卷积核3x3，步幅1，填充1
-										Layer(layer.Activation(activation.Relu, activation.ReluDerivative)).
+										Layer(layer.Activation(dl.Relu, dl.ReluDerivative)).
 										Layer(layer.MaxPool2d([]int{2, 2}, []int{2, 2}, []int{0, 0})). // 2x2最大池化，步幅2
 										Layer(layer.Conv2d(32, 64, []int{3, 3}, []int{1, 1}, []int{1, 1})).
-										Layer(layer.Activation(activation.Relu, activation.ReluDerivative)).
+										Layer(layer.Activation(dl.Relu, dl.ReluDerivative)).
 										Layer(layer.MaxPool2d([]int{2, 2}, []int{2, 2}, []int{0, 0})).
 										Layer(layer.Flatten(1, 3)). // 展平为一维向量
 										Layer(layer.Linear(64*7*7, 128, true)).
-										Layer(layer.Activation(activation.Relu, activation.ReluDerivative)).
+										Layer(layer.Activation(dl.Relu, dl.ReluDerivative)).
 										Layer(layer.Linear(128, numClasses, true)) // 输出层
 
 	// 训练循环

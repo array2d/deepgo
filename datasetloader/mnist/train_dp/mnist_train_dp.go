@@ -10,7 +10,6 @@ import (
 
 	"git.array2d.com/ai/deepgo/datasetloader/mnist"
 	"git.array2d.com/ai/deepgo/dl"
-	"git.array2d.com/ai/deepgo/dl/activation"
 	"git.array2d.com/ai/deepgo/dl/layer"
 	"git.array2d.com/ai/deepgo/dl/loss"
 	"git.array2d.com/ai/deepgo/dl/model"
@@ -124,10 +123,10 @@ func main() {
 	}
 	m.Layer(layer.Linear(mnist.TRAIN_MNIST.ImageSize, 128, true)).
 		//Layer(layer.Dropout(0.3, true)).
-		Layer(layer.Activation(activation.Relu, activation.ReluDerivative)).
+		Layer(layer.Activation(dl.Relu, dl.ReluDerivative)).
 		Layer(layer.Linear(128, 64, true)).
 		//Layer(layer.Dropout(0.3, true)).
-		Layer(layer.Activation(activation.Relu, activation.ReluDerivative)).
+		Layer(layer.Activation(dl.Relu, dl.ReluDerivative)).
 		Layer(layer.Linear(64, numClasses, true)) // 将各个层添加到模型中
 
 	// 训练循环

@@ -4,11 +4,10 @@ import (
 	"strconv"
 
 	"git.array2d.com/ai/deepgo/dl"
-	"git.array2d.com/ai/deepgo/dl/activation"
 )
 
 // Activation 创建一个新的激活层
-func Activation(activationFunc, derivativeFunc activation.ActivationFunc) (a *ComputeGraphNode) {
+func Activation(activationFunc, derivativeFunc dl.ActivationFunc) (a *ComputeGraphNode) {
 	a = NewNode(1, 1)
 	var f f1_1 = func(id int, input *dl.Tensor) *dl.Tensor {
 

@@ -43,7 +43,7 @@ func TestTensor_Set(t *testing.T) {
 }
 
 func TestTensor_Get(t *testing.T) {
-	tensor := NewTensor([]int{2, 2}, 1, 2, 3, 4)
+	tensor := NewTensor[float64]([]int{2, 2}, 1, 2, 3, 4)
 	value := tensor.Get(1, 0)
 
 	if value != 3.0 {

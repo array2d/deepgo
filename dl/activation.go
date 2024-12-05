@@ -1,15 +1,13 @@
-package activation
+package dl
 
 import (
 	"math"
-
-	"git.array2d.com/ai/deepgo/dl"
 )
 
-type ActivationFunc[T dl.Number] func(T) T
+type ActivationFunc[T Number] func(T) T
 
 // Relu 实现ReLU激活函数
-func Relu[T dl.Number](x T) T {
+func Relu[T Number](x T) T {
 	if x < 0 {
 		return 0
 	}
