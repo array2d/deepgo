@@ -59,7 +59,7 @@ func (t *Tensor[T]) Uniform(low, high float64) {
 // Linear 从 low 到 high 线性初始化张量
 func (t *Tensor[T]) Linear(low, high float64) {
 	n := len(t.Data)
-	step := (high - low) / float64(n)
+	step := (high - low) / float64(n-1)
 	for i := 0; i < n; i++ {
 		t.Data[i] = T(low + float64(i)*step)
 	}

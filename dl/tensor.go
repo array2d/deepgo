@@ -3,7 +3,6 @@ package dl
 import (
 	"fmt"
 	"math"
-	"sort"
 )
 
 type Tensor[T Number] struct {
@@ -104,47 +103,6 @@ func (t *Tensor[T]) Range(dimCount int, f func(indices []int)) {
 		f(indices) // 调用传入的函数
 	}
 }
-func (t *Tensor[T]) SumDimMap(dims []int) (sumMap []int) {
-	// Step 1: 确定输出形状
-	sumDims := make([]int, len(dims))
-	copy(sumDims, dims)
-	sort.Ints(sumDims)
-	// 去重
-	sumDims = Unique(sumDims)
-
-	// 验证维度
-	for _, d := range sumDims {
-		if d < 0 || d >= len(t.Shape) {
-			panic("Dimension out of range in sum")
-		}
-	}
-
-	// 创建一个映射数组，标记哪些维度需要求和
-	sumMap = make([]int, len(t.Shape))
-	for _, dim := range sumDims {
-		sumMap[dim] = 1
-	}
-	return sumMap
-}
-func (t *Tensor[T]) SumShape(dims []int) []int {
-	// 创建一个映射数组，标记哪些维度需要求和
-	sumMap := t.SumDimMap(dims)
-
-	// 计算输出形状
-	outputShape := make([]int, 0)
-
-	for i := 0; i < len(t.Shape); i++ {
-		if sumMap[i] == 0 {
-			outputShape = append(outputShape, t.Shape[i])
-		}
-	}
-
-	// 如果所有维度都被求和，返回标量张量
-	if len(outputShape) == 0 {
-		outputShape = append(outputShape, 1)
-	}
-	return outputShape
-}
 
 // Print 打印Tensor的值
 func (t *Tensor[T]) Print(format_ ...string) {
@@ -221,85 +179,4 @@ func (t *Tensor[T]) Clone() *Tensor[T] {
 	clone := NewTensor[T](t.Shape)
 	copy(clone.Data, t.Data)
 	return clone
-}
-
-func (t *Tensor[T]) Transpose(dimOrder []int) *Tensor[T] {
-	if len(dimOrder) != len(t.Shape) {
-		panic("dimOrder length must be equal to the number of dimensions in the tensor")
-	}
-	newShape := make([]int, len(t.Shape))
-	for i, dim := range dimOrder {
-		newShape[i] = t.Shape[dim]
-	}
-	result := NewTensor[T](newShape)
-	if t.Len() != result.Len() {
-		panic("transpose error: newShape:" + fmt.Sprint(newShape) + " oldShape:" + fmt.Sprint(t.Shape))
-	}
-	t.Range(len(dimOrder), func(indices []int) {
-		newIndices := make([]int, len(indices))
-		for i, dim := range dimOrder {
-			newIndices[i] = indices[dim]
-		}
-		result.Set(newIndices, t.Get(indices...))
-	})
-	return result
-}
-func (t *Tensor[T]) Sum(dims []int) *Tensor[T] {
-	// 创建一个映射数组，标记哪些维度需要求和
-	sumMap := t.SumDimMap(dims)
-	// 计算输出形状
-	outputShape := t.SumShape(dims)
-
-	result := NewTensor[T](outputShape)
-
-	// Step 2: 使用 range 遍历输入张量
-	t.Range(len(t.Shape), func(indices []int) {
-		// 计算输出索引
-		outputIndices := make([]int, len(result.Shape))
-		for i, j := 0, 0; i < len(t.Shape); i++ {
-			if sumMap[i] == 0 {
-				outputIndices[j] = indices[i]
-				j++
-			}
-		}
-
-		// 累加求和
-		inputIdx := t.LinearAt(indices)
-		outputIdx := result.LinearAt(outputIndices)
-		result.Data[outputIdx] += t.Data[inputIdx]
-	})
-	return result
-}
-func (a *Tensor[T]) MatMulShape(b *Tensor[T]) (c []int) {
-	if len(a.Shape) < 2 || len(b.Shape) < 2 {
-		panic("TensorCPU dimensions do not match for multiplication")
-	}
-	if a.Shape[len(a.Shape)-1] != b.Shape[len(b.Shape)-2] {
-		panic("TensorCPU dimensions do not match for multiplication")
-	}
-	resultShape := make([]int, len(a.Shape))
-	copy(resultShape, a.Shape)
-	resultShape[len(resultShape)-1] = b.Shape[len(b.Shape)-1]
-	return resultShape
-}
-
-// MatMul 实现高维矩阵 Tensor 的矩阵乘法
-// 矩阵的最后两维满足:A矩阵的列数B矩阵的行数相等
-func (a *Tensor[T]) MatMul(b *Tensor[T]) (c *Tensor[T]) {
-	c = NewTensor[T](a.MatMulShape(b))
-	c.Range(len(c.Shape)-2, func(indices []int) {
-		aIdx := a.LinearAt(indices)
-		bIdx := b.LinearAt(indices)
-		cIdx := c.LinearAt(indices)
-
-		m, k, n := c.Shape[len(c.Shape)-2], a.Shape[len(a.Shape)-1], c.Shape[len(c.Shape)-1]
-		for i := 0; i < m; i++ {
-			for j := 0; j < n; j++ {
-				for x := 0; x < k; x++ {
-					c.Data[cIdx+i*n+j] += a.Data[aIdx+i*k+x] * b.Data[bIdx+x*n+j]
-				}
-			}
-		}
-	})
-	return c
 }
