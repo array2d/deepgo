@@ -148,6 +148,10 @@ func (t *Tensor[T]) SumShape(dims []int) []int {
 
 // Print 打印Tensor的值
 func (t *Tensor[T]) Print(format_ ...string) {
+	format := "%.2f"
+	if len(format_) > 0 {
+		format = format_[0]
+	}
 	fmt.Print("shape:[")
 	for i := 0; i < len(t.Shape); i++ {
 		fmt.Print(t.Shape[i])
@@ -162,35 +166,35 @@ func (t *Tensor[T]) Print(format_ ...string) {
 			if i > 0 {
 				fmt.Print(" ")
 			}
-			fmt.Printf(format_[0], t.Data[i])
+			fmt.Printf(format, t.Data[i])
 		}
 		fmt.Println("]")
 	} else if len(t.Shape) == 2 {
-		fmt.Print("[")
+		fmt.Println("[")
 		for i := 0; i < t.Shape[0]; i++ {
 			fmt.Print(" [")
 			for j := 0; j < t.Shape[1]; j++ {
 				if j > 0 {
 					fmt.Print(" ")
 				}
-				fmt.Printf(format_[0], t.Data[i*t.Shape[1]+j])
+				fmt.Printf(format, t.Data[i*t.Shape[1]+j])
 			}
 
 			fmt.Print("]")
 			if i < t.Shape[0]-1 {
 				fmt.Print(",")
 			}
+			fmt.Println()
 		}
 		fmt.Println("]")
 	} else {
 		t.Range(len(t.Shape)-2, func(indices []int) {
 			start := t.LinearAt(indices)
-
 			fmt.Print("[", fmt.Sprint(indices), "]=")
 			m := NewTensor[T](t.Shape[len(t.Shape)-2:])
 			end := start + m.Len()
 			m.Data = t.Data[start:end]
-			m.Print(format_[0])
+			m.Print(format)
 		})
 	}
 }
@@ -255,6 +259,7 @@ func (t *Tensor[T]) Sum(dims []int) *Tensor[T] {
 		for i, j := 0, 0; i < len(t.Shape); i++ {
 			if sumMap[i] == 0 {
 				outputIndices[j] = indices[i]
+				j++
 			}
 		}
 
@@ -264,4 +269,37 @@ func (t *Tensor[T]) Sum(dims []int) *Tensor[T] {
 		result.Data[outputIdx] += t.Data[inputIdx]
 	})
 	return result
+}
+func (a *Tensor[T]) MatMulShape(b *Tensor[T]) (c []int) {
+	if len(a.Shape) < 2 || len(b.Shape) < 2 {
+		panic("TensorCPU dimensions do not match for multiplication")
+	}
+	if a.Shape[len(a.Shape)-1] != b.Shape[len(b.Shape)-2] {
+		panic("TensorCPU dimensions do not match for multiplication")
+	}
+	resultShape := make([]int, len(a.Shape))
+	copy(resultShape, a.Shape)
+	resultShape[len(resultShape)-1] = b.Shape[len(b.Shape)-1]
+	return resultShape
+}
+
+// MatMul 实现高维矩阵 Tensor 的矩阵乘法
+// 矩阵的最后两维满足:A矩阵的列数B矩阵的行数相等
+func (a *Tensor[T]) MatMul(b *Tensor[T]) (c *Tensor[T]) {
+	c = NewTensor[T](a.MatMulShape(b))
+	c.Range(len(c.Shape)-2, func(indices []int) {
+		aIdx := a.LinearAt(indices)
+		bIdx := b.LinearAt(indices)
+		cIdx := c.LinearAt(indices)
+
+		m, k, n := c.Shape[len(c.Shape)-2], a.Shape[len(a.Shape)-1], c.Shape[len(c.Shape)-1]
+		for i := 0; i < m; i++ {
+			for j := 0; j < n; j++ {
+				for x := 0; x < k; x++ {
+					c.Data[cIdx+i*n+j] += a.Data[aIdx+i*k+x] * b.Data[bIdx+x*n+j]
+				}
+			}
+		}
+	})
+	return c
 }
