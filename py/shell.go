@@ -59,6 +59,9 @@ func CalculateA_breturnC(scriptName string, op string, a []float32, shapeA []int
 		return
 	}
 	err = json.Unmarshal([]byte(outputLines[1]), &resultShape)
+	if len(resultShape) == 0 {
+		resultShape = []int{1}
+	}
 	return
 }
 

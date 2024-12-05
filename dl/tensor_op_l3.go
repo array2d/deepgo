@@ -101,3 +101,64 @@ func (t *Tensor[T]) Sum(dims []int) *Tensor[T] {
 	})
 	return result
 }
+
+func (t *Tensor[T]) OpTensorInPlace(other *Tensor[T], op func(a, b T) T) {
+	if Equal(t.Shape, other.Shape) {
+		t.Range(len(t.Shape), func(indices []int) {
+			t.Set(indices, op(t.Get(indices...), other.Get(indices...)))
+		})
+		return
+	}
+	broadcastShape := t.BroadcastShape(other.Shape)
+	if broadcastShape == nil {
+		panic("shapes are not broadcastable for inplace operation,my shape:" + fmt.Sprint(t.Shape) + " other shape:" + fmt.Sprint(other.Shape))
+	}
+	if !Equal(t.Shape, broadcastShape) {
+		panic("shapes are not broadcastable for inplace operation,my shape:" + fmt.Sprint(t.Shape) + " broadcastedShape:" + fmt.Sprint(broadcastShape))
+	}
+	otherMap := other.BroadcastMap(broadcastShape)
+	t.Range(len(t.Shape), func(indices []int) {
+		otherIndices := FromBroadcastIndices(otherMap, indices)
+		t.Set(indices, op(t.Get(indices...), other.Get(otherIndices...)))
+	})
+}
+
+func (t *Tensor[T]) OpNumberInPlace(other T, op func(a, b T) T) {
+	for i := 0; i < t.Len(); i++ {
+		t.Data[i] = op(t.Data[i], other)
+	}
+}
+
+func (t *Tensor[T]) AddInPlace(other *Tensor[T]) *Tensor[T] {
+	t.OpTensorInPlace(other, func(a, b T) T { return a + b })
+	return t
+}
+func (t *Tensor[T]) AddNumberInPlace(other T) *Tensor[T] {
+	t.OpNumberInPlace(other, func(a, b T) T { return a + b })
+	return t
+}
+
+func (t *Tensor[T]) SubInPlace(other *Tensor[T]) *Tensor[T] {
+	t.OpTensorInPlace(other, func(a, b T) T { return a - b })
+	return t
+}
+func (t *Tensor[T]) SubNumberInPlace(other T) *Tensor[T] {
+	t.OpNumberInPlace(other, func(a, b T) T { return a - b })
+	return t
+}
+func (t *Tensor[T]) MulInPlace(other *Tensor[T]) *Tensor[T] {
+	t.OpTensorInPlace(other, func(a, b T) T { return a * b })
+	return t
+}
+func (t *Tensor[T]) MulNumberInPlace(other T) *Tensor[T] {
+	t.OpNumberInPlace(other, func(a, b T) T { return a * b })
+	return t
+}
+func (t *Tensor[T]) DivInPlace(other *Tensor[T]) *Tensor[T] {
+	t.OpTensorInPlace(other, func(a, b T) T { return a / b })
+	return t
+}
+func (t *Tensor[T]) DivNumberInPlace(other T) *Tensor[T] {
+	t.OpNumberInPlace(other, func(a, b T) T { return a / b })
+	return t
+}

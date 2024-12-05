@@ -43,3 +43,10 @@ func Div[T Number](a, b []T) (c []T) {
 	}
 	return
 }
+
+func Max[T Number](a, b T) T {
+	if a > b {
+		return a
+	}
+	return b
+}
