@@ -70,6 +70,8 @@ func TestTensor_AddInPlace(t *testing.T) {
 	a.Linear(1, float64(a.Len()))
 	b := NewTensor[float32]([]int{3, 2, 3})
 	b.Linear(1, float64(b.Len()))
-	c := a.AddInPlace(b)
+	c := b.AddInPlace(a)
 	c.Print("%0.f")
+	d := b.SubInPlace(a)
+	d.Print("%0.f")
 }

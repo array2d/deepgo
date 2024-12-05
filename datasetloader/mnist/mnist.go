@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 
 	"git.array2d.com/ai/deepgo/dl"
-	"git.array2d.com/ai/deepgo/dl/math/array"
 )
 
 var TRAIN_MNIST = MNIST{
@@ -47,7 +46,7 @@ type MNIST struct {
 	Labels []byte
 }
 
-func (mnist MNIST) GetBatch(idx int, batchsize int) (input, labels []*dl.Tensor) {
+func (mnist MNIST) GetBatch(idx int, batchsize int) (input, labels []*dl.Tensor[uint8]) {
 	if idx+batchsize > len(mnist.Images) {
 		batchsize = len(mnist.Images) - idx
 	}
@@ -55,15 +54,15 @@ func (mnist MNIST) GetBatch(idx int, batchsize int) (input, labels []*dl.Tensor)
 	batchLabels := mnist.Labels[idx : idx+batchsize]
 
 	// 将图像和标签封装成dl.Tensor类型
-	input = make([]*dl.Tensor, len(batchImages))
+	input = make([]*dl.Tensor[uint8], len(batchImages))
 	for i, image := range batchImages {
-		t := dl.NewTensor([]int{mnist.ImageSize}, array.ToFloat32s(image)...)
+		t := dl.NewTensor([]int{mnist.ImageSize}, image...)
 		input[i] = t
 	}
 
-	labels = make([]*dl.Tensor, len(batchLabels))
+	labels = make([]*dl.Tensor[uint8], len(batchLabels))
 	for i, label := range batchLabels {
-		t := dl.NewTensor([]int{1}, float32(label))
+		t := dl.NewTensor([]int{1}, uint8(label))
 		labels[i] = t
 	}
 	return

@@ -6,12 +6,12 @@ import (
 	"git.array2d.com/ai/deepgo/dl"
 )
 
-func Dropout(dropRate float32, training bool) *ComputeGraphNode {
+func Dropout[T dl.Number](dropRate float32, training bool) (l *ComputeGraphNode[T]) {
 
-	l := NewNode(1, 1)
+	l = NewNode[T](1, 1)
 	l.SetAttr("dropRate", dropRate)
 	l.SetAttr("training", training)
-	var f f1_1 = func(id int, input *dl.Tensor) (output *dl.Tensor) {
+	var f f1_1[T] = func(id int, input *dl.Tensor[T]) (output *dl.Tensor[T]) {
 		if !l.Attr("training").(bool) {
 			return input
 		}
@@ -26,7 +26,7 @@ func Dropout(dropRate float32, training bool) *ComputeGraphNode {
 	}
 	l.forward[[2]int{1, 1}] = f
 
-	var b f1_1 = func(id int, outputGrad *dl.Tensor) (inputGrad *dl.Tensor) {
+	var b f1_1[T] = func(id int, outputGrad *dl.Tensor[T]) (inputGrad *dl.Tensor[T]) {
 		inputGrad = outputGrad
 		return
 	}
